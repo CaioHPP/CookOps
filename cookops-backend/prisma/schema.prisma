@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // ou mysql/sqlite
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  FUNCIONARIO
+}
+
+model Empresa {
+  id           String   @id @default(cuid())
+  nome         String
+  cnpj         String?
+  email        String?
+  telefone     String?
+  planoAtualId String
+  criadaEm     DateTime @default(now())
+
+  plano      Plano       @relation(fields: [planoAtualId], references: [id])
+  usuarios   Usuario[]
+  boards     Board[]
+  pedidos    Pedido[]
+  produtos   Produto[]
+  assinatura Assinatura?
+}
+
+model Usuario {
+  id        String @id @default(cuid())
+  empresaId String
+  nome      String
+  email     String @unique
+  senhaHash String
+  role      Role   @default(FUNCIONARIO)
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+}
+
+model Plano {
+  id               String  @id @default(cuid())
+  nome             String
+  limitePedidosMes Int
+  precoMensal      Float
+  ativo            Boolean @default(true)
+
+  empresas    Empresa[]
+  assinaturas Assinatura[]
+}
+
+model Assinatura {
+  id                   String    @id @default(cuid())
+  empresaId            String    @unique
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  periodoFim           DateTime?
+  planoId              String
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
+  plano   Plano   @relation(fields: [planoId], references: [id])
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  empresaId String
+  titulo    String
+  createdAt DateTime @default(now())
+
+  empresa Empresa        @relation(fields: [empresaId], references: [id])
+  listas  PedidoStatus[]
+}
+
+model PedidoStatus {
+  id      String @id @default(cuid())
+  boardId String
+  titulo  String
+  ordem   Int
+
+  board   Board    @relation(fields: [boardId], references: [id])
+  pedidos Pedido[] @relation("PedidoStatusAtual")
+
+  logsOrigem LogMovimentacao[] @relation("PedidoStatusOrigem")
+
+  logsDestino LogMovimentacao[] @relation("PedidoStatusDestino")
+}
+
+model Pedido {
+  id          String    @id @default(cuid())
+  statusId    String
+  empresaId   String
+  codigo      String    @unique
+  fonteId     String
+  pagamentoId String
+  enderecoId  String?
+  desconto    Float     @default(0)
+  taxaEntrega Float     @default(0)
+  valorTotal  Float
+  observacao  String?
+  criadoEm    DateTime  @default(now())
+  concluidoEm DateTime?
+
+  status    PedidoStatus      @relation("PedidoStatusAtual", fields: [statusId], references: [id])
+  empresa   Empresa           @relation(fields: [empresaId], references: [id])
+  itens     PedidoItem[]
+  pagamento FormaPagamento    @relation(fields: [pagamentoId], references: [id])
+  endereco  Endereco?         @relation(fields: [enderecoId], references: [id])
+  fonte     FontePedido       @relation(fields: [fonteId], references: [id])
+  logs      LogMovimentacao[]
+}
+
+model PedidoItem {
+  id            String  @id @default(cuid())
+  pedidoId      String
+  produtoId     String
+  quantidade    Int
+  precoUnitario Float
+  observacao    String?
+
+  pedido  Pedido  @relation(fields: [pedidoId], references: [id])
+  produto Produto @relation(fields: [produtoId], references: [id])
+}
+
+model Produto {
+  id        String  @id @default(cuid())
+  empresaId String
+  nome      String
+  descricao String?
+  precoBase Float
+  ativo     Boolean @default(true)
+
+  empresa     Empresa      @relation(fields: [empresaId], references: [id])
+  itensPedido PedidoItem[]
+}
+
+model FormaPagamento {
+  id   String @id @default(cuid())
+  nome String
+
+  pedidos Pedido[]
+}
+
+model FontePedido {
+  id             String  @id @default(cuid())
+  nome           String
+  tipoIntegracao String?
+
+  pedidos Pedido[]
+}
+
+model Endereco {
+  id          String  @id @default(cuid())
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  uf          String
+  cep         String?
+  referencia  String?
+
+  pedidos Pedido[]
+}
+
+model LogMovimentacao {
+  id               String   @id @default(cuid())
+  pedidoId         String
+  deStatusId       String?
+  paraStatusId     String
+  dataMovimentacao DateTime @default(now())
+
+  pedido     Pedido        @relation(fields: [pedidoId], references: [id])
+  deStatus   PedidoStatus? @relation("PedidoStatusOrigem", fields: [deStatusId], references: [id])
+  paraStatus PedidoStatus  @relation("PedidoStatusDestino", fields: [paraStatusId], references: [id])
+}
