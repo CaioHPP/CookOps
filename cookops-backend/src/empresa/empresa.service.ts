@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Empresa, Prisma } from '@prisma/client';
+import { Empresa } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateEmpresaDto } from './dto/create-empresa.dto';
+import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 
 @Injectable()
 export class EmpresaService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.EmpresaCreateInput): Promise<Empresa> {
+  create(data: CreateEmpresaDto): Promise<Empresa> {
     return this.prisma.empresa.create({ data });
   }
 
@@ -18,7 +20,7 @@ export class EmpresaService {
     return this.prisma.empresa.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.EmpresaUpdateInput): Promise<Empresa> {
+  update(id: string, data: UpdateEmpresaDto): Promise<Empresa> {
     return this.prisma.empresa.update({
       where: { id },
       data,

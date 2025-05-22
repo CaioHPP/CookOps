@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Endereco, Prisma } from '@prisma/client';
+import { Endereco } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateEnderecoDto } from './dto/create-endereco.dto';
+import { UpdateEnderecoDto } from './dto/update-endereco.dto';
 
 @Injectable()
 export class EnderecoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.EnderecoCreateInput): Promise<Endereco> {
+  create(data: CreateEnderecoDto): Promise<Endereco> {
     return this.prisma.endereco.create({ data });
   }
 
@@ -18,7 +20,7 @@ export class EnderecoService {
     return this.prisma.endereco.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.EnderecoUpdateInput): Promise<Endereco> {
+  update(id: string, data: UpdateEnderecoDto): Promise<Endereco> {
     return this.prisma.endereco.update({
       where: { id },
       data,

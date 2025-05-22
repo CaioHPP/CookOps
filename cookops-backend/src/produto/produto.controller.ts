@@ -8,7 +8,9 @@ import {
   Put,
 } from '@nestjs/common';
 
-import { Prisma, Produto } from '@prisma/client';
+import { Produto } from '@prisma/client';
+import { CreateProdutoDto } from './dto/create-produto.dto';
+import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { ProdutoService } from './produto.service';
 
 @Controller('produtos')
@@ -16,7 +18,7 @@ export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) {}
 
   @Post()
-  create(@Body() data: Prisma.ProdutoCreateInput) {
+  create(@Body() data: CreateProdutoDto) {
     return this.produtoService.create(data);
   }
   @Get()
@@ -28,7 +30,7 @@ export class ProdutoController {
     return this.produtoService.findOne(id);
   }
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.ProdutoUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateProdutoDto) {
     return this.produtoService.update(id, data);
   }
   @Delete(':id')

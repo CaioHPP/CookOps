@@ -7,15 +7,16 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { BoardService } from './board.service';
+import { CreateBoardDto } from './dto/create-board.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @Controller('boards')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
   @Post()
-  create(@Body() data: Prisma.BoardCreateInput) {
+  create(@Body() data: CreateBoardDto) {
     return this.boardService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class BoardController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.BoardUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateBoardDto) {
     return this.boardService.update(id, data);
   }
 

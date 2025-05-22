@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreateEmpresaDto } from './dto/create-empresa.dto';
+import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { EmpresaService } from './empresa.service';
 
 @Controller('empresas')
@@ -15,7 +16,7 @@ export class EmpresaController {
   constructor(private readonly empresaService: EmpresaService) {}
 
   @Post()
-  create(@Body() data: Prisma.EmpresaCreateInput) {
+  create(@Body() data: CreateEmpresaDto) {
     return this.empresaService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class EmpresaController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.EmpresaUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateEmpresaDto) {
     return this.empresaService.update(id, data);
   }
 

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Plano, Prisma } from '@prisma/client';
+import { Plano } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreatePlanoDto } from './dto/create-plano.dto';
+import { UpdatePlanoDto } from './dto/update-plano.dto';
 
 @Injectable()
 export class PlanoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.PlanoCreateInput): Promise<Plano> {
+  create(data: CreatePlanoDto): Promise<Plano> {
     return this.prisma.plano.create({ data });
   }
 
@@ -18,7 +20,7 @@ export class PlanoService {
     return this.prisma.plano.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.PlanoUpdateInput): Promise<Plano> {
+  update(id: string, data: UpdatePlanoDto): Promise<Plano> {
     return this.prisma.plano.update({
       where: { id },
       data,

@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { LogMovimentacao, Prisma } from '@prisma/client';
+import { LogMovimentacao } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateLogMovimentacaoDto } from './dto/create-logmovimentacao.dto';
+import { UpdateLogMovimentacaoDto } from './dto/update-logmovimentacao.dto';
 
 @Injectable()
 export class LogMovimentacaoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.LogMovimentacaoCreateInput): Promise<LogMovimentacao> {
+  create(data: CreateLogMovimentacaoDto): Promise<LogMovimentacao> {
     return this.prisma.logMovimentacao.create({ data });
   }
 
@@ -18,10 +20,7 @@ export class LogMovimentacaoService {
     return this.prisma.logMovimentacao.findUnique({ where: { id } });
   }
 
-  update(
-    id: string,
-    data: Prisma.LogMovimentacaoUpdateInput,
-  ): Promise<LogMovimentacao> {
+  update(id: string, data: UpdateLogMovimentacaoDto): Promise<LogMovimentacao> {
     return this.prisma.logMovimentacao.update({
       where: { id },
       data,

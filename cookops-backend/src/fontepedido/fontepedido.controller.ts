@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreateFontePedidoDto } from './dto/create-fontepedido.dto';
+import { UpdateFontePedidoDto } from './dto/update-fontepedido.dto';
 import { FontePedidoService } from './fontepedido.service';
 
 @Controller('fontepedidos')
@@ -15,7 +16,7 @@ export class FontePedidoController {
   constructor(private readonly fontePedidoService: FontePedidoService) {}
 
   @Post()
-  create(@Body() data: Prisma.FontePedidoCreateInput) {
+  create(@Body() data: CreateFontePedidoDto) {
     return this.fontePedidoService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class FontePedidoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.FontePedidoUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateFontePedidoDto) {
     return this.fontePedidoService.update(id, data);
   }
 

@@ -7,15 +7,16 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 import { AssinaturaService } from './assinatura.service';
+import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
+import { UpdateAssinaturaDto } from './dto/update-assinatura.dto';
 
 @Controller('assinaturas')
 export class AssinaturaController {
   constructor(private readonly assinaturaService: AssinaturaService) {}
 
   @Post()
-  create(@Body() data: Prisma.AssinaturaCreateInput) {
+  create(@Body() data: CreateAssinaturaDto) {
     return this.assinaturaService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class AssinaturaController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.AssinaturaUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateAssinaturaDto) {
     return this.assinaturaService.update(id, data);
   }
 

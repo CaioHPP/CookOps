@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreateEnderecoDto } from './dto/create-endereco.dto';
+import { UpdateEnderecoDto } from './dto/update-endereco.dto';
 import { EnderecoService } from './endereco.service';
 
 @Controller('enderecos')
@@ -15,7 +16,7 @@ export class EnderecoController {
   constructor(private readonly enderecoService: EnderecoService) {}
 
   @Post()
-  create(@Body() data: Prisma.EnderecoCreateInput) {
+  create(@Body() data: CreateEnderecoDto) {
     return this.enderecoService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class EnderecoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.EnderecoUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdateEnderecoDto) {
     return this.enderecoService.update(id, data);
   }
 

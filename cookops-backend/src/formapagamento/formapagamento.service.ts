@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { FormaPagamento, Prisma } from '@prisma/client';
+import { FormaPagamento } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateFormaPagamentoDto } from './dto/create-formapagamento.dto';
+import { UpdateFormaPagamentoDto } from './dto/update-formapagamento.dto';
 
 @Injectable()
 export class FormaPagamentoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.FormaPagamentoCreateInput): Promise<FormaPagamento> {
+  create(data: CreateFormaPagamentoDto): Promise<FormaPagamento> {
     return this.prisma.formaPagamento.create({ data });
   }
 
@@ -18,10 +20,7 @@ export class FormaPagamentoService {
     return this.prisma.formaPagamento.findUnique({ where: { id } });
   }
 
-  update(
-    id: string,
-    data: Prisma.FormaPagamentoUpdateInput,
-  ): Promise<FormaPagamento> {
+  update(id: string, data: UpdateFormaPagamentoDto): Promise<FormaPagamento> {
     return this.prisma.formaPagamento.update({
       where: { id },
       data,

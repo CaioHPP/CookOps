@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Assinatura, Prisma } from '@prisma/client';
+import { Assinatura } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreateAssinaturaDto } from './dto/create-assinatura.dto';
+import { UpdateAssinaturaDto } from './dto/update-assinatura.dto';
 
 @Injectable()
 export class AssinaturaService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.AssinaturaCreateInput): Promise<Assinatura> {
+  create(data: CreateAssinaturaDto): Promise<Assinatura> {
     return this.prisma.assinatura.create({ data });
   }
 
@@ -18,7 +20,7 @@ export class AssinaturaService {
     return this.prisma.assinatura.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.AssinaturaUpdateInput): Promise<Assinatura> {
+  update(id: string, data: UpdateAssinaturaDto): Promise<Assinatura> {
     return this.prisma.assinatura.update({
       where: { id },
       data,

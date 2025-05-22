@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreateFormaPagamentoDto } from './dto/create-formapagamento.dto';
+import { UpdateFormaPagamentoDto } from './dto/update-formapagamento.dto';
 import { FormaPagamentoService } from './formapagamento.service';
 
 @Controller('formapagamentos')
@@ -15,7 +16,7 @@ export class FormaPagamentoController {
   constructor(private readonly formaPagamentoService: FormaPagamentoService) {}
 
   @Post()
-  create(@Body() data: Prisma.FormaPagamentoCreateInput) {
+  create(@Body() data: CreateFormaPagamentoDto) {
     return this.formaPagamentoService.create(data);
   }
 
@@ -30,10 +31,7 @@ export class FormaPagamentoController {
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() data: Prisma.FormaPagamentoUpdateInput,
-  ) {
+  update(@Param('id') id: string, @Body() data: UpdateFormaPagamentoDto) {
     return this.formaPagamentoService.update(id, data);
   }
 

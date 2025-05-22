@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreateLogMovimentacaoDto } from './dto/create-logmovimentacao.dto';
+import { UpdateLogMovimentacaoDto } from './dto/update-logmovimentacao.dto';
 import { LogMovimentacaoService } from './logmovimentacao.service';
 
 @Controller('logmovimentacoes')
@@ -17,7 +18,7 @@ export class LogMovimentacaoController {
   ) {}
 
   @Post()
-  create(@Body() data: Prisma.LogMovimentacaoCreateInput) {
+  create(@Body() data: CreateLogMovimentacaoDto) {
     return this.logMovimentacaoService.create(data);
   }
 
@@ -32,10 +33,7 @@ export class LogMovimentacaoController {
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() data: Prisma.LogMovimentacaoUpdateInput,
-  ) {
+  update(@Param('id') id: string, @Body() data: UpdateLogMovimentacaoDto) {
     return this.logMovimentacaoService.update(id, data);
   }
 

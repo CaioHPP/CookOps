@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { PedidoItem, Prisma } from '@prisma/client';
+import { PedidoItem } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
+import { CreatePedidoItemDto } from './dto/create-pedidoitem.dto';
+import { UpdatePedidoItemDto } from './dto/update-pedidoitem.dto';
 
 @Injectable()
 export class PedidoItemService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: Prisma.PedidoItemCreateInput): Promise<PedidoItem> {
+  create(data: CreatePedidoItemDto): Promise<PedidoItem> {
     return this.prisma.pedidoItem.create({ data });
   }
 
@@ -18,7 +20,7 @@ export class PedidoItemService {
     return this.prisma.pedidoItem.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.PedidoItemUpdateInput): Promise<PedidoItem> {
+  update(id: string, data: UpdatePedidoItemDto): Promise<PedidoItem> {
     return this.prisma.pedidoItem.update({
       where: { id },
       data,

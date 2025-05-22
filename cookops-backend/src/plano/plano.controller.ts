@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreatePlanoDto } from './dto/create-plano.dto';
+import { UpdatePlanoDto } from './dto/update-plano.dto';
 import { PlanoService } from './plano.service';
 
 @Controller('planos')
@@ -15,7 +16,7 @@ export class PlanoController {
   constructor(private readonly planoService: PlanoService) {}
 
   @Post()
-  create(@Body() data: Prisma.PlanoCreateInput) {
+  create(@Body() data: CreatePlanoDto) {
     return this.planoService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class PlanoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.PlanoUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdatePlanoDto) {
     return this.planoService.update(id, data);
   }
 
