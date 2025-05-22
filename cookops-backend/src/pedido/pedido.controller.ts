@@ -38,4 +38,9 @@ export class PedidoController {
   remove(@Param('id') id: string) {
     return this.pedidoService.remove(id);
   }
+
+  @Get('empresa/:empresaId')
+  findByEmpresaId(@Param('empresaId') empresaId: string) {
+    return this.pedidoService.findByEmpresaId(empresaId);
+  }
 }

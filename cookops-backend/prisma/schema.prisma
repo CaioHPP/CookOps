@@ -156,8 +156,8 @@ model Endereco {
   numero      String
   complemento String?
   bairro      String
-  cidade      String
-  uf          String
+  cidade      String?
+  uf          String?
   cep         String?
   referencia  String?
 

@@ -11,7 +11,7 @@ export class PedidoService {
       data,
     });
   }
-  
+
   findAll(): Promise<Pedido[]> {
     return this.prisma.pedido.findMany();
   }
@@ -34,5 +34,9 @@ export class PedidoService {
       where: { id },
     });
   }
-
+  findByEmpresaId(empresaId: string): Promise<Pedido[]> {
+    return this.prisma.pedido.findMany({
+      where: { empresaId },
+    });
+  }
 }
