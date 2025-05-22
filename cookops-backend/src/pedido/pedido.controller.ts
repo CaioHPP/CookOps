@@ -7,7 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { CreatePedidoDto } from './dto/create-pedido.dto';
+import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { PedidoService } from './pedido.service';
 
 @Controller('pedidos')
@@ -15,7 +16,7 @@ export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) {}
 
   @Post()
-  create(@Body() data: Prisma.PedidoCreateInput) {
+  create(@Body() data: CreatePedidoDto) {
     return this.pedidoService.create(data);
   }
 
@@ -30,7 +31,7 @@ export class PedidoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.PedidoUpdateInput) {
+  update(@Param('id') id: string, @Body() data: UpdatePedidoDto) {
     return this.pedidoService.update(id, data);
   }
 
