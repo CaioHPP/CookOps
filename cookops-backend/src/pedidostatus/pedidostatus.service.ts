@@ -9,7 +9,13 @@ export class PedidoStatusService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreatePedidoStatusDto): Promise<PedidoStatus> {
-    return this.prisma.pedidoStatus.create({ data });
+    const { boardId, ...rest } = data;
+    return this.prisma.pedidoStatus.create({
+      data: {
+        ...rest,
+        board: { connect: { id: boardId } },
+      },
+    });
   }
 
   findAll(): Promise<PedidoStatus[]> {
@@ -21,15 +27,26 @@ export class PedidoStatusService {
   }
 
   update(id: string, data: UpdatePedidoStatusDto): Promise<PedidoStatus> {
+    const { boardId, ...rest } = data;
     return this.prisma.pedidoStatus.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(boardId && { board: { connect: { id: boardId } } }),
+      },
     });
   }
 
   remove(id: string): Promise<PedidoStatus> {
     return this.prisma.pedidoStatus.delete({
       where: { id },
+    });
+  }
+
+  findByBoardId(boardId: string): Promise<PedidoStatus[]> {
+    return this.prisma.pedidoStatus.findMany({
+      where: { boardId },
+      orderBy: { ordem: 'asc' },
     });
   }
 }

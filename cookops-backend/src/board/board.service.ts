@@ -9,7 +9,13 @@ export class BoardService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateBoardDto): Promise<Board> {
-    return this.prisma.board.create({ data });
+    const { empresaId, ...rest } = data;
+    return this.prisma.board.create({
+      data: {
+        ...rest,
+        empresa: { connect: { id: empresaId } },
+      },
+    });
   }
 
   findAll(): Promise<Board[]> {
@@ -21,9 +27,13 @@ export class BoardService {
   }
 
   update(id: string, data: UpdateBoardDto): Promise<Board> {
+    const { empresaId, ...rest } = data;
     return this.prisma.board.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(empresaId && { empresa: { connect: { id: empresaId } } }),
+      },
     });
   }
 

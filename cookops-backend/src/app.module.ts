@@ -12,6 +12,7 @@ import { PedidoStatusModule } from './pedidostatus/pedidostatus.module';
 import { PlanoModule } from './plano/plano.module';
 import { PrismaModule } from './prisma.module';
 import { UsuarioModule } from './usuario/usuario.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UsuarioModule } from './usuario/usuario.module';
     LogMovimentacaoModule,
     PedidoStatusModule,
     AssinaturaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

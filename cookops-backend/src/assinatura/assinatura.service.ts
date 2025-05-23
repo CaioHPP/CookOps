@@ -9,7 +9,14 @@ export class AssinaturaService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateAssinaturaDto): Promise<Assinatura> {
-    return this.prisma.assinatura.create({ data });
+    const { empresaId, planoId, ...rest } = data;
+    return this.prisma.assinatura.create({
+      data: {
+        ...rest,
+        empresa: { connect: { id: empresaId } },
+        plano: { connect: { id: planoId } },
+      },
+    });
   }
 
   findAll(): Promise<Assinatura[]> {
@@ -21,9 +28,14 @@ export class AssinaturaService {
   }
 
   update(id: string, data: UpdateAssinaturaDto): Promise<Assinatura> {
+    const { empresaId, planoId, ...rest } = data;
     return this.prisma.assinatura.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(empresaId && { empresa: { connect: { id: empresaId } } }),
+        ...(planoId && { plano: { connect: { id: planoId } } }),
+      },
     });
   }
 

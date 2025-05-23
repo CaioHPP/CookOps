@@ -9,7 +9,14 @@ export class PedidoItemService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreatePedidoItemDto): Promise<PedidoItem> {
-    return this.prisma.pedidoItem.create({ data });
+    const { pedidoId, produtoId, ...rest } = data;
+    return this.prisma.pedidoItem.create({
+      data: {
+        ...rest,
+        pedido: { connect: { id: pedidoId } },
+        produto: { connect: { id: produtoId } },
+      },
+    });
   }
 
   findAll(): Promise<PedidoItem[]> {
@@ -21,9 +28,14 @@ export class PedidoItemService {
   }
 
   update(id: string, data: UpdatePedidoItemDto): Promise<PedidoItem> {
+    const { pedidoId, produtoId, ...rest } = data;
     return this.prisma.pedidoItem.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(pedidoId && { pedido: { connect: { id: pedidoId } } }),
+        ...(produtoId && { produto: { connect: { id: produtoId } } }),
+      },
     });
   }
 

@@ -9,8 +9,12 @@ export class ProdutoService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateProdutoDto): Promise<Produto> {
+    const { empresaId, ...rest } = data;
     return this.prisma.produto.create({
-      data,
+      data: {
+        ...rest,
+        empresa: { connect: { id: empresaId } },
+      },
     });
   }
 
@@ -25,9 +29,13 @@ export class ProdutoService {
   }
 
   update(id: string, data: UpdateProdutoDto): Promise<Produto> {
+    const { empresaId, ...rest } = data;
     return this.prisma.produto.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(empresaId && { empresa: { connect: { id: empresaId } } }),
+      },
     });
   }
 

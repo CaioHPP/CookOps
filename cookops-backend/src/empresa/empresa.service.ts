@@ -9,7 +9,13 @@ export class EmpresaService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateEmpresaDto): Promise<Empresa> {
-    return this.prisma.empresa.create({ data });
+    const { planoAtualId, ...rest } = data;
+    return this.prisma.empresa.create({
+      data: {
+        ...rest,
+        plano: { connect: { id: planoAtualId } },
+      },
+    });
   }
 
   findAll(): Promise<Empresa[]> {
@@ -21,9 +27,13 @@ export class EmpresaService {
   }
 
   update(id: string, data: UpdateEmpresaDto): Promise<Empresa> {
+    const { planoAtualId, ...rest } = data;
     return this.prisma.empresa.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(planoAtualId && { plano: { connect: { id: planoAtualId } } }),
+      },
     });
   }
 

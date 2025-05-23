@@ -9,7 +9,15 @@ export class LogMovimentacaoService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateLogMovimentacaoDto): Promise<LogMovimentacao> {
-    return this.prisma.logMovimentacao.create({ data });
+    const { pedidoId, deStatusId, paraStatusId, ...rest } = data;
+    return this.prisma.logMovimentacao.create({
+      data: {
+        ...rest,
+        pedido: { connect: { id: pedidoId } },
+        ...(deStatusId && { deStatus: { connect: { id: deStatusId } } }),
+        paraStatus: { connect: { id: paraStatusId } },
+      },
+    });
   }
 
   findAll(): Promise<LogMovimentacao[]> {
@@ -21,9 +29,15 @@ export class LogMovimentacaoService {
   }
 
   update(id: string, data: UpdateLogMovimentacaoDto): Promise<LogMovimentacao> {
+    const { pedidoId, deStatusId, paraStatusId, ...rest } = data;
     return this.prisma.logMovimentacao.update({
       where: { id },
-      data,
+      data: {
+        ...rest,
+        ...(pedidoId && { pedido: { connect: { id: pedidoId } } }),
+        ...(deStatusId && { deStatus: { connect: { id: deStatusId } } }),
+        ...(paraStatusId && { paraStatus: { connect: { id: paraStatusId } } }),
+      },
     });
   }
 
