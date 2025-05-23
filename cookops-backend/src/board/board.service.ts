@@ -8,11 +8,10 @@ import { UpdateBoardDto } from './dto/update-board.dto';
 export class BoardService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateBoardDto): Promise<Board> {
-    const { empresaId, ...rest } = data;
+  create(data: CreateBoardDto, empresaId: string): Promise<Board> {
     return this.prisma.board.create({
       data: {
-        ...rest,
+        ...data,
         empresa: { connect: { id: empresaId } },
       },
     });
@@ -26,12 +25,11 @@ export class BoardService {
     return this.prisma.board.findUnique({ where: { id } });
   }
 
-  update(id: string, data: UpdateBoardDto): Promise<Board> {
-    const { empresaId, ...rest } = data;
+  update(id: string, data: UpdateBoardDto, empresaId: string): Promise<Board> {
     return this.prisma.board.update({
       where: { id },
       data: {
-        ...rest,
+        ...data,
         ...(empresaId && { empresa: { connect: { id: empresaId } } }),
       },
     });

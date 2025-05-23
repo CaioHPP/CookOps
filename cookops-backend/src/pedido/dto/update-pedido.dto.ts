@@ -36,10 +36,6 @@ export class UpdatePedidoDto {
 
   @IsOptional()
   @IsString()
-  empresaId?: string;
-
-  @IsOptional()
-  @IsString()
   codigo?: string;
 
   @IsOptional()

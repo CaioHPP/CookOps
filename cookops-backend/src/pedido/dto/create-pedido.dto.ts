@@ -33,10 +33,6 @@ export class CreatePedidoDto {
 
   @IsNotEmpty()
   @IsString()
-  empresaId: string;
-
-  @IsNotEmpty()
-  @IsString()
   codigo: string;
 
   @IsNotEmpty()

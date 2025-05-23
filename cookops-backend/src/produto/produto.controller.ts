@@ -28,8 +28,7 @@ export class ProdutoController {
     @Body() data: CreateProdutoDto,
   ) {
     const empresaId = req.user.empresaId;
-    // ...empresaId disponível para uso futuro...
-    return this.produtoService.create(data);
+    return this.produtoService.create(data, empresaId);
   }
 
   @Get()
@@ -56,7 +55,7 @@ export class ProdutoController {
     @Body() data: UpdateProdutoDto,
   ) {
     const empresaId = req.user.empresaId;
-    return this.produtoService.update(id, data);
+    return this.produtoService.update(id, data, empresaId);
   }
 
   @Delete(':id')
@@ -71,9 +70,8 @@ export class ProdutoController {
   @Get('empresa/:empresaId')
   findByEmpresaId(
     @Request() req: { user: { empresaId: string } },
-    @Param('empresaId') empresaIdParam: string,
   ): Promise<Produto[]> {
     const empresaId = req.user.empresaId;
-    return this.produtoService.findByEmpresaId(empresaIdParam);
+    return this.produtoService.findByEmpresaId(empresaId);
   }
 }

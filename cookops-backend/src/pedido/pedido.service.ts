@@ -8,17 +8,9 @@ import { UpdatePedidoDto } from './dto/update-pedido.dto';
 export class PedidoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreatePedidoDto): Promise<Pedido> {
+  create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
     // Remove scalar foreign keys from data before spreading
-    const {
-      empresaId,
-      statusId,
-      pagamentoId,
-      fonteId,
-      enderecoId,
-      itens,
-      ...rest
-    } = data;
+    const { statusId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
 
     return this.prisma.pedido.create({
       data: {
@@ -52,17 +44,13 @@ export class PedidoService {
     });
   }
 
-  update(id: string, data: UpdatePedidoDto): Promise<Pedido> {
+  update(
+    id: string,
+    data: UpdatePedidoDto,
+    empresaId: string,
+  ): Promise<Pedido> {
     // Remove scalar foreign keys from data before spreading
-    const {
-      empresaId,
-      statusId,
-      pagamentoId,
-      fonteId,
-      enderecoId,
-      itens,
-      ...rest
-    } = data;
+    const { statusId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
 
     return this.prisma.pedido.update({
       where: { id },

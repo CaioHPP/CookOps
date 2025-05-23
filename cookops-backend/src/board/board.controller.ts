@@ -26,8 +26,7 @@ export class BoardController {
     @Body() data: CreateBoardDto,
   ) {
     const empresaId = req.user.empresaId;
-    // ...empresaId disponível para uso futuro...
-    return this.boardService.create(data);
+    return this.boardService.create(data, empresaId);
   }
 
   @Get()
@@ -54,7 +53,7 @@ export class BoardController {
     @Body() data: UpdateBoardDto,
   ) {
     const empresaId = req.user.empresaId;
-    return this.boardService.update(id, data);
+    return this.boardService.update(id, data, empresaId);
   }
 
   @Delete(':id')
@@ -66,12 +65,9 @@ export class BoardController {
     return this.boardService.remove(id);
   }
 
-  @Get('empresa/:empresaId')
-  findByEmpresaId(
-    @Request() req: { user: { empresaId: string } },
-    @Param('empresaId') empresaIdParam: string,
-  ) {
+  @Get('empresa/')
+  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
     const empresaId = req.user.empresaId;
-    return this.boardService.findByEmpresaId(empresaIdParam);
+    return this.boardService.findByEmpresaId(empresaId);
   }
 }

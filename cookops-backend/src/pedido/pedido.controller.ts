@@ -27,7 +27,7 @@ export class PedidoController {
   ) {
     const empresaId = req.user.empresaId;
     // ...empresaId disponível para uso futuro...
-    return this.pedidoService.create(data);
+    return this.pedidoService.create(data, empresaId);
   }
 
   @Get()
@@ -54,7 +54,7 @@ export class PedidoController {
     @Body() data: UpdatePedidoDto,
   ) {
     const empresaId = req.user.empresaId;
-    return this.pedidoService.update(id, data);
+    return this.pedidoService.update(id, data, empresaId);
   }
 
   @Delete(':id')
@@ -66,12 +66,9 @@ export class PedidoController {
     return this.pedidoService.remove(id);
   }
 
-  @Get('empresa/:empresaId')
-  findByEmpresaId(
-    @Request() req: { user: { empresaId: string } },
-    @Param('empresaId') empresaIdParam: string,
-  ) {
+  @Get('empresa/')
+  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
     const empresaId = req.user.empresaId;
-    return this.pedidoService.findByEmpresaId(empresaIdParam);
+    return this.pedidoService.findByEmpresaId(empresaId);
   }
 }

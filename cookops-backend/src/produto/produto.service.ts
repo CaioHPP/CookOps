@@ -8,11 +8,10 @@ import { UpdateProdutoDto } from './dto/update-produto.dto';
 export class ProdutoService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateProdutoDto): Promise<Produto> {
-    const { empresaId, ...rest } = data;
+  create(data: CreateProdutoDto, empresaId: string): Promise<Produto> {
     return this.prisma.produto.create({
       data: {
-        ...rest,
+        ...data,
         empresa: { connect: { id: empresaId } },
       },
     });
@@ -28,12 +27,15 @@ export class ProdutoService {
     });
   }
 
-  update(id: string, data: UpdateProdutoDto): Promise<Produto> {
-    const { empresaId, ...rest } = data;
+  update(
+    id: string,
+    data: UpdateProdutoDto,
+    empresaId: string,
+  ): Promise<Produto> {
     return this.prisma.produto.update({
       where: { id },
       data: {
-        ...rest,
+        ...data,
         ...(empresaId && { empresa: { connect: { id: empresaId } } }),
       },
     });

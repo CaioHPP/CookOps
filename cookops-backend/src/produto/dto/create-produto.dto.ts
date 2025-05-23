@@ -21,8 +21,4 @@ export class CreateProdutoDto {
   @IsBoolean()
   @IsOptional()
   ativo?: boolean;
-
-  @IsNotEmpty()
-  @IsString()
-  empresaId: string;
 }
