@@ -74,4 +74,18 @@ export class PedidoStatusController {
     const empresaId = req.user.empresaId;
     return this.pedidoStatusService.findByBoardId(id);
   }
+
+  @Get('pedidos/:boardId')
+  findAllWithPedidos(
+    @Request() req: { user: { empresaId: string; role: string } },
+    @Param('boardId') boardId: string,
+  ) {
+    const empresaId = req.user.empresaId;
+    const role = req.user.role;
+    return this.pedidoStatusService.findAllWithPedidos(
+      empresaId,
+      boardId,
+      role,
+    );
+  }
 }

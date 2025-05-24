@@ -1,12 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PedidoStatus } from '@prisma/client';
+import { BoardService } from 'src/board/board.service';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoStatusDto } from './dto/create-pedidostatus.dto';
 import { UpdatePedidoStatusDto } from './dto/update-pedidostatus.dto';
 
 @Injectable()
 export class PedidoStatusService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private boardService: BoardService,
+  ) {}
 
   create(data: CreatePedidoStatusDto): Promise<PedidoStatus> {
     const { boardId, ...rest } = data;
@@ -48,5 +52,38 @@ export class PedidoStatusService {
       where: { boardId },
       orderBy: { ordem: 'asc' },
     });
+  }
+
+  async findAllWithPedidos(empresaId: string, boardId?: string, role?: string) {
+    if (!boardId) {
+      const boards = await this.boardService.findByEmpresaId(empresaId);
+      if (!boards || boards.length === 0)
+        throw new NotFoundException('Board não encontrado');
+      boardId = boards[0].id;
+    } else {
+      const board = await this.boardService.findOne(boardId);
+
+      if (!board) throw new NotFoundException('Board não encontrado');
+      if (board.empresaId !== empresaId && role !== 'ADMIN') {
+        throw new NotFoundException('Board não encontrado');
+      }
+    }
+
+    const statusList = await this.prisma.pedidoStatus.findMany({
+      where: { boardId: boardId },
+      orderBy: { ordem: 'asc' },
+      include: {
+        pedidos: {
+          orderBy: { criadoEm: 'asc' },
+        },
+      },
+    });
+
+    return statusList.map((status) => ({
+      statusId: status.id,
+      titulo: status.titulo,
+      ordem: status.ordem,
+      pedidos: status.pedidos,
+    }));
   }
 }
