@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Usuario } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
@@ -25,13 +25,22 @@ export class UsuarioService {
     return this.prisma.usuario.findMany();
   }
 
-  findOne(id: string): Promise<Usuario | null> {
-    return this.prisma.usuario.findUnique({ where: { id } });
+  async findOne(id: string): Promise<Usuario> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id } });
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return usuario;
   }
 
-  findByEmail(email: string): Promise<Usuario | null> {
-    return this.prisma.usuario.findUnique({ where: { email } });
+  async findByEmail(email: string): Promise<Usuario> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { email } });
+    if (!usuario) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return usuario;
   }
+
   findByEmpresaId(empresaId: string): Promise<Usuario[]> {
     return this.prisma.usuario.findMany({
       where: { empresaId },

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Pedido } from '@prisma/client';
 import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
@@ -80,8 +80,8 @@ export class PedidoService {
     });
   }
 
-  findOne(id: string): Promise<Pedido | null> {
-    return this.prisma.pedido.findUnique({
+  async findOne(id: string): Promise<Pedido> {
+    const pedido = await this.prisma.pedido.findUnique({
       where: { id },
       include: {
         status: true,
@@ -95,6 +95,10 @@ export class PedidoService {
         },
       },
     });
+    if (!pedido) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+    return pedido;
   }
 
   update(
@@ -178,10 +182,10 @@ export class PedidoService {
     });
 
     if (!pedido) {
-      throw new Error('Pedido não encontrado');
+      throw new NotFoundException('Pedido não encontrado');
     }
     if (pedido.status.board.empresaId !== empresaId) {
-      throw new Error('Empresa não autorizada a mover este pedido');
+      throw new NotFoundException('Empresa não autorizada a mover este pedido');
     }
     const deStatusId = pedido.status.id;
 
@@ -191,7 +195,7 @@ export class PedidoService {
     );
 
     if (!paraStatus) {
-      throw new Error(
+      throw new NotFoundException(
         'Status de destino não encontrado para a ordem fornecida',
       );
     }

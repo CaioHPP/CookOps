@@ -63,7 +63,6 @@ export class BoardController {
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
   ) {
-    const empresaId = req.user.empresaId;
     return this.boardService.findOne(id);
   }
 

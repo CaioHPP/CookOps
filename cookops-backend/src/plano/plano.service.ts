@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Plano } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreatePlanoDto } from './dto/create-plano.dto';
@@ -16,8 +16,12 @@ export class PlanoService {
     return this.prisma.plano.findMany();
   }
 
-  findOne(id: number): Promise<Plano | null> {
-    return this.prisma.plano.findUnique({ where: { id } });
+  async findOne(id: number): Promise<Plano> {
+    const plano = await this.prisma.plano.findUnique({ where: { id } });
+    if (!plano) {
+      throw new NotFoundException('Plano não encontrado');
+    }
+    return plano;
   }
 
   update(id: number, data: UpdatePlanoDto): Promise<Plano> {

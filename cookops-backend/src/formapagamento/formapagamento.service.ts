@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FormaPagamento } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateFormaPagamentoDto } from './dto/create-formapagamento.dto';
@@ -16,8 +16,14 @@ export class FormaPagamentoService {
     return this.prisma.formaPagamento.findMany();
   }
 
-  findOne(id: number): Promise<FormaPagamento | null> {
-    return this.prisma.formaPagamento.findUnique({ where: { id } });
+  async findOne(id: number): Promise<FormaPagamento> {
+    const forma = await this.prisma.formaPagamento.findUnique({
+      where: { id },
+    });
+    if (!forma) {
+      throw new NotFoundException('Forma de pagamento não encontrada');
+    }
+    return forma;
   }
 
   update(id: number, data: UpdateFormaPagamentoDto): Promise<FormaPagamento> {

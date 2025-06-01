@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Endereco } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateEnderecoDto } from './dto/create-endereco.dto';
@@ -16,8 +16,12 @@ export class EnderecoService {
     return this.prisma.endereco.findMany();
   }
 
-  findOne(id: string): Promise<Endereco | null> {
-    return this.prisma.endereco.findUnique({ where: { id } });
+  async findOne(id: string): Promise<Endereco> {
+    const endereco = await this.prisma.endereco.findUnique({ where: { id } });
+    if (!endereco) {
+      throw new NotFoundException('Endereço não encontrado');
+    }
+    return endereco;
   }
 
   update(id: string, data: UpdateEnderecoDto): Promise<Endereco> {

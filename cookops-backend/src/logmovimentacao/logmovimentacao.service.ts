@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { LogMovimentacao } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateLogMovimentacaoDto } from './dto/create-logmovimentacao.dto';
@@ -24,8 +24,12 @@ export class LogMovimentacaoService {
     return this.prisma.logMovimentacao.findMany();
   }
 
-  findOne(id: string): Promise<LogMovimentacao | null> {
-    return this.prisma.logMovimentacao.findUnique({ where: { id } });
+  async findOne(id: string): Promise<LogMovimentacao> {
+    const log = await this.prisma.logMovimentacao.findUnique({ where: { id } });
+    if (!log) {
+      throw new NotFoundException('Log de movimentação não encontrado');
+    }
+    return log;
   }
 
   update(id: string, data: UpdateLogMovimentacaoDto): Promise<LogMovimentacao> {

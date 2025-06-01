@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FontePedido } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateFontePedidoDto } from './dto/create-fontepedido.dto';
@@ -16,8 +16,12 @@ export class FontePedidoService {
     return this.prisma.fontePedido.findMany();
   }
 
-  findOne(id: number): Promise<FontePedido | null> {
-    return this.prisma.fontePedido.findUnique({ where: { id } });
+  async findOne(id: number): Promise<FontePedido> {
+    const fonte = await this.prisma.fontePedido.findUnique({ where: { id } });
+    if (!fonte) {
+      throw new NotFoundException('Fonte de pedido não encontrada');
+    }
+    return fonte;
   }
 
   update(id: number, data: UpdateFontePedidoDto): Promise<FontePedido> {

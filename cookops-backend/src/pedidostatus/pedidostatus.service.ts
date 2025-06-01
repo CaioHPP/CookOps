@@ -26,8 +26,12 @@ export class PedidoStatusService {
     return this.prisma.pedidoStatus.findMany();
   }
 
-  findOne(id: number): Promise<PedidoStatus | null> {
-    return this.prisma.pedidoStatus.findUnique({ where: { id } });
+  async findOne(id: number): Promise<PedidoStatus> {
+    const status = await this.prisma.pedidoStatus.findUnique({ where: { id } });
+    if (!status) {
+      throw new NotFoundException('Status de pedido não encontrado');
+    }
+    return status;
   }
 
   update(id: number, data: UpdatePedidoStatusDto): Promise<PedidoStatus> {
@@ -54,11 +58,17 @@ export class PedidoStatusService {
     });
   }
 
-  findFirstByBoardId(boardId: string): Promise<PedidoStatus | null> {
-    return this.prisma.pedidoStatus.findFirst({
+  async findFirstByBoardId(boardId: string): Promise<PedidoStatus> {
+    const status = await this.prisma.pedidoStatus.findFirst({
       where: { boardId },
       orderBy: { ordem: 'asc' },
     });
+    if (!status) {
+      throw new NotFoundException(
+        'Status não encontrado para o boardId fornecido',
+      );
+    }
+    return status;
   }
 
   async findAllWithPedidos(empresaId: string, boardId?: string, role?: string) {
@@ -94,15 +104,18 @@ export class PedidoStatusService {
     }));
   }
 
-  async findByOrdem(
-    boardId: string,
-    ordem: number,
-  ): Promise<PedidoStatus | null> {
-    return this.prisma.pedidoStatus.findFirst({
+  async findByOrdem(boardId: string, ordem: number): Promise<PedidoStatus> {
+    const status = await this.prisma.pedidoStatus.findFirst({
       where: {
         boardId: boardId,
         ordem: ordem,
       },
     });
+    if (!status) {
+      throw new NotFoundException(
+        'Status não encontrado para a ordem fornecida',
+      );
+    }
+    return status;
   }
 }

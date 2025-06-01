@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Empresa } from '@prisma/client';
 import { BoardService } from 'src/board/board.service';
+import { FormaPagamentoService } from 'src/formapagamento/formapagamento.service';
 import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
@@ -12,6 +13,7 @@ export class EmpresaService {
     private prisma: PrismaService,
     private boardService: BoardService,
     private pedidoStatusService: PedidoStatusService,
+    private formaPagamentoService: FormaPagamentoService,
   ) {}
 
   async create(data: CreateEmpresaDto): Promise<Empresa> {
@@ -49,6 +51,19 @@ export class EmpresaService {
       ),
     );
 
+    await this.formaPagamentoService.create({
+      empresaId: empresa.id,
+      nome: 'Dinheiro',
+    });
+    await this.formaPagamentoService.create({
+      empresaId: empresa.id,
+      nome: 'Cartão de Crédito',
+    });
+    await this.formaPagamentoService.create({
+      empresaId: empresa.id,
+      nome: 'Cartão de Débito',
+    });
+
     return empresa;
   }
 
@@ -56,8 +71,12 @@ export class EmpresaService {
     return this.prisma.empresa.findMany();
   }
 
-  findOne(id: string): Promise<Empresa | null> {
-    return this.prisma.empresa.findUnique({ where: { id } });
+  async findOne(id: string): Promise<Empresa> {
+    const empresa = await this.prisma.empresa.findUnique({ where: { id } });
+    if (!empresa) {
+      throw new NotFoundException('Empresa não encontrada');
+    }
+    return empresa;
   }
 
   update(id: string, data: UpdateEmpresaDto): Promise<Empresa> {

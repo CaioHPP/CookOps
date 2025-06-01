@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PedidoItem } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoItemDto } from './dto/create-pedidoitem.dto';
@@ -23,8 +23,12 @@ export class PedidoItemService {
     return this.prisma.pedidoItem.findMany();
   }
 
-  findOne(id: string): Promise<PedidoItem | null> {
-    return this.prisma.pedidoItem.findUnique({ where: { id } });
+  async findOne(id: string): Promise<PedidoItem> {
+    const item = await this.prisma.pedidoItem.findUnique({ where: { id } });
+    if (!item) {
+      throw new NotFoundException('Item do pedido não encontrado');
+    }
+    return item;
   }
 
   update(id: string, data: UpdatePedidoItemDto): Promise<PedidoItem> {
