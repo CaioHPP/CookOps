@@ -1,20 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { Pedido } from '@prisma/client';
+import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 
 @Injectable()
 export class PedidoService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly pedidoStatusService: PedidoStatusService, // Importando o serviço de status de pedido
+  ) {}
 
-  create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
+  async create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
     // Remove scalar foreign keys from data before spreading
-    const { statusId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
+    const { boardId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
+
+    const ultimoPedidoHoje = await this.prisma.pedido.count({
+      where: {
+        empresaId,
+        criadoEm: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)), // Início do dia
+        },
+      },
+    });
+
+    const codigo = `#${(ultimoPedidoHoje + 1).toString().padStart(3, '0')}`;
+
+    const status = await this.pedidoStatusService.findFirstByBoardId(boardId);
+    if (!status) {
+      throw new Error('Status não encontrado para o boardId fornecido');
+    }
+    const statusId = status.id;
 
     return this.prisma.pedido.create({
       data: {
         ...rest,
+        codigo,
         itens: {
           create: itens?.map((item) => ({
             produto: { connect: { id: item.produtoId } },
@@ -95,5 +117,47 @@ export class PedidoService {
     return this.prisma.pedido.findMany({
       where: { empresaId },
     });
+  }
+
+  async moverPedido(
+    id: string,
+    paraStatusId: string,
+    empresaId: string,
+  ): Promise<Pedido> {
+    const pedido = await this.prisma.pedido.findUnique({
+      where: { id },
+      include: {
+        status: {
+          include: {
+            board: true,
+          },
+        },
+      },
+    });
+
+    if (!pedido) {
+      throw new Error('Pedido não encontrado');
+    }
+    if (pedido.status.board.empresaId !== empresaId) {
+      throw new Error('Empresa não autorizada a mover este pedido');
+    }
+    const deStatusId = pedido.status.id;
+
+    const updated = await this.prisma.pedido.update({
+      where: { id },
+      data: {
+        status: { connect: { id: paraStatusId } },
+      },
+    });
+
+    await this.prisma.logMovimentacao.create({
+      data: {
+        pedidoId: id,
+        deStatusId,
+        paraStatusId,
+      },
+    });
+
+    return updated;
   }
 }

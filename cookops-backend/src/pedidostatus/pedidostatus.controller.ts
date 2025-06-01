@@ -10,17 +10,31 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { CreatePedidoStatusDto } from './dto/create-pedidostatus.dto';
 import { UpdatePedidoStatusDto } from './dto/update-pedidostatus.dto';
 import { PedidoStatusService } from './pedidostatus.service';
 
+@ApiTags('PedidoStatus')
+@ApiBearerAuth()
 @Controller('pedidostatus')
 @UseGuards(JwtAuthGuard)
 export class PedidoStatusController {
   constructor(private readonly pedidoStatusService: PedidoStatusService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Criar um novo status de pedido' })
+  @ApiBody({
+    type: CreatePedidoStatusDto,
+    description: 'Dados do status de pedido a ser criado',
+  })
   create(
     @Request() req: { user: { empresaId: string } },
     @Body() data: CreatePedidoStatusDto,
@@ -31,6 +45,7 @@ export class PedidoStatusController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Listar todos os status de pedido (apenas ADMIN)' })
   findAll(@Request() req: { user: { role: string; empresaId: string } }) {
     const empresaId = req.user.empresaId;
     if (req.user.role !== 'ADMIN')
@@ -39,6 +54,8 @@ export class PedidoStatusController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um status de pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do status de pedido' })
   findOne(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -48,6 +65,12 @@ export class PedidoStatusController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualizar um status de pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do status de pedido' })
+  @ApiBody({
+    type: UpdatePedidoStatusDto,
+    description: 'Dados para atualização do status de pedido',
+  })
   update(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -58,6 +81,8 @@ export class PedidoStatusController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remover um status de pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do status de pedido' })
   remove(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -67,6 +92,8 @@ export class PedidoStatusController {
   }
 
   @Get('board/:id')
+  @ApiOperation({ summary: 'Listar status de pedido por board' })
+  @ApiParam({ name: 'id', description: 'ID do board' })
   findByBoardId(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -76,6 +103,10 @@ export class PedidoStatusController {
   }
 
   @Get('pedidos/:boardId')
+  @ApiOperation({
+    summary: 'Listar todos os status de pedido com pedidos por board',
+  })
+  @ApiParam({ name: 'boardId', description: 'ID do board' })
   findAllWithPedidos(
     @Request() req: { user: { empresaId: string; role: string } },
     @Param('boardId') boardId: string,

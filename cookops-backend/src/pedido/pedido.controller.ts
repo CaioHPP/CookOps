@@ -10,17 +10,29 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { PedidoService } from './pedido.service';
 
 @Controller('pedidos')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) {}
 
   @Post()
+  @ApiBody({
+    type: CreatePedidoDto,
+    description: 'Dados do pedido a ser criado',
+  })
+  @ApiOperation({ summary: 'Criar um novo pedido' })
   create(
     @Request() req: { user: { empresaId: string } },
     @Body() data: CreatePedidoDto,
@@ -31,6 +43,7 @@ export class PedidoController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Listar todos os pedidos (apenas ADMIN)' })
   findAll(@Request() req: { user: { role: string; empresaId: string } }) {
     const empresaId = req.user.empresaId;
     if (req.user.role !== 'ADMIN')
@@ -39,6 +52,8 @@ export class PedidoController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
   findOne(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -48,6 +63,12 @@ export class PedidoController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Atualizar um pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
+  @ApiBody({
+    type: UpdatePedidoDto,
+    description: 'Dados para atualização do pedido',
+  })
   update(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -58,6 +79,8 @@ export class PedidoController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remover um pedido pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
   remove(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
@@ -67,8 +90,28 @@ export class PedidoController {
   }
 
   @Get('empresa/')
+  @ApiOperation({ summary: 'Listar pedidos da empresa do usuário autenticado' })
   findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.findByEmpresaId(empresaId);
+  }
+
+  @Put(':id/mover')
+  @ApiOperation({ summary: 'Mover pedido para outro status' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
+  @ApiBody({
+    schema: {
+      properties: {
+        paraStatusId: { type: 'string', description: 'ID do novo status' },
+      },
+    },
+  })
+  moverPedido(
+    @Request() req: { user: { empresaId: string } },
+    @Param('id') id: string,
+    @Body() data: { paraStatusId: string },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.moverPedido(id, data.paraStatusId, empresaId);
   }
 }

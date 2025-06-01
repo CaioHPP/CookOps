@@ -54,6 +54,13 @@ export class PedidoStatusService {
     });
   }
 
+  findFirstByBoardId(boardId: string): Promise<PedidoStatus | null> {
+    return this.prisma.pedidoStatus.findFirst({
+      where: { boardId },
+      orderBy: { ordem: 'asc' },
+    });
+  }
+
   async findAllWithPedidos(empresaId: string, boardId?: string, role?: string) {
     if (!boardId) {
       const boards = await this.boardService.findByEmpresaId(empresaId);
