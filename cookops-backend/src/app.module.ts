@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AssinaturaModule } from './assinatura/assinatura.module';
+import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { EmpresaModule } from './empresa/empresa.module';
 import { FontePedidoModule } from './fontepedido/fontepedido.module';
@@ -11,11 +12,12 @@ import { PedidoModule } from './pedido/pedido.module';
 import { PedidoStatusModule } from './pedidostatus/pedidostatus.module';
 import { PlanoModule } from './plano/plano.module';
 import { PrismaModule } from './prisma.module';
+import { ProdutoModule } from './produto/produto.module';
 import { UsuarioModule } from './usuario/usuario.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ProdutoModule,
     PedidoModule,
     PrismaModule,
     EmpresaModule,

@@ -91,7 +91,7 @@ model Pedido {
   id          String    @id @default(cuid())
   statusId    Int
   empresaId   String
-  codigo      String    @unique
+  codigo      String
   fonteId     Int
   pagamentoId Int
   enderecoId  String?

@@ -39,12 +39,13 @@ export class EmpresaService {
     ];
 
     await Promise.all(
-      statusDefault.map((titulo, index) =>
-        this.pedidoStatusService.create({
-          boardId: board.id,
-          titulo,
-          ordem: index + 1,
-        }),
+      statusDefault.map(
+        async (titulo, index) =>
+          await this.pedidoStatusService.create({
+            boardId: board.id,
+            titulo,
+            ordem: index + 1,
+          }),
       ),
     );
 

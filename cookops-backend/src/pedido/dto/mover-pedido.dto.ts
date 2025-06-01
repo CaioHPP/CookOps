@@ -3,10 +3,11 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class MoverPedidoDto {
   @ApiProperty({
-    description: 'ID do novo status para o pedido',
-    example: 'status-2',
+    description:
+      'Numero da ordem do status do pedido para onde o pedido será movido',
+    example: 2,
   })
   @IsInt()
   @IsNotEmpty()
-  paraStatusId: number;
+  paraOrdem: number;
 }

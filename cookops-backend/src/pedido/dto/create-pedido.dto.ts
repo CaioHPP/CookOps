@@ -11,7 +11,10 @@ import {
 } from 'class-validator';
 
 class CreatePedidoItemDto {
-  @ApiProperty({ description: 'ID do produto', example: 'prod-123' })
+  @ApiProperty({
+    description: 'ID do produto',
+    example: 'cmbd1mdkw0002h3xc6znz9jsm',
+  })
   @IsNotEmpty()
   @IsString()
   produtoId: string;
@@ -21,7 +24,7 @@ class CreatePedidoItemDto {
   @IsNumber()
   quantidade: number;
 
-  @ApiProperty({ description: 'Preço unitário do produto', example: 19.99 })
+  @ApiProperty({ description: 'Preço unitário do produto', example: 24.9 })
   @IsNotEmpty()
   @IsNumber()
   precoUnitario: number;
@@ -39,18 +42,18 @@ class CreatePedidoItemDto {
 export class CreatePedidoDto {
   @ApiProperty({
     description: 'ID do Board',
-    example: 'cmb1jolgm0001h3to2dyxjtpl',
+    example: 'cmbczhmv80002h39kjr21p4ur',
   })
   @IsNotEmpty()
   @IsString()
   boardId: string;
 
-  @ApiProperty({ description: 'ID da fonte do pedido', example: 'fonte-1' })
+  @ApiProperty({ description: 'ID da fonte do pedido', example: 1 })
   @IsNotEmpty()
   @IsInt()
   fonteId: number;
 
-  @ApiProperty({ description: 'ID do pagamento', example: 'pag-1' })
+  @ApiProperty({ description: 'ID do pagamento', example: 1 })
   @IsNotEmpty()
   @IsInt()
   pagamentoId: number;
@@ -67,7 +70,7 @@ export class CreatePedidoDto {
   @ApiProperty({
     description: 'Desconto aplicado',
     required: false,
-    example: 5.0,
+    example: 0,
   })
   @IsOptional()
   @IsNumber()
@@ -82,7 +85,7 @@ export class CreatePedidoDto {
   @IsNumber()
   taxaEntrega?: number;
 
-  @ApiProperty({ description: 'Valor total do pedido', example: 50.0 })
+  @ApiProperty({ description: 'Valor total do pedido', example: 53.3 })
   @IsNotEmpty()
   @IsNumber()
   valorTotal: number;
@@ -96,7 +99,18 @@ export class CreatePedidoDto {
   @IsString()
   observacao?: string;
 
-  @ApiProperty({ type: [CreatePedidoItemDto], description: 'Itens do pedido' })
+  @ApiProperty({
+    type: [CreatePedidoItemDto],
+    description: 'Itens do pedido',
+    example: [
+      {
+        produtoId: 'cmbd1mdkw0002h3xc6znz9jsm',
+        quantidade: 2,
+        precoUnitario: 24.9,
+        observacao: 'Sem cebola',
+      },
+    ],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreatePedidoItemDto)

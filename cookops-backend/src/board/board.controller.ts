@@ -49,6 +49,13 @@ export class BoardController {
     return this.boardService.findAll();
   }
 
+  @Get('empresa/')
+  @ApiOperation({ summary: 'Listar boards da empresa do usuário autenticado' })
+  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
+    const empresaId = req.user.empresaId;
+    return this.boardService.findByEmpresaId(empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um board pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do board' })
@@ -85,12 +92,5 @@ export class BoardController {
   ) {
     const empresaId = req.user.empresaId;
     return this.boardService.remove(id);
-  }
-
-  @Get('empresa/')
-  @ApiOperation({ summary: 'Listar boards da empresa do usuário autenticado' })
-  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
-    const empresaId = req.user.empresaId;
-    return this.boardService.findByEmpresaId(empresaId);
   }
 }

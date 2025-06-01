@@ -54,6 +54,27 @@ export class ProdutoController {
     return this.produtoService.findAll();
   }
 
+  @Get('empresa')
+  @ApiOperation({
+    summary: 'Listar produtos da empresa do usuário autenticado',
+  })
+  findByEmpresaIdAuth(
+    @Request() req: { user: { empresaId: string } },
+  ): Promise<Produto[]> {
+    const empresaId = req.user.empresaId;
+    return this.produtoService.findByEmpresaId(empresaId);
+  }
+
+  @Get('empresa/:empresaId')
+  @ApiOperation({ summary: 'Listar produtos por empresa' })
+  @ApiParam({ name: 'empresaId', description: 'ID da empresa' })
+  findByEmpresaId(
+    @Request() req: { user: { empresaId: string } },
+  ): Promise<Produto[]> {
+    const empresaId = req.user.empresaId;
+    return this.produtoService.findByEmpresaId(empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um produto pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do produto' })
@@ -90,15 +111,5 @@ export class ProdutoController {
   ) {
     const empresaId = req.user.empresaId;
     return this.produtoService.remove(id);
-  }
-
-  @Get('empresa/:empresaId')
-  @ApiOperation({ summary: 'Listar produtos por empresa' })
-  @ApiParam({ name: 'empresaId', description: 'ID da empresa' })
-  findByEmpresaId(
-    @Request() req: { user: { empresaId: string } },
-  ): Promise<Produto[]> {
-    const empresaId = req.user.empresaId;
-    return this.produtoService.findByEmpresaId(empresaId);
   }
 }

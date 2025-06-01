@@ -16,16 +16,24 @@ export class PedidoService {
     // Remove scalar foreign keys from data before spreading
     const { boardId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
 
-    const ultimoPedidoHoje = await this.prisma.pedido.count({
+    // Busca o número total de pedidos feitos hoje para a empresa
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const amanha = new Date(hoje);
+    amanha.setDate(hoje.getDate() + 1);
+
+    const totalPedidosHoje = await this.prisma.pedido.count({
       where: {
         empresaId,
         criadoEm: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)), // Início do dia
+          gte: hoje,
+          lt: amanha,
         },
       },
     });
 
-    const codigo = `#${(ultimoPedidoHoje + 1).toString().padStart(3, '0')}`;
+    const codigo = `#${(totalPedidosHoje + 1).toString().padStart(3, '0')}`;
+    console.log(`Código do pedido: ${codigo}`);
 
     const status = await this.pedidoStatusService.findFirstByBoardId(boardId);
     if (!status) {
@@ -33,7 +41,7 @@ export class PedidoService {
     }
     const statusId = status.id;
 
-    return this.prisma.pedido.create({
+    return await this.prisma.pedido.create({
       data: {
         ...rest,
         codigo,
@@ -57,12 +65,35 @@ export class PedidoService {
   }
 
   findAll(): Promise<Pedido[]> {
-    return this.prisma.pedido.findMany();
+    return this.prisma.pedido.findMany({
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true, // Inclui os detalhes do produto em cada item
+          },
+        },
+      },
+    });
   }
 
   findOne(id: string): Promise<Pedido | null> {
     return this.prisma.pedido.findUnique({
       where: { id },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true, // Inclui os detalhes do produto em cada item
+          },
+        },
+      },
     });
   }
 
@@ -116,12 +147,23 @@ export class PedidoService {
   findByEmpresaId(empresaId: string): Promise<Pedido[]> {
     return this.prisma.pedido.findMany({
       where: { empresaId },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true, // Inclui os detalhes do produto em cada item
+          },
+        },
+      },
     });
   }
 
   async moverPedido(
     id: string,
-    paraStatusId: number,
+    paraOrdem: number,
     empresaId: string,
   ): Promise<Pedido> {
     const pedido = await this.prisma.pedido.findUnique({
@@ -143,10 +185,21 @@ export class PedidoService {
     }
     const deStatusId = pedido.status.id;
 
+    const paraStatus = await this.pedidoStatusService.findByOrdem(
+      pedido.status.boardId,
+      paraOrdem,
+    );
+
+    if (!paraStatus) {
+      throw new Error(
+        'Status de destino não encontrado para a ordem fornecida',
+      );
+    }
+
     const updated = await this.prisma.pedido.update({
       where: { id },
       data: {
-        status: { connect: { id: paraStatusId } },
+        status: { connect: { id: paraStatus.id } },
       },
     });
 
@@ -154,7 +207,7 @@ export class PedidoService {
       data: {
         pedidoId: id,
         deStatusId,
-        paraStatusId,
+        paraStatusId: paraStatus.id,
       },
     });
 

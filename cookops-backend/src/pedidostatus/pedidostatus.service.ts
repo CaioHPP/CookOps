@@ -93,4 +93,16 @@ export class PedidoStatusService {
       pedidos: status.pedidos,
     }));
   }
+
+  async findByOrdem(
+    boardId: string,
+    ordem: number,
+  ): Promise<PedidoStatus | null> {
+    return this.prisma.pedidoStatus.findFirst({
+      where: {
+        boardId: boardId,
+        ordem: ordem,
+      },
+    });
+  }
 }

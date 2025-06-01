@@ -51,6 +51,13 @@ export class PedidoController {
     return this.pedidoService.findAll();
   }
 
+  @Get('empresa/')
+  @ApiOperation({ summary: 'Listar pedidos da empresa do usuário autenticado' })
+  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findByEmpresaId(empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um pedido pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do pedido' })
@@ -60,6 +67,28 @@ export class PedidoController {
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.findOne(id);
+  }
+
+  @Put(':id/mover')
+  @ApiOperation({ summary: 'Mover pedido para outro status' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
+  @ApiBody({
+    schema: {
+      properties: {
+        paraOrdem: {
+          type: 'number',
+          description: 'Número da ordem do novo status',
+        },
+      },
+    },
+  })
+  moverPedido(
+    @Request() req: { user: { empresaId: string } },
+    @Param('id') id: string,
+    @Body() data: { paraOrdem: number },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.moverPedido(id, data.paraOrdem, empresaId);
   }
 
   @Put(':id')
@@ -87,31 +116,5 @@ export class PedidoController {
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.remove(id);
-  }
-
-  @Get('empresa/')
-  @ApiOperation({ summary: 'Listar pedidos da empresa do usuário autenticado' })
-  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
-    const empresaId = req.user.empresaId;
-    return this.pedidoService.findByEmpresaId(empresaId);
-  }
-
-  @Put(':id/mover')
-  @ApiOperation({ summary: 'Mover pedido para outro status' })
-  @ApiParam({ name: 'id', description: 'ID do pedido' })
-  @ApiBody({
-    schema: {
-      properties: {
-        paraStatusId: { type: 'string', description: 'ID do novo status' },
-      },
-    },
-  })
-  moverPedido(
-    @Request() req: { user: { empresaId: string } },
-    @Param('id') id: string,
-    @Body() data: { paraStatusId: number },
-  ) {
-    const empresaId = req.user.empresaId;
-    return this.pedidoService.moverPedido(id, data.paraStatusId, empresaId);
   }
 }

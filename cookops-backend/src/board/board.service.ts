@@ -42,6 +42,9 @@ export class BoardService {
   }
 
   findByEmpresaId(empresaId: string): Promise<Board[]> {
+    if (!empresaId) {
+      throw new Error('Empresa ID não fornecido');
+    }
     return this.prisma.board.findMany({
       where: { empresaId },
     });
