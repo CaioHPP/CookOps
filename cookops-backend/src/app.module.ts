@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AssinaturaModule } from './assinatura/assinatura.module';
@@ -30,6 +31,15 @@ import { UsuarioModule } from './usuario/usuario.module';
     PedidoStatusModule,
     AssinaturaModule,
     AuthModule,
+    ThrottlerModule.forRoot({
+      //Limite de 20 requisições por minuto por IP
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 20,
+        },
+      ],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
