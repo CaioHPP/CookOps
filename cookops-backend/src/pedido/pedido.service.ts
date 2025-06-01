@@ -4,12 +4,14 @@ import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
+import { PedidoGateway } from './pedido.gateway';
 
 @Injectable()
 export class PedidoService {
   constructor(
     private prisma: PrismaService,
-    private readonly pedidoStatusService: PedidoStatusService, // Importando o serviço de status de pedido
+    private pedidoGateway: PedidoGateway,
+    private readonly pedidoStatusService: PedidoStatusService,
   ) {}
 
   async create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
@@ -33,7 +35,6 @@ export class PedidoService {
     });
 
     const codigo = `#${(totalPedidosHoje + 1).toString().padStart(3, '0')}`;
-    console.log(`Código do pedido: ${codigo}`);
 
     const status = await this.pedidoStatusService.findFirstByBoardId(boardId);
     if (!status) {
@@ -41,7 +42,7 @@ export class PedidoService {
     }
     const statusId = status.id;
 
-    return await this.prisma.pedido.create({
+    const pedido = await this.prisma.pedido.create({
       data: {
         ...rest,
         codigo,
@@ -62,6 +63,15 @@ export class PedidoService {
         }),
       },
     });
+
+    // Emite atualização via websocket para a empresa
+    this.pedidoGateway.emitirPedidoCriado(empresaId, {
+      acao: 'criado',
+      pedidoId: pedido.id,
+      statusId: pedido.statusId,
+    });
+
+    return pedido;
   }
 
   findAll(): Promise<Pedido[]> {
@@ -213,6 +223,14 @@ export class PedidoService {
         deStatusId,
         paraStatusId: paraStatus.id,
       },
+    });
+
+    // Emite atualização via websocket para a empresa
+    this.pedidoGateway.emitirPedidoAtualizado(empresaId, {
+      acao: 'movido',
+      pedidoId: updated.id,
+      deStatusId,
+      paraStatusId: paraStatus.id,
     });
 
     return updated;
