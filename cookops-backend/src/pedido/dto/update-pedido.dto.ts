@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsInt,
   IsNumber,
   IsOptional,
   IsString,
@@ -62,8 +63,8 @@ export class UpdatePedidoDto {
     example: 'status-1',
   })
   @IsOptional()
-  @IsString()
-  statusId?: string;
+  @IsInt()
+  statusId?: number;
 
   @ApiProperty({
     description: 'Código do pedido',
@@ -80,8 +81,8 @@ export class UpdatePedidoDto {
     example: 'fonte-1',
   })
   @IsOptional()
-  @IsString()
-  fonteId?: string;
+  @IsInt()
+  fonteId?: number;
 
   @ApiProperty({
     description: 'ID do pagamento',
@@ -89,8 +90,8 @@ export class UpdatePedidoDto {
     example: 'pag-1',
   })
   @IsOptional()
-  @IsString()
-  pagamentoId?: string;
+  @IsInt()
+  pagamentoId?: number;
 
   @ApiProperty({
     description: 'ID do endereço',

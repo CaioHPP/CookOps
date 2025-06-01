@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -11,12 +12,12 @@ export class CreateLogMovimentacaoDto {
   pedidoId: string;
 
   @IsOptional()
-  @IsString()
-  deStatusId?: string;
+  @IsInt()
+  deStatusId?: number;
 
   @IsNotEmpty()
-  @IsString()
-  paraStatusId: string;
+  @IsInt()
+  paraStatusId: number;
 
   @IsOptional()
   @IsDateString()

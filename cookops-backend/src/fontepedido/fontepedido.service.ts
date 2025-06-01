@@ -16,18 +16,18 @@ export class FontePedidoService {
     return this.prisma.fontePedido.findMany();
   }
 
-  findOne(id: string): Promise<FontePedido | null> {
+  findOne(id: number): Promise<FontePedido | null> {
     return this.prisma.fontePedido.findUnique({ where: { id } });
   }
 
-  update(id: string, data: UpdateFontePedidoDto): Promise<FontePedido> {
+  update(id: number, data: UpdateFontePedidoDto): Promise<FontePedido> {
     return this.prisma.fontePedido.update({
       where: { id },
       data,
     });
   }
 
-  remove(id: string): Promise<FontePedido> {
+  remove(id: number): Promise<FontePedido> {
     return this.prisma.fontePedido.delete({
       where: { id },
     });

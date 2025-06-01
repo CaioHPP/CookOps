@@ -52,7 +52,7 @@ export class PlanoController {
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um plano pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do plano' })
-  findOne(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  findOne(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.planoService.findOne(id);
@@ -67,7 +67,7 @@ export class PlanoController {
   })
   update(
     @Request() req: { user: { role: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() data: UpdatePlanoDto,
   ) {
     if (req.user.role !== 'ADMIN')
@@ -78,7 +78,7 @@ export class PlanoController {
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um plano pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do plano' })
-  remove(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  remove(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.planoService.remove(id);

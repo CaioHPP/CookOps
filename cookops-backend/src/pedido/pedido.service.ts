@@ -121,7 +121,7 @@ export class PedidoService {
 
   async moverPedido(
     id: string,
-    paraStatusId: string,
+    paraStatusId: number,
     empresaId: string,
   ): Promise<Pedido> {
     const pedido = await this.prisma.pedido.findUnique({

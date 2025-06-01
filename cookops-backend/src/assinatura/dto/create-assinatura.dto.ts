@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -41,6 +42,6 @@ export class CreateAssinaturaDto {
 
   @ApiProperty({ description: 'ID do plano', example: 'plano-1' })
   @IsNotEmpty()
-  @IsString()
-  planoId: string;
+  @IsInt()
+  planoId: number;
 }

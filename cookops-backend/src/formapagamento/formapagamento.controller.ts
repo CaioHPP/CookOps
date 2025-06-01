@@ -55,7 +55,7 @@ export class FormaPagamentoController {
   @Get(':id')
   @ApiOperation({ summary: 'Buscar uma forma de pagamento pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da forma de pagamento' })
-  findOne(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  findOne(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.formaPagamentoService.findOne(id);
@@ -70,7 +70,7 @@ export class FormaPagamentoController {
   })
   update(
     @Request() req: { user: { role: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() data: UpdateFormaPagamentoDto,
   ) {
     if (req.user.role !== 'ADMIN')
@@ -81,7 +81,7 @@ export class FormaPagamentoController {
   @Delete(':id')
   @ApiOperation({ summary: 'Remover uma forma de pagamento pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da forma de pagamento' })
-  remove(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  remove(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.formaPagamentoService.remove(id);

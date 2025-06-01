@@ -58,7 +58,7 @@ export class PedidoStatusController {
   @ApiParam({ name: 'id', description: 'ID do status de pedido' })
   findOne(
     @Request() req: { user: { empresaId: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoStatusService.findOne(id);
@@ -73,7 +73,7 @@ export class PedidoStatusController {
   })
   update(
     @Request() req: { user: { empresaId: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() data: UpdatePedidoStatusDto,
   ) {
     const empresaId = req.user.empresaId;
@@ -85,7 +85,7 @@ export class PedidoStatusController {
   @ApiParam({ name: 'id', description: 'ID do status de pedido' })
   remove(
     @Request() req: { user: { empresaId: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoStatusService.remove(id);

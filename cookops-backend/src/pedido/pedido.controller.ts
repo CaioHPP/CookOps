@@ -109,7 +109,7 @@ export class PedidoController {
   moverPedido(
     @Request() req: { user: { empresaId: string } },
     @Param('id') id: string,
-    @Body() data: { paraStatusId: string },
+    @Body() data: { paraStatusId: number },
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.moverPedido(id, data.paraStatusId, empresaId);

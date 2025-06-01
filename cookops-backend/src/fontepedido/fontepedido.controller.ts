@@ -55,7 +55,7 @@ export class FontePedidoController {
   @Get(':id')
   @ApiOperation({ summary: 'Buscar uma fonte de pedido pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da fonte de pedido' })
-  findOne(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  findOne(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.fontePedidoService.findOne(id);
@@ -70,7 +70,7 @@ export class FontePedidoController {
   })
   update(
     @Request() req: { user: { role: string } },
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() data: UpdateFontePedidoDto,
   ) {
     if (req.user.role !== 'ADMIN')
@@ -81,7 +81,7 @@ export class FontePedidoController {
   @Delete(':id')
   @ApiOperation({ summary: 'Remover uma fonte de pedido pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da fonte de pedido' })
-  remove(@Request() req: { user: { role: string } }, @Param('id') id: string) {
+  remove(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.fontePedidoService.remove(id);

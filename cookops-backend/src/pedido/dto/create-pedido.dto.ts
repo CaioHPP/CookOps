@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -46,13 +47,13 @@ export class CreatePedidoDto {
 
   @ApiProperty({ description: 'ID da fonte do pedido', example: 'fonte-1' })
   @IsNotEmpty()
-  @IsString()
-  fonteId: string;
+  @IsInt()
+  fonteId: number;
 
   @ApiProperty({ description: 'ID do pagamento', example: 'pag-1' })
   @IsNotEmpty()
-  @IsString()
-  pagamentoId: string;
+  @IsInt()
+  pagamentoId: number;
 
   @ApiProperty({
     description: 'ID do endereço',

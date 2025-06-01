@@ -26,11 +26,11 @@ export class PedidoStatusService {
     return this.prisma.pedidoStatus.findMany();
   }
 
-  findOne(id: string): Promise<PedidoStatus | null> {
+  findOne(id: number): Promise<PedidoStatus | null> {
     return this.prisma.pedidoStatus.findUnique({ where: { id } });
   }
 
-  update(id: string, data: UpdatePedidoStatusDto): Promise<PedidoStatus> {
+  update(id: number, data: UpdatePedidoStatusDto): Promise<PedidoStatus> {
     const { boardId, ...rest } = data;
     return this.prisma.pedidoStatus.update({
       where: { id },
@@ -41,7 +41,7 @@ export class PedidoStatusService {
     });
   }
 
-  remove(id: string): Promise<PedidoStatus> {
+  remove(id: number): Promise<PedidoStatus> {
     return this.prisma.pedidoStatus.delete({
       where: { id },
     });

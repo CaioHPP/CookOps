@@ -9,4 +9,12 @@ export class CreateFormaPagamentoDto {
   @IsNotEmpty()
   @IsString()
   nome: string;
+
+  @ApiProperty({
+    description: 'Descrição da forma de pagamento',
+    example: 'Pagamento em dinheiro na entrega',
+    required: false,
+  })
+  @IsString()
+  empresaId: string;
 }

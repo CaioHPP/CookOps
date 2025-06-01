@@ -16,18 +16,18 @@ export class PlanoService {
     return this.prisma.plano.findMany();
   }
 
-  findOne(id: string): Promise<Plano | null> {
+  findOne(id: number): Promise<Plano | null> {
     return this.prisma.plano.findUnique({ where: { id } });
   }
 
-  update(id: string, data: UpdatePlanoDto): Promise<Plano> {
+  update(id: number, data: UpdatePlanoDto): Promise<Plano> {
     return this.prisma.plano.update({
       where: { id },
       data,
     });
   }
 
-  remove(id: string): Promise<Plano> {
+  remove(id: number): Promise<Plano> {
     return this.prisma.plano.delete({
       where: { id },
     });

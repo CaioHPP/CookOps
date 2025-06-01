@@ -18,15 +18,16 @@ model Empresa {
   cnpj         String?
   email        String?
   telefone     String?
-  planoAtualId String
+  planoAtualId Int
   criadaEm     DateTime @default(now())
 
-  plano      Plano       @relation(fields: [planoAtualId], references: [id])
-  usuarios   Usuario[]
-  boards     Board[]
-  pedidos    Pedido[]
-  produtos   Produto[]
-  assinatura Assinatura?
+  plano          Plano            @relation(fields: [planoAtualId], references: [id])
+  usuarios       Usuario[]
+  boards         Board[]
+  pedidos        Pedido[]
+  produtos       Produto[]
+  assinatura     Assinatura?
+  FormaPagamento FormaPagamento[]
 }
 
 model Usuario {
@@ -41,7 +42,7 @@ model Usuario {
 }
 
 model Plano {
-  id               String  @id @default(cuid())
+  id               Int     @id @default(autoincrement())
   nome             String
   limitePedidosMes Int
   precoMensal      Float
@@ -57,7 +58,7 @@ model Assinatura {
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?   @unique
   periodoFim           DateTime?
-  planoId              String
+  planoId              Int
 
   empresa Empresa @relation(fields: [empresaId], references: [id])
   plano   Plano   @relation(fields: [planoId], references: [id])
@@ -74,11 +75,10 @@ model Board {
 }
 
 model PedidoStatus {
-  id      String @id @default(cuid())
+  id      Int      @id @default(autoincrement())
   boardId String
   titulo  String
   ordem   Int
-
   board   Board    @relation(fields: [boardId], references: [id])
   pedidos Pedido[] @relation("PedidoStatusAtual")
 
@@ -89,11 +89,11 @@ model PedidoStatus {
 
 model Pedido {
   id          String    @id @default(cuid())
-  statusId    String
+  statusId    Int
   empresaId   String
   codigo      String    @unique
-  fonteId     String
-  pagamentoId String
+  fonteId     Int
+  pagamentoId Int
   enderecoId  String?
   desconto    Float     @default(0)
   taxaEntrega Float     @default(0)
@@ -136,14 +136,15 @@ model Produto {
 }
 
 model FormaPagamento {
-  id   String @id @default(cuid())
-  nome String
-
-  pedidos Pedido[]
+  id        Int      @id @default(autoincrement())
+  nome      String
+  empresaId String
+  empresa   Empresa  @relation(fields: [empresaId], references: [id])
+  pedidos   Pedido[]
 }
 
 model FontePedido {
-  id             String  @id @default(cuid())
+  id             Int     @id @default(autoincrement())
   nome           String
   tipoIntegracao String?
 
@@ -167,8 +168,8 @@ model Endereco {
 model LogMovimentacao {
   id               String   @id @default(cuid())
   pedidoId         String
-  deStatusId       String?
-  paraStatusId     String
+  deStatusId       Int?
+  paraStatusId     Int
   dataMovimentacao DateTime @default(now())
 
   pedido     Pedido        @relation(fields: [pedidoId], references: [id])

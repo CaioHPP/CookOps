@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -45,6 +46,6 @@ export class CreateEmpresaDto {
 
   @ApiProperty({ description: 'ID do plano atual', example: 'plano-1' })
   @IsNotEmpty()
-  @IsString()
-  planoAtualId: string;
+  @IsInt()
+  planoAtualId: number;
 }

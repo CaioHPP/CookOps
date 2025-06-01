@@ -16,18 +16,18 @@ export class FormaPagamentoService {
     return this.prisma.formaPagamento.findMany();
   }
 
-  findOne(id: string): Promise<FormaPagamento | null> {
+  findOne(id: number): Promise<FormaPagamento | null> {
     return this.prisma.formaPagamento.findUnique({ where: { id } });
   }
 
-  update(id: string, data: UpdateFormaPagamentoDto): Promise<FormaPagamento> {
+  update(id: number, data: UpdateFormaPagamentoDto): Promise<FormaPagamento> {
     return this.prisma.formaPagamento.update({
       where: { id },
       data,
     });
   }
 
-  remove(id: string): Promise<FormaPagamento> {
+  remove(id: number): Promise<FormaPagamento> {
     return this.prisma.formaPagamento.delete({
       where: { id },
     });
