@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EnderecoRequestAddSchema } from "../../endereco/request/endereco-request.dto";
 import {
   PedidoItemRequestAddSchema,
   PedidoItemRequestUpdateSchema,
@@ -8,11 +9,11 @@ export const PedidoRequestAddSchema = z.object({
   boardId: z.string(),
   fonteId: z.number(),
   pagamentoId: z.number(),
-  enderecoId: z.string().optional(),
   desconto: z.number().optional(),
   taxaEntrega: z.number().optional(),
   valorTotal: z.number(),
   observacao: z.string().optional(),
+  endereco: z.object(EnderecoRequestAddSchema.shape).optional(),
   itens: z.array(PedidoItemRequestAddSchema),
 });
 
@@ -20,7 +21,7 @@ export const PedidoRequestUpdateSchema = z.object({
   statusId: z.number().optional(),
   fonteId: z.number().optional(),
   pagamentoId: z.number().optional(),
-  enderecoId: z.string().optional(),
+  endereco: z.object(EnderecoRequestAddSchema.shape).optional(),
   desconto: z.number().optional(),
   taxaEntrega: z.number().optional(),
   valorTotal: z.number().optional(),

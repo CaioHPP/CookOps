@@ -9,6 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { CreateEnderecoDto } from 'src/endereco/dto/create-endereco.dto';
 
 class CreatePedidoItemDto {
   @ApiProperty({
@@ -59,15 +60,6 @@ export class CreatePedidoDto {
   pagamentoId: number;
 
   @ApiProperty({
-    description: 'ID do endereço',
-    required: false,
-    example: 'end-1',
-  })
-  @IsOptional()
-  @IsString()
-  enderecoId?: string;
-
-  @ApiProperty({
     description: 'Desconto aplicado',
     required: false,
     example: 0,
@@ -98,6 +90,21 @@ export class CreatePedidoDto {
   @IsOptional()
   @IsString()
   observacao?: string;
+
+  @ApiProperty({
+    description: 'Endereço de entrega',
+    required: false,
+    example: [
+      {
+        rua: 'Rua das Flores',
+        numero: '123',
+        bairro: 'Jardim das Rosas',
+      },
+    ],
+  })
+  @IsOptional()
+  @Type(() => CreateEnderecoDto)
+  endereco?: CreateEnderecoDto;
 
   @ApiProperty({
     type: [CreatePedidoItemDto],

@@ -69,9 +69,12 @@ export class ProdutoController {
   @ApiOperation({ summary: 'Listar produtos por empresa' })
   @ApiParam({ name: 'empresaId', description: 'ID da empresa' })
   findByEmpresaId(
-    @Request() req: { user: { empresaId: string } },
+    @Request() req: { user: { role: string } },
+    @Param('empresaId') empresaId: string,
   ): Promise<Produto[]> {
-    const empresaId = req.user.empresaId;
+    if (req.user.role !== 'ADMIN')
+      throw new ForbiddenException('Acesso negado');
+
     return this.produtoService.findByEmpresaId(empresaId);
   }
 

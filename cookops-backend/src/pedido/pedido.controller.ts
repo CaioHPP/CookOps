@@ -69,7 +69,7 @@ export class PedidoController {
     return this.pedidoService.findOne(id);
   }
 
-  @Put(':id/mover')
+  @Put('mover/:id')
   @ApiOperation({ summary: 'Mover pedido para outro status' })
   @ApiParam({ name: 'id', description: 'ID do pedido' })
   @ApiBody({

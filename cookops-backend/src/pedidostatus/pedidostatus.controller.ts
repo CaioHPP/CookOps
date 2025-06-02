@@ -119,4 +119,22 @@ export class PedidoStatusController {
       role,
     );
   }
+
+  @Get('pedidos/itens/:boardId')
+  @ApiOperation({
+    summary: 'Listar todos os status de pedido com itens por board',
+  })
+  @ApiParam({ name: 'boardId', description: 'ID do board' })
+  findAllWithPedidosAndItens(
+    @Request() req: { user: { empresaId: string; role: string } },
+    @Param('boardId') boardId: string,
+  ) {
+    const empresaId = req.user.empresaId;
+    const role = req.user.role;
+    return this.pedidoStatusService.findAllWithPedidosAndItens(
+      empresaId,
+      boardId,
+      role,
+    );
+  }
 }

@@ -52,6 +52,15 @@ export class FormaPagamentoController {
     return this.formaPagamentoService.findAll();
   }
 
+  @Get('empresa/')
+  @ApiOperation({
+    summary: 'Listar formas de pagamento da empresa do usuário autenticado',
+  })
+  findByEmpresaId(@Request() req: { user: { empresaId: string } }) {
+    const empresaId = req.user.empresaId;
+    return this.formaPagamentoService.findByEmpresaId(empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar uma forma de pagamento pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da forma de pagamento' })

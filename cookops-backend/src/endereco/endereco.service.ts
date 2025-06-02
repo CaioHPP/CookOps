@@ -36,4 +36,18 @@ export class EnderecoService {
       where: { id },
     });
   }
+
+  async findByRuaNumeroBairro(
+    rua: string,
+    numero: string,
+    bairro: string,
+  ): Promise<Endereco | null> {
+    return this.prisma.endereco.findFirst({
+      where: {
+        rua,
+        numero,
+        bairro,
+      },
+    });
+  }
 }

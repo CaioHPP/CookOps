@@ -1,3 +1,5 @@
+import { ProdutoResponseDto } from "../../produto/response/produto-response.dto";
+
 export interface PedidoItemResponseDto {
   id: string;
   pedidoId: string;
@@ -5,5 +7,5 @@ export interface PedidoItemResponseDto {
   quantidade: number;
   precoUnitario: number;
   observacao?: string;
-  produto?: any; // Pode ser detalhado conforme ProdutoResponseDto
+  produto?: ProdutoResponseDto; // Pode ser detalhado conforme ProdutoResponseDto
 }

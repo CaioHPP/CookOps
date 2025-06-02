@@ -38,4 +38,10 @@ export class FormaPagamentoService {
       where: { id },
     });
   }
+
+  findByEmpresaId(empresaId: string): Promise<FormaPagamento[]> {
+    return this.prisma.formaPagamento.findMany({
+      where: { empresaId },
+    });
+  }
 }

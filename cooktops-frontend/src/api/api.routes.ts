@@ -34,6 +34,8 @@ export const API_ROUTES = {
     DELETE_PEDIDO_STATUS: "/pedidostatus",
     GET_PEDIDO_STATUS_BY_BOARD: "/pedidostatus/board",
     GET_PEDIDO_STATUS_WITH_PEDIDOS: "/pedidostatus/pedidos/:boardId",
+    GET_PEDIDO_STATUS_WITH_PEDIDOS_AND_ITENS:
+      "/pedidostatus/pedidos/itens/:boardId",
   },
   PRODUTO: {
     ADD_PRODUTO: "/produtos",
@@ -61,6 +63,7 @@ export const API_ROUTES = {
   FORMA_PAGAMENTO: {
     ADD_FORMA_PAGAMENTO: "/formapagamentos",
     GET_FORMAS_PAGAMENTO: "/formapagamentos",
+    GET_FORMAS_PAGAMENTO_BY_EMPRESA: "/formapagamentos/empresa",
     GET_FORMA_PAGAMENTO_BY_ID: "/formapagamentos",
     UPDATE_FORMA_PAGAMENTO: "/formapagamentos",
     DELETE_FORMA_PAGAMENTO: "/formapagamentos",

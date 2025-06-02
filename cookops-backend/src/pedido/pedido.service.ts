@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Pedido } from '@prisma/client';
+import { EnderecoService } from 'src/endereco/endereco.service';
 import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
@@ -12,11 +13,29 @@ export class PedidoService {
     private prisma: PrismaService,
     private pedidoGateway: PedidoGateway,
     private readonly pedidoStatusService: PedidoStatusService,
+    private enderecoService: EnderecoService, // Certifique-se de importar o serviço de Endereço corretamente
   ) {}
 
   async create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
     // Remove scalar foreign keys from data before spreading
-    const { boardId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
+    const { boardId, pagamentoId, fonteId, endereco, itens, ...rest } = data;
+
+    // Verifica se o endereço existe ou cria um novo
+    let enderecoId: string | undefined;
+    if (endereco) {
+      const enderecoExistente =
+        await this.enderecoService.findByRuaNumeroBairro(
+          endereco.rua,
+          endereco.numero,
+          endereco.bairro,
+        );
+      if (enderecoExistente) {
+        enderecoId = enderecoExistente.id;
+      } else {
+        const novoEndereco = await this.enderecoService.create(endereco);
+        enderecoId = novoEndereco.id;
+      }
+    }
 
     // Busca o número total de pedidos feitos hoje para a empresa
     const hoje = new Date();
@@ -111,13 +130,30 @@ export class PedidoService {
     return pedido;
   }
 
-  update(
+  async update(
     id: string,
     data: UpdatePedidoDto,
     empresaId: string,
   ): Promise<Pedido> {
     // Remove scalar foreign keys from data before spreading
-    const { statusId, pagamentoId, fonteId, enderecoId, itens, ...rest } = data;
+    const { statusId, pagamentoId, fonteId, endereco, itens, ...rest } = data;
+
+    // Verifica se o endereço existe ou cria um novo
+    let enderecoId: string | undefined;
+    if (endereco) {
+      const enderecoExistente =
+        await this.enderecoService.findByRuaNumeroBairro(
+          endereco.rua,
+          endereco.numero,
+          endereco.bairro,
+        );
+      if (enderecoExistente) {
+        enderecoId = enderecoExistente.id;
+      } else {
+        const novoEndereco = await this.enderecoService.create(endereco);
+        enderecoId = novoEndereco.id;
+      }
+    }
 
     return this.prisma.pedido.update({
       where: { id },

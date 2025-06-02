@@ -104,6 +104,67 @@ export class PedidoStatusService {
     }));
   }
 
+  async findAllWithPedidosAndItens(
+    empresaId: string,
+    boardId?: string,
+    role?: string,
+  ) {
+    if (!boardId) {
+      const boards = await this.boardService.findByEmpresaId(empresaId);
+      if (!boards || boards.length === 0)
+        throw new NotFoundException('Board não encontrado');
+      boardId = boards[0].id;
+    } else {
+      const board = await this.boardService.findOne(boardId);
+
+      if (!board) throw new NotFoundException('Board não encontrado');
+      if (board.empresaId !== empresaId && role !== 'ADMIN') {
+        throw new NotFoundException('Board não encontrado');
+      }
+    }
+
+    const statusList = await this.prisma.pedidoStatus.findMany({
+      where: { boardId: boardId },
+      orderBy: { ordem: 'asc' },
+      include: {
+        pedidos: {
+          orderBy: { criadoEm: 'asc' },
+          include: {
+            itens: {
+              include: {
+                produto: true,
+              },
+            },
+            fonte: true,
+            pagamento: true,
+            endereco: true,
+          },
+        },
+      },
+    });
+
+    return statusList.map((status) => ({
+      statusId: status.id,
+      titulo: status.titulo,
+      ordem: status.ordem,
+      pedidos: status.pedidos.map((pedido) => ({
+        id: pedido.id,
+        empresaId: pedido.empresaId,
+        codigo: pedido.codigo,
+        desconto: pedido.desconto,
+        taxaEntrega: pedido.taxaEntrega,
+        valorTotal: pedido.valorTotal,
+        observacao: pedido.observacao,
+        criadoEm: pedido.criadoEm,
+        concluidoEm: pedido.concluidoEm,
+        itens: pedido.itens,
+        fonte: pedido.fonte,
+        pagamento: pedido.pagamento,
+        endereco: pedido.endereco,
+      })),
+    }));
+  }
+
   async findByOrdem(boardId: string, ordem: number): Promise<PedidoStatus> {
     const status = await this.prisma.pedidoStatus.findFirst({
       where: {
