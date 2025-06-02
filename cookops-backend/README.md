@@ -36,20 +36,6 @@ Este repositório representa o **backend** da aplicação, desenvolvido em **Nes
 
 ---
 
-## 🗂️ Estrutura do Projeto
-
-```
-src/
-├── auth/              # Módulo de autenticação
-├── common/            # Filtros, guards e decorators reutilizáveis
-├── gateways/          # WebSockets organizados por namespace
-├── modules/           # Módulos das entidades (pedido, produto, etc.)
-├── prisma/            # PrismaService e configurações
-└── main.ts            # Ponto de entrada da aplicação
-```
-
----
-
 ## 🧰 Scripts Úteis
 
 | Comando                 | Descrição                                 |
