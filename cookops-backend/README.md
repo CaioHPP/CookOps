@@ -50,28 +50,6 @@ src/
 
 ---
 
-## 🧪 Testes
-
-- Rodar todos os testes:
-
-```bash
-npm run test
-```
-
-- Testes de cobertura:
-
-```bash
-npm run test:cov
-```
-
-- Testes E2E:
-
-```bash
-npm run test:e2e
-```
-
----
-
 ## 🧰 Scripts Úteis
 
 | Comando                 | Descrição                                 |
