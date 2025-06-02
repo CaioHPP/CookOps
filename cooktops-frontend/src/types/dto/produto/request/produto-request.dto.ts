@@ -1,15 +1,22 @@
-export interface ProdutoRequestAddDto {
-  nome: string;
-  descricao?: string;
-  precoBase: number;
-  ativo?: boolean;
-  empresaId: string;
-}
+import { z } from "zod";
 
-export interface ProdutoRequestUpdateDto {
-  nome?: string;
-  descricao?: string;
-  precoBase?: number;
-  ativo?: boolean;
-  empresaId?: string;
-}
+export const ProdutoRequestAddSchema = z.object({
+  nome: z.string(),
+  descricao: z.string().optional(),
+  precoBase: z.number(),
+  ativo: z.boolean().optional(),
+  empresaId: z.string(),
+});
+
+export const ProdutoRequestUpdateSchema = z.object({
+  nome: z.string().optional(),
+  descricao: z.string().optional(),
+  precoBase: z.number().optional(),
+  ativo: z.boolean().optional(),
+  empresaId: z.string().optional(),
+});
+
+export type ProdutoRequestAddDto = z.infer<typeof ProdutoRequestAddSchema>;
+export type ProdutoRequestUpdateDto = z.infer<
+  typeof ProdutoRequestUpdateSchema
+>;

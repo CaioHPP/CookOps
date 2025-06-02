@@ -1,28 +1,32 @@
+import { z } from "zod";
 import {
-  PedidoItemRequestAddDto,
-  PedidoItemRequestUpdateDto,
+  PedidoItemRequestAddSchema,
+  PedidoItemRequestUpdateSchema,
 } from "../../pedidoitem/request/pedidoitem-request.dto";
 
-export interface PedidoRequestAddDto {
-  boardId: string;
-  fonteId: number;
-  pagamentoId: number;
-  enderecoId?: string;
-  desconto?: number;
-  taxaEntrega?: number;
-  valorTotal: number;
-  observacao?: string;
-  itens: PedidoItemRequestAddDto[];
-}
+export const PedidoRequestAddSchema = z.object({
+  boardId: z.string(),
+  fonteId: z.number(),
+  pagamentoId: z.number(),
+  enderecoId: z.string().optional(),
+  desconto: z.number().optional(),
+  taxaEntrega: z.number().optional(),
+  valorTotal: z.number(),
+  observacao: z.string().optional(),
+  itens: z.array(PedidoItemRequestAddSchema),
+});
 
-export interface PedidoRequestUpdateDto {
-  statusId?: number;
-  fonteId?: number;
-  pagamentoId?: number;
-  enderecoId?: string;
-  desconto?: number;
-  taxaEntrega?: number;
-  valorTotal?: number;
-  observacao?: string;
-  itens?: PedidoItemRequestUpdateDto[];
-}
+export const PedidoRequestUpdateSchema = z.object({
+  statusId: z.number().optional(),
+  fonteId: z.number().optional(),
+  pagamentoId: z.number().optional(),
+  enderecoId: z.string().optional(),
+  desconto: z.number().optional(),
+  taxaEntrega: z.number().optional(),
+  valorTotal: z.number().optional(),
+  observacao: z.string().optional(),
+  itens: z.array(PedidoItemRequestUpdateSchema).optional(),
+});
+
+export type PedidoRequestAddDto = z.infer<typeof PedidoRequestAddSchema>;
+export type PedidoRequestUpdateDto = z.infer<typeof PedidoRequestUpdateSchema>;

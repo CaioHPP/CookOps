@@ -1,9 +1,18 @@
-export interface FormaPagamentoRequestAddDto {
-  nome: string;
-  empresaId: string;
-}
+import { z } from "zod";
 
-export interface FormaPagamentoRequestUpdateDto {
-  nome?: string;
-  empresaId?: string;
-}
+export const FormaPagamentoRequestAddSchema = z.object({
+  nome: z.string(),
+  empresaId: z.string(),
+});
+
+export const FormaPagamentoRequestUpdateSchema = z.object({
+  nome: z.string().optional(),
+  empresaId: z.string().optional(),
+});
+
+export type FormaPagamentoRequestAddDto = z.infer<
+  typeof FormaPagamentoRequestAddSchema
+>;
+export type FormaPagamentoRequestUpdateDto = z.infer<
+  typeof FormaPagamentoRequestUpdateSchema
+>;
