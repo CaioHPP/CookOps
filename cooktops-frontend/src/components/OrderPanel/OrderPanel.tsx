@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { Navbar } from "../NavBar/Navbar";
 import { CardList } from "./CardList";
 import { EmptyState } from "./EmptyState";
-import { Navbar } from "./Navbar";
 import { OrderDetails } from "./OrderDetails";
 
 // Interfaces
