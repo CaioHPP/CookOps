@@ -33,7 +33,7 @@ export function LoginCard({
 
     try {
       await AuthService.login({ email, senha: password });
-      router.push("/dashboard");
+      router.push("/pedidos");
     } catch (err: unknown) {
       console.error("Erro ao fazer login:", err); // Tratamento específico de erros
       if (err && typeof err === "object") {
