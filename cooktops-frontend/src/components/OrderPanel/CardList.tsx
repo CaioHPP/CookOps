@@ -74,7 +74,7 @@ function Card({
   return (
     <div
       className={`h-[72px] min-h-[72px] relative shrink-0 w-80 ${
-        isSelected ? "bg-[#dbf2fd]" : "bg-neutral-50"
+        isSelected ? "bg-accent" : "bg-card"
       }`}
     >
       <div className="flex flex-row items-center relative size-full">
@@ -102,7 +102,7 @@ function OrderInfo({ itemCount, total, orderNumber }: OrderInfoProps) {
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-1 items-start justify-center leading-[0] p-0 relative text-left w-full">
         <div
-          className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium min-w-full relative shrink-0 text-[#141414] text-[16px]"
+          className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium min-w-full relative shrink-0 text-foreground text-[16px]"
           style={{ width: "min-content" }}
         >
           <p className="block leading-[24px]">
@@ -110,7 +110,7 @@ function OrderInfo({ itemCount, total, orderNumber }: OrderInfoProps) {
           </p>
         </div>
         <div
-          className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal min-w-full relative shrink-0 text-[14px] text-neutral-500"
+          className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal min-w-full relative shrink-0 text-[14px] text-muted-foreground"
           style={{ width: "min-content" }}
         >
           <p className="block leading-[21px]">Pedido #{orderNumber}</p>
@@ -128,7 +128,7 @@ function Time({ time }: TimeProps) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
-        <div className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] relative shrink-0 text-[14px] text-left text-neutral-500 text-nowrap w-full">
+        <div className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] relative shrink-0 text-[14px] text-left text-muted-foreground text-nowrap w-full">
           <p className="block leading-[21px] whitespace-pre">{time}</p>
         </div>
       </div>
@@ -141,7 +141,7 @@ function EmptyState() {
     <div className="relative shrink-0 w-full">
       <div className="flex flex-row items-center justify-center relative size-full">
         <div className="box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-0 py-10 relative w-full">
-          <div className="basis-0 css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[14px] text-center text-neutral-500">
+          <div className="basis-0 css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[14px] text-center text-muted-foreground">
             <p className="block leading-[21px]">
               Não há ordens no painel ainda
             </p>

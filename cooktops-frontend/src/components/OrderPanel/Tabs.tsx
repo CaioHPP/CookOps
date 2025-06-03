@@ -49,8 +49,8 @@ function Tab({ text, isActive = false }: TabProps) {
                       style={{ fontVariationSettings: "'wdth' 100" }}
                       className={`flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px] ${
                         isActive
-                          ? "css-canpp4 text-[#6750a4]"
-                          : "css-5fteq9 text-[#49454f]"
+                          ? "css-canpp4 text-primary"
+                          : "css-5fteq9 text-muted-foreground"
                       }`}
                     >
                       <p className="adjustLetterSpacing block leading-[20px] whitespace-pre">
@@ -63,7 +63,7 @@ function Tab({ text, isActive = false }: TabProps) {
                         data-name="Indicator"
                       >
                         <div
-                          className="absolute bg-[#6750a4] bottom-0 h-[3px] left-0.5 right-0.5 rounded-tl-[100px] rounded-tr-[100px]"
+                          className="absolute bg-primary bottom-0 h-[3px] left-0.5 right-0.5 rounded-tl-[100px] rounded-tr-[100px]"
                           data-name="Shape"
                         />
                       </div>

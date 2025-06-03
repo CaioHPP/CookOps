@@ -52,7 +52,7 @@ function Header({ order }: HeaderProps) {
             <div className="relative shrink-0 w-full">
               <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
                 <div
-                  className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[32px] text-left"
+                  className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-foreground text-[32px] text-left"
                   style={{ width: "min-content" }}
                 >
                   <p className="block leading-[40px]">
@@ -64,7 +64,7 @@ function Header({ order }: HeaderProps) {
             <div className="relative shrink-0 w-full">
               <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
                 <div
-                  className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+                  className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-muted-foreground"
                   style={{ width: "min-content" }}
                 >
                   <p className="block leading-[21px]">
@@ -116,7 +116,7 @@ function SectionHeader({ title }: SectionHeaderProps) {
             <div className="relative shrink-0 w-full">
               <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
                 <div
-                  className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[20px] text-left"
+                  className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-foreground text-[20px] text-left"
                   style={{ width: "min-content" }}
                 >
                   <p className="block leading-[23px]">{title}</p>
@@ -170,11 +170,11 @@ interface InfoFieldProps {
 function InfoField({ label, value, gridArea }: InfoFieldProps) {
   return (
     <div className={`relative shrink-0 [grid-area:${gridArea}]`}>
-      <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
+      <div className="absolute border-border border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
       <div className="relative size-full">
         <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative size-full">
           <div
-            className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+            className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-muted-foreground"
             style={{ width: "min-content" }}
           >
             <p className="block leading-[21px]">{label}</p>
@@ -182,7 +182,7 @@ function InfoField({ label, value, gridArea }: InfoFieldProps) {
           <div className="relative shrink-0 w-full">
             <div className="flex flex-row items-center justify-center relative size-full">
               <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-1 py-0 relative w-full">
-                <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left">
+                <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-foreground text-[14px] text-left">
                   <p className="block leading-[21px]">{value}</p>
                 </div>
               </div>
@@ -229,7 +229,7 @@ function ItemsSection({ items = [] }: ItemsSectionProps) {
                   </React.Fragment>
                 ))}
               </div>
-              <div className="absolute border border-[#dbdbdb] border-solid inset-0 pointer-events-none rounded-2xl" />
+              <div className="absolute border border-border border-solid inset-0 pointer-events-none rounded-2xl" />
             </div>
           </div>
         </div>
@@ -249,7 +249,7 @@ function TableCell({ text, gridArea }: TableCellProps) {
       <div className="absolute border-[1px_0px] border-[rgba(218,218,218,0.67)] border-solid inset-0 pointer-events-none" />
       <div className="flex flex-row items-center relative size-full">
         <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 items-center justify-start px-3 py-px relative size-full">
-          <div className="basis-0 css-ys09ak font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium grow leading-[0] min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap">
+          <div className="basis-0 css-ys09ak font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium grow leading-[0] min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-foreground text-[14px] text-left text-nowrap">
             <p className="[text-overflow:inherit] [text-wrap-mode:inherit]\' [white-space-collapse:inherit] block leading-[normal] overflow-inherit">
               {text}
             </p>
@@ -303,7 +303,7 @@ interface TotalFieldProps {
 function TotalField({ label, value, isBold = false }: TotalFieldProps) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
-      <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
+      <div className="absolute border-border border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
       <div className="relative size-full">
         <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative w-full">
           <div
@@ -311,7 +311,7 @@ function TotalField({ label, value, isBold = false }: TotalFieldProps) {
               isBold ? "Bold" : "Regular"
             }',_sans-serif] ${
               isBold ? "font-bold" : "font-normal"
-            } leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500`}
+            } leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-muted-foreground`}
             style={{ width: "min-content" }}
           >
             <p className="block leading-[21px]">{label}</p>
@@ -324,7 +324,7 @@ function TotalField({ label, value, isBold = false }: TotalFieldProps) {
                     isBold ? "Bold" : "Regular"
                   }',_sans-serif] ${
                     isBold ? "font-bold" : "font-normal"
-                  } grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left`}
+                  } grow leading-[0] min-h-px min-w-px relative shrink-0 text-foreground text-[14px] text-left`}
                 >
                   <p className="block leading-[21px]">{value}</p>
                 </div>
@@ -361,7 +361,7 @@ function CancelButton() {
                 <div className="box-border content-stretch flex flex-row gap-2 items-center justify-center px-6 py-4 relative">
                   <div
                     style={{ fontVariationSettings: "'wdth' 100" }}
-                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-[#49454f] tracking-[0.15px]"
+                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-muted-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Cancelar pedido
@@ -371,7 +371,7 @@ function CancelButton() {
               </div>
             </div>
           </div>
-          <div className="absolute border border-[#cac4d0] border-solid inset-0 pointer-events-none rounded-2xl" />
+          <div className="absolute border border-border border-solid inset-0 pointer-events-none rounded-2xl" />
         </div>
       </div>
     </div>
@@ -383,7 +383,7 @@ function ConfirmButton() {
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
         <div
-          className="bg-[#6750a4] relative rounded-2xl shrink-0"
+          className="bg-primary relative rounded-2xl shrink-0"
           data-name="Content"
         >
           <div className="box-border content-stretch flex flex-row items-center justify-center overflow-clip p-0 relative">
@@ -392,7 +392,7 @@ function ConfirmButton() {
                 <div className="box-border content-stretch flex flex-row gap-2 items-center justify-center px-6 py-4 relative">
                   <div
                     style={{ fontVariationSettings: "'wdth' 100" }}
-                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-[#ffffff] tracking-[0.15px]"
+                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Confirmar pedido

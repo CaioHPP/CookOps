@@ -168,7 +168,7 @@ function CancelButton() {
                     style={{
                       fontVariationSettings: "'wdth' 100",
                     }}
-                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-[#49454f] tracking-[0.15px]"
+                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-muted-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Cancelar pedido
@@ -178,7 +178,7 @@ function CancelButton() {
               </div>
             </div>
           </div>
-          <div className="absolute border border-[#cac4d0] border-solid inset-0 pointer-events-none rounded-2xl" />
+          <div className="absolute border border-border border-solid inset-0 pointer-events-none rounded-2xl" />
         </div>
       </div>
     </div>
@@ -190,7 +190,7 @@ function ConfirmButton({ onAddOrder }: { onAddOrder: () => void }) {
     <button className="relative shrink-0" onClick={onAddOrder}>
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
         <div
-          className="bg-[#6750a4] relative rounded-2xl shrink-0"
+          className="bg-primary relative rounded-2xl shrink-0"
           data-name="Content"
         >
           <div className="box-border content-stretch flex flex-row items-center justify-center overflow-clip p-0 relative">
@@ -201,7 +201,7 @@ function ConfirmButton({ onAddOrder }: { onAddOrder: () => void }) {
                     style={{
                       fontVariationSettings: "'wdth' 100",
                     }}
-                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-[#ffffff] tracking-[0.15px]"
+                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Confirmar pedido
