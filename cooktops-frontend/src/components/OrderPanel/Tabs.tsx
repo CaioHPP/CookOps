@@ -30,7 +30,12 @@ function TabGroup() {
   );
 }
 
-function Tab({ text, isActive = false }) {
+interface TabProps {
+  text: string;
+  isActive?: boolean;
+}
+
+function Tab({ text, isActive = false }: TabProps) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="box-border content-stretch flex flex-col items-center justify-end overflow-clip p-0 relative size-full">
@@ -43,7 +48,9 @@ function Tab({ text, isActive = false }) {
                     <div
                       style={{ fontVariationSettings: "'wdth' 100" }}
                       className={`flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px] ${
-                        isActive ? "css-canpp4 text-[#6750a4]" : "css-5fteq9 text-[#49454f]"
+                        isActive
+                          ? "css-canpp4 text-[#6750a4]"
+                          : "css-5fteq9 text-[#49454f]"
                       }`}
                     >
                       <p className="adjustLetterSpacing block leading-[20px] whitespace-pre">

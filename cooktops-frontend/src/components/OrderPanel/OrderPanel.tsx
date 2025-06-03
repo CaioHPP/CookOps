@@ -4,6 +4,24 @@ import { EmptyState } from "./EmptyState";
 import { Navbar } from "./Navbar";
 import { OrderDetails } from "./OrderDetails";
 
+// Interfaces
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  itemCount: number;
+  total: string;
+  time: string;
+  subtotal: number;
+  taxes: number;
+  items: OrderItem[];
+}
+
 // Sample order data
 const SAMPLE_ORDERS = [
   {
@@ -36,11 +54,11 @@ const SAMPLE_ORDERS = [
 ];
 
 interface OrderPanelProps {
-  initialOrders?: Array<any>;
+  initialOrders?: Order[];
 }
 
 export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
-  const [orders, setOrders] = useState(
+  const [orders, setOrders] = useState<Order[]>(
     initialOrders.length > 0 ? initialOrders : SAMPLE_ORDERS
   );
   const [selectedOrderId, setSelectedOrderId] = useState(
@@ -55,7 +73,7 @@ export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
     const taxesValue = subtotalValue * 0.08;
     const totalValue = subtotalValue + taxesValue;
 
-    const newOrder = {
+    const newOrder: Order = {
       id: `${orders.length + 1}`,
       orderNumber: `${12345 + orders.length + 1}`,
       itemCount: Math.floor(Math.random() * 5) + 1,
@@ -87,15 +105,18 @@ export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
   };
 
   return (
-    <div className="bg-[#ffffff] relative size-full" data-name="order-panel">
+    <div className="bg-background relative size-full" data-name="order-panel">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative size-full">
         <Navbar />
-        <div className="h-[1082px] relative shrink-0 w-full" data-name="main">
+        <div
+          className="h-[1082px] relative shrink-0 w-full bg-background "
+          data-name="main"
+        >
           <div className="flex flex-row justify-center relative size-full">
             <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 h-[1082px] items-start justify-center px-6 py-5 relative w-full">
               <CardList orders={orders} />
               {orders.length > 0 ? (
-                <OrderDetails order={selectedOrder} />
+                <OrderDetails order={selectedOrder || null} />
               ) : (
                 <EmptyStateWithButton onAddOrder={handleAddOrder} />
               )}
@@ -107,7 +128,7 @@ export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
   );
 }
 
-function EmptyStateWithButton({ onAddOrder }) {
+function EmptyStateWithButton({ onAddOrder }: { onAddOrder: () => void }) {
   return (
     <div
       className="basis-0 grow h-[1056px] min-h-px min-w-px relative shrink-0"
@@ -121,7 +142,7 @@ function EmptyStateWithButton({ onAddOrder }) {
   );
 }
 
-function ActionButtons({ onAddOrder }) {
+function ActionButtons({ onAddOrder }: { onAddOrder: () => void }) {
   return (
     <div className="relative shrink-0 w-full" data-name="buttons">
       <div className="flex flex-row items-center justify-end relative size-full">
@@ -164,7 +185,7 @@ function CancelButton() {
   );
 }
 
-function ConfirmButton({ onAddOrder }) {
+function ConfirmButton({ onAddOrder }: { onAddOrder: () => void }) {
   return (
     <button className="relative shrink-0" onClick={onAddOrder}>
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">

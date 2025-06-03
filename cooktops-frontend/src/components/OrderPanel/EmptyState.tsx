@@ -783,7 +783,12 @@ function Content() {
   );
 }
 
-function ContentText({ text, className = "" }) {
+interface ContentTextProps {
+  text: string;
+  className?: string;
+}
+
+function ContentText({ text, className = "" }: ContentTextProps) {
   return (
     <div
       style={{ width: "min-content" }}

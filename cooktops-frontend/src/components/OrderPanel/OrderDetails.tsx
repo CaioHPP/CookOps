@@ -1,8 +1,30 @@
-import React from 'react';
+import React from "react";
 
-export function OrderDetails({ order }) {
+// Interfaces
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  itemCount: number;
+  total: string;
+  time: string;
+  subtotal: number;
+  taxes: number;
+  items: OrderItem[];
+}
+
+interface OrderDetailsProps {
+  order: Order | null;
+}
+
+export function OrderDetails({ order }: OrderDetailsProps) {
   if (!order) return null;
-  
+
   return (
     <div
       className="basis-0 grow h-[1056px] min-h-px min-w-px relative shrink-0"
@@ -17,7 +39,11 @@ export function OrderDetails({ order }) {
   );
 }
 
-function Header({ order }) {
+interface HeaderProps {
+  order: Order;
+}
+
+function Header({ order }: HeaderProps) {
   return (
     <div className="relative shrink-0 w-full">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-start justify-between p-[16px] relative w-full">
@@ -29,7 +55,9 @@ function Header({ order }) {
                   className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[32px] text-left"
                   style={{ width: "min-content" }}
                 >
-                  <p className="block leading-[40px]">{order.itemCount} itens - R$ {order.total}</p>
+                  <p className="block leading-[40px]">
+                    {order.itemCount} itens - R$ {order.total}
+                  </p>
                 </div>
               </div>
             </div>
@@ -39,7 +67,9 @@ function Header({ order }) {
                   className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
                   style={{ width: "min-content" }}
                 >
-                  <p className="block leading-[21px]">Pedido #{order.orderNumber}</p>
+                  <p className="block leading-[21px]">
+                    Pedido #{order.orderNumber}
+                  </p>
                 </div>
               </div>
             </div>
@@ -50,22 +80,34 @@ function Header({ order }) {
   );
 }
 
-function Sections({ order }) {
+interface SectionsProps {
+  order: Order;
+}
+
+function Sections({ order }: SectionsProps) {
   return (
     <div
       className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full"
       data-name="sections"
     >
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative size-full">
-        <OrderDetailsSection order={order} />
+        <OrderDetailsSection />
         <ItemsSection items={order.items} />
-        <TotalSection subtotal={order.subtotal} taxes={order.taxes} total={order.total} />
+        <TotalSection
+          subtotal={order.subtotal}
+          taxes={order.taxes}
+          total={order.total}
+        />
       </div>
     </div>
   );
 }
 
-function SectionHeader({ title }) {
+interface SectionHeaderProps {
+  title: string;
+}
+
+function SectionHeader({ title }: SectionHeaderProps) {
   return (
     <div className="relative shrink-0 w-full">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-start justify-between px-4 py-2 relative w-full">
@@ -88,18 +130,30 @@ function SectionHeader({ title }) {
   );
 }
 
-function OrderDetailsSection({ order }) {
+function OrderDetailsSection() {
   return (
     <div className="relative shrink-0 w-full">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
         <SectionHeader title="Detalhes do pedido" />
-        
+
         <div className="relative shrink-0 h-[217px] w-[908px]">
           <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border gap-6 grid grid-cols-[repeat(2,_minmax(0px,_1fr))] grid-rows-[repeat(2,_minmax(0px,_1fr))] h-[217px] p-[16px] relative w-[908px]">
             <InfoField label="Tipo de pedido" value="Balcão" gridArea="1 / 1" />
-            <InfoField label="Hora do pedido" value="10:00 AM" gridArea="1 / 2" />
-            <InfoField label="Nome do cliente" value="Lal de lal de lal" gridArea="2 / 1" />
-            <InfoField label="Telefone de contato" value="44 98888-7777" gridArea="2 / 2" />
+            <InfoField
+              label="Hora do pedido"
+              value="10:00 AM"
+              gridArea="1 / 2"
+            />
+            <InfoField
+              label="Nome do cliente"
+              value="Lal de lal de lal"
+              gridArea="2 / 1"
+            />
+            <InfoField
+              label="Telefone de contato"
+              value="44 98888-7777"
+              gridArea="2 / 2"
+            />
           </div>
         </div>
       </div>
@@ -107,7 +161,13 @@ function OrderDetailsSection({ order }) {
   );
 }
 
-function InfoField({ label, value, gridArea }) {
+interface InfoFieldProps {
+  label: string;
+  value: string;
+  gridArea: string;
+}
+
+function InfoField({ label, value, gridArea }: InfoFieldProps) {
   return (
     <div className={`relative shrink-0 [grid-area:${gridArea}]`}>
       <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
@@ -134,12 +194,16 @@ function InfoField({ label, value, gridArea }) {
   );
 }
 
-function ItemsSection({ items = [] }) {
+interface ItemsSectionProps {
+  items: OrderItem[];
+}
+
+function ItemsSection({ items = [] }: ItemsSectionProps) {
   return (
     <div className="relative shrink-0 w-full">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
         <SectionHeader title="Itens" />
-        
+
         <div className="relative shrink-0">
           <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-[16px] relative">
             <div
@@ -150,12 +214,18 @@ function ItemsSection({ items = [] }) {
                 <TableCell text="Item" gridArea="1 / 1" />
                 <TableCell text="Quantity" gridArea="1 / 2" />
                 <TableCell text="Price" gridArea="1 / 3" />
-                
+
                 {items.map((item, index) => (
                   <React.Fragment key={index}>
-                    <TableCell text={item.name} gridArea={`${index+2} / 1`} />
-                    <TableCell text={item.quantity.toString()} gridArea={`${index+2} / 2`} />
-                    <TableCell text={`R$ ${item.price.toFixed(2)}`} gridArea={`${index+2} / 3`} />
+                    <TableCell text={item.name} gridArea={`${index + 2} / 1`} />
+                    <TableCell
+                      text={item.quantity.toString()}
+                      gridArea={`${index + 2} / 2`}
+                    />
+                    <TableCell
+                      text={`R$ ${item.price.toFixed(2)}`}
+                      gridArea={`${index + 2} / 3`}
+                    />
                   </React.Fragment>
                 ))}
               </div>
@@ -168,11 +238,14 @@ function ItemsSection({ items = [] }) {
   );
 }
 
-function TableCell({ text, gridArea }) {
+interface TableCellProps {
+  text: string;
+  gridArea: string;
+}
+
+function TableCell({ text, gridArea }: TableCellProps) {
   return (
-    <div
-      className={`bg-neutral-50 relative shrink-0 [grid-area:${gridArea}]`}
-    >
+    <div className={`bg-neutral-50 relative shrink-0 [grid-area:${gridArea}]`}>
       <div className="absolute border-[1px_0px] border-[rgba(218,218,218,0.67)] border-solid inset-0 pointer-events-none" />
       <div className="flex flex-row items-center relative size-full">
         <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 items-center justify-start px-3 py-px relative size-full">
@@ -187,17 +260,28 @@ function TableCell({ text, gridArea }) {
   );
 }
 
-function TotalSection({ subtotal, taxes, total }) {
+interface TotalSectionProps {
+  subtotal: number;
+  taxes: number;
+  total: string | number;
+}
+
+function TotalSection({ subtotal, taxes, total }: TotalSectionProps) {
   // Format the values according to their types
-  const formattedSubtotal = typeof subtotal === 'number' ? `R$ ${subtotal.toFixed(2)}` : `R$ ${subtotal}`;
-  const formattedTaxes = typeof taxes === 'number' ? `R$ ${taxes.toFixed(2)}` : `R$ ${taxes}`;
-  const formattedTotal = typeof total === 'number' ? `R$ ${total.toFixed(2)}` : `R$ ${total}`;
+  const formattedSubtotal =
+    typeof subtotal === "number"
+      ? `R$ ${subtotal.toFixed(2)}`
+      : `R$ ${subtotal}`;
+  const formattedTaxes =
+    typeof taxes === "number" ? `R$ ${taxes.toFixed(2)}` : `R$ ${taxes}`;
+  const formattedTotal =
+    typeof total === "number" ? `R$ ${total.toFixed(2)}` : `R$ ${total}`;
 
   return (
     <div className="relative shrink-0 w-full">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
         <SectionHeader title="Total" />
-        
+
         <div className="relative shrink-0 w-[908px]">
           <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-6 items-start justify-start p-[16px] relative w-[908px]">
             <TotalField label="Subtotal" value={formattedSubtotal} />
@@ -210,14 +294,24 @@ function TotalSection({ subtotal, taxes, total }) {
   );
 }
 
-function TotalField({ label, value, isBold = false }) {
+interface TotalFieldProps {
+  label: string;
+  value: string;
+  isBold?: boolean;
+}
+
+function TotalField({ label, value, isBold = false }: TotalFieldProps) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
       <div className="relative size-full">
         <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative w-full">
           <div
-            className={`css-lbkhcf font-['Plus_Jakarta_Sans:${isBold ? 'Bold' : 'Regular'}',_sans-serif] ${isBold ? 'font-bold' : 'font-normal'} leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500`}
+            className={`css-lbkhcf font-['Plus_Jakarta_Sans:${
+              isBold ? "Bold" : "Regular"
+            }',_sans-serif] ${
+              isBold ? "font-bold" : "font-normal"
+            } leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500`}
             style={{ width: "min-content" }}
           >
             <p className="block leading-[21px]">{label}</p>
@@ -225,7 +319,13 @@ function TotalField({ label, value, isBold = false }) {
           <div className="relative shrink-0 w-full">
             <div className="flex flex-row items-center justify-center relative size-full">
               <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-1 py-0 relative w-full">
-                <div className={`basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:${isBold ? 'Bold' : 'Regular'}',_sans-serif] ${isBold ? 'font-bold' : 'font-normal'} grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left`}>
+                <div
+                  className={`basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:${
+                    isBold ? "Bold" : "Regular"
+                  }',_sans-serif] ${
+                    isBold ? "font-bold" : "font-normal"
+                  } grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left`}
+                >
                   <p className="block leading-[21px]">{value}</p>
                 </div>
               </div>

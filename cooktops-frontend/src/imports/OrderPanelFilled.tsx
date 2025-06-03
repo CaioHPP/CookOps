@@ -19,7 +19,7 @@ function BackgroundImage240({
   );
 }
 
-function ButtonBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function ButtonBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
@@ -29,7 +29,7 @@ function ButtonBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function InfoBackgroundImage3({ children }: React.PropsWithChildren<{}>) {
+function InfoBackgroundImage3({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative w-full">
@@ -39,7 +39,7 @@ function InfoBackgroundImage3({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function TabBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function TabBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="box-border content-stretch flex flex-col items-center justify-end overflow-clip p-0 relative size-full">
@@ -49,7 +49,7 @@ function TabBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage173({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage173({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-start p-0 relative">
@@ -59,7 +59,7 @@ function BackgroundImage173({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage156({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage156({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
@@ -69,7 +69,7 @@ function BackgroundImage156({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage139({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage139({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0 w-full">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
@@ -109,7 +109,7 @@ function BackgroundImage106({
   );
 }
 
-function StatelayerBackgroundImage1({ children }: React.PropsWithChildren<{}>) {
+function StatelayerBackgroundImage1({ children }: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage106>
       <div className="box-border content-stretch flex flex-row gap-2 items-center justify-center px-6 py-4 relative">
@@ -119,7 +119,7 @@ function StatelayerBackgroundImage1({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function InfoBackgroundImage2({ children }: React.PropsWithChildren<{}>) {
+function InfoBackgroundImage2({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
@@ -151,7 +151,7 @@ function InfoBackgroundImage1({
   );
 }
 
-function HeaderBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function HeaderBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage122 additionalClassNames={["w-full"]}>
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-start justify-between px-4 py-2 relative w-full">
@@ -161,7 +161,7 @@ function HeaderBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function StatelayerBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function StatelayerBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-end overflow-clip relative size-full">
@@ -173,7 +173,7 @@ function StatelayerBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function TabcontentsBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function TabcontentsBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-center overflow-clip relative size-full">
@@ -185,7 +185,7 @@ function TabcontentsBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage13({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage13({ children }: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage106 additionalClassNames={["w-full"]}>
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-1 py-0 relative w-full">

@@ -19,7 +19,7 @@ function BackgroundImage148({
   );
 }
 
-function ButtonBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function ButtonBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
@@ -29,7 +29,7 @@ function ButtonBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function ContentBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function ContentBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="bg-[#6750a4] relative rounded-2xl shrink-0">
       <div className="box-border content-stretch flex flex-row items-center justify-center overflow-clip p-0 relative">
@@ -39,7 +39,7 @@ function ContentBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function TabBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function TabBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="box-border content-stretch flex flex-col items-center justify-end overflow-clip p-0 relative size-full">
@@ -49,7 +49,7 @@ function TabBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage85({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage85({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-start p-0 relative">
@@ -59,7 +59,7 @@ function BackgroundImage85({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function BackgroundImage69({ children }: React.PropsWithChildren<{}>) {
+function BackgroundImage69({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
       <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
@@ -85,7 +85,9 @@ function BackgroundImage53({
   );
 }
 
-function StatelayerBackgroundImage1({ children }: React.PropsWithChildren<{}>) {
+function StatelayerBackgroundImage1({
+  children,
+}: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage53>
       <div className="box-border content-stretch flex flex-row gap-2 items-center justify-center px-6 py-4 relative">
@@ -95,7 +97,9 @@ function StatelayerBackgroundImage1({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function StatelayerBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function StatelayerBackgroundImage({
+  children,
+}: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full">
       <div className="flex flex-col items-center justify-end overflow-clip relative size-full">
@@ -107,7 +111,9 @@ function StatelayerBackgroundImage({ children }: React.PropsWithChildren<{}>) {
   );
 }
 
-function TabcontentsBackgroundImage({ children }: React.PropsWithChildren<{}>) {
+function TabcontentsBackgroundImage({
+  children,
+}: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-center overflow-clip relative size-full">
