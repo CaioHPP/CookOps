@@ -1,32 +1,7 @@
 import { useState, useMemo } from "react";
 import { Tabs } from "./Tabs";
-
-interface Order {
-  id: string;
-  itemCount: number;
-  totalValue: number;
-  time: string;
-  source: string;
-  customerName?: string;
-  customerPhone?: string;
-  items?: OrderItem[];
-  subtotal?: number;
-  fees?: number;
-  orderTime?: string;
-}
-
-interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface CardListProps {
-  orders?: Order[];
-  onOrderSelect?: (order: Order | null) => void;
-  selectedOrderId?: string;
-}
+import type { TabItem } from "./Tabs";
+import type { Order, CardListProps } from "./types";
 
 export function CardList({
   orders = [],
@@ -39,6 +14,7 @@ export function CardList({
     { id: "balcao", label: "Balcão" },
     { id: "app", label: "App" },
   ];
+
   const filteredOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
 
@@ -48,7 +24,6 @@ export function CardList({
   }, [orders, activeTab]);
 
   const handleTabChange = (tabId: string) => {
-    console.log(`Tab changed to: ${tabId}`);
     setActiveTab(tabId);
     // Auto-select first order when changing tabs
     if (filteredOrders.length > 0 && onOrderSelect) {
@@ -57,7 +32,6 @@ export function CardList({
   };
 
   const handleOrderClick = (order: Order) => {
-    console.log(`Order selected: ${order.id}`);
     onOrderSelect?.(order);
   };
 
@@ -87,8 +61,8 @@ export function CardList({
           <EmptyState activeTab={activeTab} tabs={tabs} />
         )}
       </div>
-      {/* Tab Info Display */}
 
+      {/* Tab Info Display */}
       <TabInfo
         activeTab={activeTab}
         tabs={tabs}
@@ -98,7 +72,6 @@ export function CardList({
   );
 }
 
-// Order Card Component
 interface OrderCardProps {
   order: Order;
   isSelected?: boolean;
@@ -120,7 +93,7 @@ function OrderCard({ order, isSelected = false, onClick }: OrderCardProps) {
     <div
       className={`h-[72px] w-full p-4 flex items-center justify-between cursor-pointer transition-all duration-200 border-l-4 ${
         isSelected
-          ? "bg-[#dbf2fd] border-l-[#6750a4] shadow-sm"
+          ? "bg-accent border-l-primary shadow-sm"
           : "bg-white border-l-transparent hover:bg-gray-50 hover:border-l-gray-300"
       }`}
       onClick={onClick}
@@ -128,38 +101,41 @@ function OrderCard({ order, isSelected = false, onClick }: OrderCardProps) {
       <div className="flex flex-col gap-1">
         <p
           className={`font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium text-[16px] leading-[24px] transition-colors ${
-            isSelected ? "text-[#6750a4]" : "text-[#141414]"
+            isSelected ? "text-primary" : "text-foreground"
           }`}
         >
           {safeItemCount} {safeItemCount === 1 ? "item" : "itens"} - R${" "}
           {safeTotalValue.toFixed(2)}
         </p>
-        <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px]">
+        <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-muted-foreground text-[14px] leading-[21px]">
           Pedido #{order.id}
         </p>
       </div>
-      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px] text-nowrap">
+      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-muted-foreground text-[14px] leading-[21px] text-nowrap">
         {safeTime}
       </p>
     </div>
   );
 }
 
-// Empty State Component
-function EmptyState({ activeTab, tabs }: { activeTab: string; tabs: any[] }) {
+function EmptyState({
+  activeTab,
+  tabs,
+}: {
+  activeTab: string;
+  tabs: TabItem[];
+}) {
   const activeTabLabel =
     tabs.find((t) => t.id === activeTab)?.label || activeTab;
 
   return (
     <div className="p-4 text-center">
-      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px]">
-        Nenhum pedido encontrado para "{activeTabLabel}"
+      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-muted-foreground text-[14px] leading-[21px]">
+        Nenhum pedido encontrado para &ldquo;{activeTabLabel}&rdquo;
       </p>
     </div>
   );
 }
-
-// Tab Info Component
 
 function TabInfo({
   activeTab,
@@ -167,18 +143,18 @@ function TabInfo({
   orderCount,
 }: {
   activeTab: string;
-  tabs: any[];
+  tabs: TabItem[];
   orderCount: number;
 }) {
   const activeTabLabel =
     tabs.find((t) => t.id === activeTab)?.label || activeTab;
 
   return (
-    <div className="p-4 border-t border-gray-200 bg-gray-50">
-      <div className="text-sm text-gray-600">
+    <div className="p-4 border-t border-input bg-muted">
+      <div className="text-sm text-muted-foreground">
         <strong>Aba ativa:</strong> {activeTabLabel}
       </div>
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-muted-foreground">
         <strong>Pedidos:</strong> {orderCount}
       </div>
     </div>

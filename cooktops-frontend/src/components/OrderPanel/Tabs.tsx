@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import clsx from "clsx";
 
-interface TabItem {
+export interface TabItem {
   id: string;
   label: string;
 }
@@ -20,12 +20,12 @@ export function Tabs({
   className = "",
 }: TabsProps) {
   // Safe initialization with fallback
-  const getInitialTab = () => {
+  const getInitialTab = useCallback(() => {
     if (defaultActiveTab && tabs.some((tab) => tab.id === defaultActiveTab)) {
       return defaultActiveTab;
     }
     return tabs.length > 0 ? tabs[0].id : "";
-  };
+  }, [defaultActiveTab, tabs]);
 
   const [activeTab, setActiveTab] = useState(getInitialTab());
 
@@ -35,7 +35,7 @@ export function Tabs({
       const newActiveTab = getInitialTab();
       setActiveTab(newActiveTab);
     }
-  }, [tabs, activeTab]);
+  }, [tabs, activeTab, getInitialTab]);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -88,7 +88,7 @@ function Tab({ label, isActive, onClick }: TabProps) {
         <span
           className={clsx(
             "font-['Roboto:Medium',_sans-serif] font-medium text-[14px] text-center whitespace-nowrap tracking-[0.1px] transition-colors",
-            isActive ? "text-[#6750a4]" : "text-[#49454f]"
+            isActive ? "text-primary" : "text-muted-foreground"
           )}
         >
           {label}
@@ -97,7 +97,7 @@ function Tab({ label, isActive, onClick }: TabProps) {
 
       {/* Active Indicator */}
       {isActive && (
-        <div className="absolute bottom-0 left-2 right-2 h-[3px] bg-[#6750a4] rounded-t-full" />
+        <div className="absolute bottom-0 left-2 right-2 h-[3px] bg-primary rounded-t-full" />
       )}
     </button>
   );

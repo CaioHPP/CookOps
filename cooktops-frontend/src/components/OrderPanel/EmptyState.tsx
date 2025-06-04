@@ -1,4 +1,4 @@
-import svgPaths from "../../../../../figma-make-v1/imports/svg-oxrsuyqcqv";
+import svgPaths from "../../imports/svg-oxrsuyqcqv";
 
 export function EmptyState() {
   return (
