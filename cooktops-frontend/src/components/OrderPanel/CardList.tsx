@@ -1,152 +1,185 @@
+import { useState, useMemo } from "react";
 import { Tabs } from "./Tabs";
 
-// Interface to match OrderPanel
+interface Order {
+  id: string;
+  itemCount: number;
+  totalValue: number;
+  time: string;
+  source: string;
+  customerName?: string;
+  customerPhone?: string;
+  items?: OrderItem[];
+  subtotal?: number;
+  fees?: number;
+  orderTime?: string;
+}
+
 interface OrderItem {
+  id: string;
   name: string;
   quantity: number;
   price: number;
 }
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  itemCount: number;
-  total: string;
-  time: string;
-  subtotal: number;
-  taxes: number;
-  items: OrderItem[];
-}
-
 interface CardListProps {
   orders?: Order[];
+  onOrderSelect?: (order: Order | null) => void;
+  selectedOrderId?: string;
 }
 
-export function CardList({ orders = [] }: CardListProps) {
+export function CardList({
+  orders = [],
+  onOrderSelect,
+  selectedOrderId,
+}: CardListProps) {
+  const [activeTab, setActiveTab] = useState("all");
+  const tabs = [
+    { id: "all", label: "All" },
+    { id: "balcao", label: "Balcão" },
+    { id: "app", label: "App" },
+  ];
+  const filteredOrders = useMemo(() => {
+    if (!orders || orders.length === 0) return [];
+
+    return activeTab === "all"
+      ? orders
+      : orders.filter((order) => order.source === activeTab);
+  }, [orders, activeTab]);
+
+  const handleTabChange = (tabId: string) => {
+    console.log(`Tab changed to: ${tabId}`);
+    setActiveTab(tabId);
+    // Auto-select first order when changing tabs
+    if (filteredOrders.length > 0 && onOrderSelect) {
+      onOrderSelect(filteredOrders[0]);
+    }
+  };
+
+  const handleOrderClick = (order: Order) => {
+    console.log(`Order selected: ${order.id}`);
+    onOrderSelect?.(order);
+  };
+
   return (
-    <div className="h-full relative shrink-0 w-80" data-name="card list">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-full items-start justify-start overflow-clip p-0 relative w-80">
-        <Tabs />
-        <Cards orders={orders} />
+    <aside className="h-full w-80 flex flex-col overflow-hidden bg-white">
+      {/* Tab Header */}
+      <div className="pb-3 px-4 pt-4">
+        <Tabs
+          tabs={tabs}
+          defaultActiveTab="all"
+          onTabChange={handleTabChange}
+        />
       </div>
-    </div>
-  );
-}
 
-function Cards({ orders = [] }: { orders?: Order[] }) {
-  return (
-    <div className="relative shrink-0 w-full" data-name="cards">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
-        {orders.length === 0 ? (
-          <EmptyState />
-        ) : (
-          orders.map((order, index) => (
-            <Card
+      {/* Order List */}
+      <div className="flex-1 overflow-y-auto">
+        {filteredOrders.length > 0 ? (
+          filteredOrders.map((order) => (
+            <OrderCard
               key={order.id}
-              orderNumber={order.orderNumber}
-              itemCount={order.itemCount}
-              total={order.total}
-              time={order.time}
-              isSelected={index === 0}
+              order={order}
+              isSelected={selectedOrderId === order.id}
+              onClick={() => handleOrderClick(order)}
             />
           ))
+        ) : (
+          <EmptyState activeTab={activeTab} tabs={tabs} />
         )}
       </div>
-    </div>
+      {/* Tab Info Display */}
+
+      <TabInfo
+        activeTab={activeTab}
+        tabs={tabs}
+        orderCount={filteredOrders.length}
+      />
+    </aside>
   );
 }
 
-interface CardProps {
-  orderNumber: string;
-  itemCount: number;
-  total: string;
-  time: string;
+// Order Card Component
+interface OrderCardProps {
+  order: Order;
   isSelected?: boolean;
+  onClick?: () => void;
 }
 
-function Card({
-  orderNumber,
-  itemCount,
-  total,
-  time,
-  isSelected = false,
-}: CardProps) {
+function OrderCard({ order, isSelected = false, onClick }: OrderCardProps) {
+  const safeItemCount =
+    typeof order.itemCount === "number" && !isNaN(order.itemCount)
+      ? order.itemCount
+      : 0;
+  const safeTotalValue =
+    typeof order.totalValue === "number" && !isNaN(order.totalValue)
+      ? order.totalValue
+      : 0;
+  const safeTime = order.time || "--:--";
+
   return (
     <div
-      className={`h-[72px] min-h-[72px] relative shrink-0 w-80 ${
-        isSelected ? "bg-accent" : "bg-card"
+      className={`h-[72px] w-full p-4 flex items-center justify-between cursor-pointer transition-all duration-200 border-l-4 ${
+        isSelected
+          ? "bg-[#dbf2fd] border-l-[#6750a4] shadow-sm"
+          : "bg-white border-l-transparent hover:bg-gray-50 hover:border-l-gray-300"
       }`}
+      onClick={onClick}
     >
-      <div className="flex flex-row items-center relative size-full">
-        <div className="box-border content-stretch flex flex-row h-[72px] items-center justify-between px-4 py-2 relative w-80">
-          <OrderInfo
-            itemCount={itemCount}
-            total={total}
-            orderNumber={orderNumber}
-          />
-          <Time time={time} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface OrderInfoProps {
-  itemCount: number;
-  total: string;
-  orderNumber: string;
-}
-
-function OrderInfo({ itemCount, total, orderNumber }: OrderInfoProps) {
-  return (
-    <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-1 items-start justify-center leading-[0] p-0 relative text-left w-full">
-        <div
-          className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium min-w-full relative shrink-0 text-foreground text-[16px]"
-          style={{ width: "min-content" }}
+      <div className="flex flex-col gap-1">
+        <p
+          className={`font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium text-[16px] leading-[24px] transition-colors ${
+            isSelected ? "text-[#6750a4]" : "text-[#141414]"
+          }`}
         >
-          <p className="block leading-[24px]">
-            {itemCount} itens - R$ {total}
-          </p>
-        </div>
-        <div
-          className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal min-w-full relative shrink-0 text-[14px] text-muted-foreground"
-          style={{ width: "min-content" }}
-        >
-          <p className="block leading-[21px]">Pedido #{orderNumber}</p>
-        </div>
+          {safeItemCount} {safeItemCount === 1 ? "item" : "itens"} - R${" "}
+          {safeTotalValue.toFixed(2)}
+        </p>
+        <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px]">
+          Pedido #{order.id}
+        </p>
       </div>
+      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px] text-nowrap">
+        {safeTime}
+      </p>
     </div>
   );
 }
 
-interface TimeProps {
-  time: string;
-}
+// Empty State Component
+function EmptyState({ activeTab, tabs }: { activeTab: string; tabs: any[] }) {
+  const activeTabLabel =
+    tabs.find((t) => t.id === activeTab)?.label || activeTab;
 
-function Time({ time }: TimeProps) {
   return (
-    <div className="relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
-        <div className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] relative shrink-0 text-[14px] text-left text-muted-foreground text-nowrap w-full">
-          <p className="block leading-[21px] whitespace-pre">{time}</p>
-        </div>
-      </div>
+    <div className="p-4 text-center">
+      <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-neutral-500 text-[14px] leading-[21px]">
+        Nenhum pedido encontrado para "{activeTabLabel}"
+      </p>
     </div>
   );
 }
 
-function EmptyState() {
+// Tab Info Component
+
+function TabInfo({
+  activeTab,
+  tabs,
+  orderCount,
+}: {
+  activeTab: string;
+  tabs: any[];
+  orderCount: number;
+}) {
+  const activeTabLabel =
+    tabs.find((t) => t.id === activeTab)?.label || activeTab;
+
   return (
-    <div className="relative shrink-0 w-full">
-      <div className="flex flex-row items-center justify-center relative size-full">
-        <div className="box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-0 py-10 relative w-full">
-          <div className="basis-0 css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[14px] text-center text-muted-foreground">
-            <p className="block leading-[21px]">
-              Não há ordens no painel ainda
-            </p>
-          </div>
-        </div>
+    <div className="p-4 border-t border-gray-200 bg-gray-50">
+      <div className="text-sm text-gray-600">
+        <strong>Aba ativa:</strong> {activeTabLabel}
+      </div>
+      <div className="text-sm text-gray-600">
+        <strong>Pedidos:</strong> {orderCount}
       </div>
     </div>
   );
