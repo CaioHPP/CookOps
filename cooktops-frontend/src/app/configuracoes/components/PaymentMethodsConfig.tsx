@@ -61,6 +61,7 @@ export default function PaymentMethodsConfig() {
       if (editingMethod) {
         const updateData: FormaPagamentoRequestUpdateDto = {
           nome: formData.nome,
+          ativo: formData.ativo, // Simulating ativo field
         };
         await FormaPagamentoService.updateFormaPagamento(
           editingMethod.id,
@@ -71,6 +72,7 @@ export default function PaymentMethodsConfig() {
         const createData: FormaPagamentoRequestAddDto = {
           nome: formData.nome,
           empresaId: "1", // You should get this from context/auth
+          ativo: formData.ativo,
         };
         await FormaPagamentoService.addFormaPagamento(createData);
         alert("Método de pagamento criado com sucesso");
@@ -161,7 +163,7 @@ export default function PaymentMethodsConfig() {
                 <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>Nenhum método de pagamento cadastrado</p>
                 <p className="text-sm">
-                  Clique em "Adicionar Método" para começar
+                  Clique em &quot;Adicionar Método&quot; para começar
                 </p>
               </div>
             ) : (
