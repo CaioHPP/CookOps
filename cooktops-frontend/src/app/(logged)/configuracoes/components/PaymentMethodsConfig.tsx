@@ -20,6 +20,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -28,16 +37,16 @@ import {
   FormaPagamentoRequestUpdateDto,
 } from "@/types/dto/formapagamento/request/formapagamento-request.dto";
 import { FormaPagamentoResponseDto } from "@/types/dto/formapagamento/response/formapagamento-response.dto";
-import { Check, CreditCard, Edit, Plus, Trash2, X } from "lucide-react";
+import { Check, CreditCard, Edit, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function PaymentMethodsConfig() {
-  const [paymentMethods, setPaymentMethods] = useState<
+export default function PaymentMethodsConfig() {  const [paymentMethods, setPaymentMethods] = useState<
     FormaPagamentoResponseDto[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingMethod, setEditingMethod] =
     useState<FormaPagamentoResponseDto | null>(null);
   const [formData, setFormData] = useState<{ nome: string; ativo: boolean }>({
@@ -59,8 +68,7 @@ export default function PaymentMethodsConfig() {
     } finally {
       setIsLoading(false);
     }
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
+  };  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome.trim()) {
@@ -69,10 +77,11 @@ export default function PaymentMethodsConfig() {
     }
 
     try {
+      setIsSubmitting(true);
       if (editingMethod) {
         const updateData: FormaPagamentoRequestUpdateDto = {
           nome: formData.nome,
-          ativo: formData.ativo, // Simulating ativo field
+          ativo: formData.ativo,
         };
         await FormaPagamentoService.updateFormaPagamento(
           editingMethod.id,
@@ -94,6 +103,8 @@ export default function PaymentMethodsConfig() {
     } catch (error) {
       toast.error("Erro ao salvar método de pagamento");
       console.error("Erro ao salvar método de pagamento:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleDelete = async (id: number) => {
@@ -106,38 +117,66 @@ export default function PaymentMethodsConfig() {
       console.error("Erro ao excluir método de pagamento:", error);
     }
   };
-  const handleToggleStatus = async (id: number, newStatus: boolean) => {
+  const handleToggleStatus = async (
+    method: FormaPagamentoResponseDto,
+    newStatus: boolean
+  ) => {
+    // Optimistic update - update UI first
+    setPaymentMethods((prevMethods) =>
+      prevMethods.map((m) =>
+        m.id === method.id ? { ...m, ativo: newStatus } : m
+      )
+    );
+
     try {
-      await FormaPagamentoService.toggleStatusFormaPagamento(id, {
+      await FormaPagamentoService.toggleStatusFormaPagamento(method.id, {
         ativo: newStatus,
       });
+
       toast.success(
         `Método de pagamento ${
           newStatus ? "ativado" : "desativado"
         } com sucesso`
       );
     } catch (error) {
+      // Revert the optimistic update on error
+      setPaymentMethods((prevMethods) =>
+        prevMethods.map((m) =>
+          m.id === method.id ? { ...m, ativo: !newStatus } : m
+        )
+      );
+
       toast.error("Erro ao alterar status do método de pagamento");
       console.error("Erro ao alterar status do método de pagamento:", error);
     }
   };
-
   const openEditForm = (method: FormaPagamentoResponseDto) => {
     setEditingMethod(method);
     setFormData({
       nome: method.nome,
       ativo: method.ativo,
     });
-    setShowForm(true);
+    setIsDialogOpen(true);
   };
-
   const resetForm = () => {
     setEditingMethod(null);
     setFormData({
       nome: "",
       ativo: true,
     });
-    setShowForm(false);
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      // Reset form when modal is closed
+      setEditingMethod(null);
+      setFormData({
+        nome: "",
+        ativo: true,
+      });
+    }
   };
 
   if (isLoading) {
@@ -170,12 +209,82 @@ export default function PaymentMethodsConfig() {
             Gerencie os métodos de pagamento aceitos no estabelecimento
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-end">
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Método
-            </Button>
+        <CardContent className="space-y-4">          <div className="flex justify-end">
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+              <DialogTrigger asChild>
+                <Button onClick={() => {
+                  setEditingMethod(null);
+                  setFormData({ nome: "", ativo: true });
+                  setIsDialogOpen(true);
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Método
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingMethod
+                      ? "Editar Método de Pagamento"
+                      : "Novo Método de Pagamento"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {editingMethod
+                      ? "Edite as informações do método de pagamento"
+                      : "Adicione um novo método de pagamento ao sistema"}
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome do Método</Label>
+                    <Input
+                      id="name"
+                      value={formData.nome}
+                      onChange={(e) =>
+                        setFormData({ ...formData, nome: e.target.value })
+                      }
+                      placeholder="Ex: Cartão de Crédito, PIX, Dinheiro..."
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="active"
+                      checked={formData.ativo}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, ativo: checked })
+                      }
+                      disabled={isSubmitting}
+                    />
+                    <Label htmlFor="active">Método ativo</Label>
+                  </div>
+                  <DialogFooter>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={resetForm}
+                      disabled={isSubmitting}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          {editingMethod ? "Salvando..." : "Criando..."}
+                        </div>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          {editingMethod ? "Salvar Alterações" : "Criar Método"}
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="space-y-3">
@@ -206,7 +315,7 @@ export default function PaymentMethodsConfig() {
                     <Switch
                       checked={method.ativo}
                       onCheckedChange={(checked) =>
-                        handleToggleStatus(method.id, checked)
+                        handleToggleStatus(method, checked)
                       }
                     />{" "}
                     <Button
@@ -251,66 +360,9 @@ export default function PaymentMethodsConfig() {
                   </div>
                 </div>
               ))
-            )}
-          </div>
+            )}          </div>
         </CardContent>
       </Card>
-
-      {/* Form Card */}
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              {editingMethod
-                ? "Editar Método de Pagamento"
-                : "Novo Método de Pagamento"}
-              <Button variant="ghost" size="sm" onClick={resetForm}>
-                <X className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-            <CardDescription>
-              {editingMethod
-                ? "Edite as informações do método de pagamento"
-                : "Adicione um novo método de pagamento ao sistema"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome do Método</Label>
-                <Input
-                  id="name"
-                  value={formData.nome}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nome: e.target.value })
-                  }
-                  placeholder="Ex: Cartão de Crédito, PIX, Dinheiro..."
-                  required
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="active"
-                  checked={formData.ativo}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, ativo: checked })
-                  }
-                />
-                <Label htmlFor="active">Método ativo</Label>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit">
-                  <Check className="h-4 w-4 mr-2" />
-                  {editingMethod ? "Salvar Alterações" : "Criar Método"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

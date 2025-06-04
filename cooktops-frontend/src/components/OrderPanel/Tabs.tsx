@@ -2,9 +2,9 @@ export function Tabs() {
   return (
     <div className="relative shrink-0 w-full" data-name="tabs">
       <div className="relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start pb-3 pt-0 px-0 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col items-start justify-start pb-3 pt-0 px-0 relative w-full">
           <div className="h-12 relative shrink-0 w-full" data-name="Tabs">
-            <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-12 items-start justify-start p-0 relative w-full">
+            <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col h-12 items-start justify-start p-0 relative w-full">
               <TabGroup />
               <Divider />
             </div>
@@ -47,7 +47,7 @@ function Tab({ text, isActive = false }: TabProps) {
                   <div className="box-border content-stretch flex flex-row gap-1 h-full items-center justify-center px-0 py-3.5 relative">
                     <div
                       style={{ fontVariationSettings: "'wdth' 100" }}
-                      className={`flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px] ${
+                      className={`flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px] ${
                         isActive
                           ? "css-canpp4 text-primary"
                           : "css-5fteq9 text-muted-foreground"

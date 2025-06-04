@@ -22,7 +22,7 @@ function BackgroundImage240({
 function ButtonBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
         {children}
       </div>
     </div>
@@ -32,7 +32,7 @@ function ButtonBackgroundImage({ children }: React.PropsWithChildren<object>) {
 function InfoBackgroundImage3({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative w-full">
         {children}
       </div>
     </div>
@@ -52,7 +52,7 @@ function TabBackgroundImage({ children }: React.PropsWithChildren<object>) {
 function BackgroundImage173({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-start p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-4 items-center justify-start p-0 relative">
         {children}
       </div>
     </div>
@@ -62,7 +62,7 @@ function BackgroundImage173({ children }: React.PropsWithChildren<object>) {
 function BackgroundImage156({ children }: React.PropsWithChildren<object>) {
   return (
     <div className="relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative">
         {children}
       </div>
     </div>
@@ -124,7 +124,7 @@ function InfoBackgroundImage2({ children }: React.PropsWithChildren<object>) {
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
       <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
       <div className="relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative w-full">
           {children}
         </div>
       </div>
@@ -143,7 +143,7 @@ function InfoBackgroundImage1({
     <div className={clsx("relative shrink-0", additionalClassNames)}>
       <div className="absolute border-[#e5e8eb] border-[0px_0px_1px] border-solid inset-0 pointer-events-none" />
       <div className="relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative size-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-2 items-start justify-start pb-[17px] pt-4 px-0 relative size-full">
           {children}
         </div>
       </div>
@@ -154,7 +154,7 @@ function InfoBackgroundImage1({
 function HeaderBackgroundImage({ children }: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage122 additionalClassNames={["w-full"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-start justify-between px-4 py-2 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row items-start justify-between px-4 py-2 relative w-full">
         {children}
       </div>
     </BackgroundImage122>
@@ -188,7 +188,7 @@ function TabcontentsBackgroundImage({ children }: React.PropsWithChildren<object
 function BackgroundImage13({ children }: React.PropsWithChildren<object>) {
   return (
     <BackgroundImage106 additionalClassNames={["w-full"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-1 py-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-2.5 items-center justify-center px-1 py-0 relative w-full">
         {children}
       </div>
     </BackgroundImage106>
@@ -206,7 +206,7 @@ function BackgroundImageAndText1({
   return (
     <BackgroundImage240
       additionalClassNames={[
-        "flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap tracking-[0.15px]",
+        "flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap tracking-[0.15px]",
         ...additionalClassNames,
       ]}
     >
@@ -231,8 +231,8 @@ function TablecellBackgroundImageAndText({
     >
       <div className="absolute border-[1px_0px] border-[rgba(218,218,218,0.67)] border-solid inset-0 pointer-events-none" />
       <div className="flex flex-row items-center relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 items-center justify-start px-3 py-px relative size-full">
-          <div className="basis-0 css-ys09ak font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium grow leading-[0] min-h-px min-w-px overflow-ellipsis overflow-hidden relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-2 items-center justify-start px-3 py-px relative size-full">
+          <div className="basis-0 css-ys09ak font-['Plus_Jakarta_Sans:Medium',sans-serif] font-medium grow leading-[0] min-h-px min-w-px text-ellipsis overflow-hidden relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap">
             <p className="[text-overflow:inherit] [text-wrap-mode:inherit]\' [white-space-collapse:inherit] block leading-[normal] overflow-inherit">
               {text}
             </p>
@@ -251,7 +251,7 @@ function ValueBackgroundImageAndText({
 }: ValueBackgroundImageAndTextProps) {
   return (
     <BackgroundImage13>
-      <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left">
+      <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left">
         <p className="block leading-[21px]">{text}</p>
       </div>
     </BackgroundImage13>
@@ -267,7 +267,7 @@ function TitleBackgroundImageAndText({
   return (
     <BackgroundImage139>
       <div
-        className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[20px] text-left"
+        className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[20px] text-left"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[23px]">{text}</p>
@@ -308,7 +308,7 @@ type TimeBackgroundImageAndTextProps = {
 function TimeBackgroundImageAndText({ text }: TimeBackgroundImageAndTextProps) {
   return (
     <BackgroundImage156>
-      <div className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] relative shrink-0 text-[14px] text-left text-neutral-500 text-nowrap w-full">
+      <div className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] relative shrink-0 text-[14px] text-left text-neutral-500 text-nowrap w-full">
         <p className="block leading-[21px] whitespace-pre">{text}</p>
       </div>
     </BackgroundImage156>
@@ -322,15 +322,15 @@ type InfoBackgroundImageProps = {
 function InfoBackgroundImage({ text, text1 }: InfoBackgroundImageProps) {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-1 items-start justify-center leading-[0] p-0 relative text-left w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-1 items-start justify-center leading-[0] p-0 relative text-left w-full">
         <div
-          className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium min-w-full relative shrink-0 text-[#141414] text-[16px]"
+          className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',sans-serif] font-medium min-w-full relative shrink-0 text-[#141414] text-[16px]"
           style={{ width: "min-content" }}
         >
           <p className="block leading-[24px]">{text}</p>
         </div>
         <div
-          className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal min-w-full relative shrink-0 text-[14px] text-neutral-500"
+          className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal min-w-full relative shrink-0 text-[14px] text-neutral-500"
           style={{ width: "min-content" }}
         >
           <p className="block leading-[21px]">{text1}</p>
@@ -351,7 +351,7 @@ function BackgroundImageAndText({
   return (
     <BackgroundImage240
       additionalClassNames={[
-        "flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px]",
+        "flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[14px] text-center text-nowrap tracking-[0.1px]",
         ...additionalClassNames,
       ]}
     >
@@ -370,7 +370,7 @@ function NavitemBackgroundImageAndText({
 }: NavitemBackgroundImageAndTextProps) {
   return (
     <BackgroundImage156>
-      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',_sans-serif] font-medium leading-[0] relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap w-full">
+      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Medium',sans-serif] font-medium leading-[0] relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap w-full">
         <p className="block leading-[21px] whitespace-pre">{text}</p>
       </div>
     </BackgroundImage156>
@@ -380,7 +380,7 @@ function NavitemBackgroundImageAndText({
 function Logo() {
   return (
     <BackgroundImage173>
-      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold h-full leading-[0] relative shrink-0 text-[#141414] text-[18px] text-left text-nowrap">
+      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold h-full leading-[0] relative shrink-0 text-[#141414] text-[18px] text-left text-nowrap">
         <p className="block leading-[23px] whitespace-pre">CookOps</p>
       </div>
     </BackgroundImage173>
@@ -390,7 +390,7 @@ function Logo() {
 function NavItem() {
   return (
     <BackgroundImage156>
-      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap w-full">
+      <div className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold leading-[0] relative shrink-0 text-[#141414] text-[14px] text-left text-nowrap w-full">
         <p className="block leading-[21px] whitespace-pre">Pedidos</p>
       </div>
     </BackgroundImage156>
@@ -400,7 +400,7 @@ function NavItem() {
 function NavItems() {
   return (
     <div className="h-10 relative shrink-0" data-name="nav-items">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-9 h-10 items-center justify-start p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-9 h-10 items-center justify-start p-0 relative">
         <NavItem />
         <NavitemBackgroundImageAndText text="Produção" />
         <NavitemBackgroundImageAndText text="Cardápio" />
@@ -416,7 +416,7 @@ function Main() {
       className="basis-0 grow min-h-px min-w-px relative shrink-0"
       data-name="main"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end p-0 relative w-full">
         <NavItems />
       </div>
     </div>
@@ -429,7 +429,7 @@ function Depth6Frame0() {
       className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full"
       data-name="Depth 6, Frame 0"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border overflow-clip relative size-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border overflow-clip relative size-full">
         <div className="absolute left-0 size-5 top-0" data-name="Vector - 0">
           <div className="absolute bottom-[9.379%] left-[12.505%] right-[12.508%] top-[9.375%]">
             <svg
@@ -459,7 +459,7 @@ function Depth5Frame0() {
       className="basis-0 grow min-h-px min-w-px relative shrink-0"
       data-name="Depth 5, Frame 0"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-center justify-start p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col items-center justify-start p-0 relative w-full">
         <Depth6Frame0 />
       </div>
     </div>
@@ -484,7 +484,7 @@ function Notifications() {
 function ProfilePic() {
   return (
     <div
-      className="bg-[50%_50%] bg-cover bg-no-repeat rounded-[20px] shrink-0 size-10"
+      className="bg-position-[50%_50%] bg-cover bg-no-repeat rounded-[20px] shrink-0 size-10"
       data-name="profile-pic"
       style={{ backgroundImage: `url('${imgProfilePic}')` }}
     />
@@ -505,7 +505,7 @@ function Navbar() {
     <div className="bg-[#ffffff] relative shrink-0 w-full" data-name="navbar">
       <div className="absolute border-[0px_0px_1px] border-neutral-50 border-solid inset-0 pointer-events-none" />
       <div className="flex flex-row items-center relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-10 items-center justify-start pb-[13px] pt-3 px-10 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-10 items-center justify-start pb-[13px] pt-3 px-10 relative w-full">
           <Logo />
           <Main />
           <Profile />
@@ -654,7 +654,7 @@ function Divider() {
 function Tabs() {
   return (
     <div className="h-12 relative shrink-0 w-full" data-name="Tabs">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-12 items-start justify-start p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col h-12 items-start justify-start p-0 relative w-full">
         <TabGroup />
         <Divider />
       </div>
@@ -665,7 +665,7 @@ function Tabs() {
 function Tabs1() {
   return (
     <BackgroundImage122 additionalClassNames={["w-full"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start pb-3 pt-0 px-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col items-start justify-start pb-3 pt-0 px-0 relative w-full">
         <Tabs />
       </div>
     </BackgroundImage122>
@@ -675,7 +675,7 @@ function Tabs1() {
 function Cards() {
   return (
     <div className="relative shrink-0 w-full" data-name="cards">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col items-start justify-start p-0 relative w-full">
         <CardBackgroundImage additionalClassNames={["bg-[#dbf2fd]"]} />
         <CardBackgroundImage additionalClassNames={["bg-neutral-50"]} />
       </div>
@@ -686,7 +686,7 @@ function Cards() {
 function CardList() {
   return (
     <div className="h-full relative shrink-0 w-80" data-name="card list">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-full items-start justify-start overflow-clip p-0 relative w-80">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col h-full items-start justify-start overflow-clip p-0 relative w-80">
         <Tabs1 />
         <Cards />
       </div>
@@ -698,7 +698,7 @@ function Title() {
   return (
     <BackgroundImage139>
       <div
-        className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[32px] text-left"
+        className="css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[#141414] text-[32px] text-left"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[40px]">3 itens - R$ 30,00</p>
@@ -711,7 +711,7 @@ function Description() {
   return (
     <BackgroundImage139>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Pedido #12346</p>
@@ -732,7 +732,7 @@ function Info2() {
 function Header() {
   return (
     <BackgroundImage122 additionalClassNames={["w-full"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-start justify-between p-[16px] relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row items-start justify-between p-[16px] relative w-full">
         <Info2 />
       </div>
     </BackgroundImage122>
@@ -757,9 +757,9 @@ function Header1() {
 
 function Info4() {
   return (
-    <InfoBackgroundImage1 additionalClassNames={["[grid-area:1_/_1]"]}>
+    <InfoBackgroundImage1 additionalClassNames={["[grid-area:1/1]"]}>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Tipo de pedido</p>
@@ -771,9 +771,9 @@ function Info4() {
 
 function Info5() {
   return (
-    <InfoBackgroundImage1 additionalClassNames={["[grid-area:1_/_2]"]}>
+    <InfoBackgroundImage1 additionalClassNames={["[grid-area:1/2]"]}>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Hora do pedido</p>
@@ -785,9 +785,9 @@ function Info5() {
 
 function Info6() {
   return (
-    <InfoBackgroundImage1 additionalClassNames={["[grid-area:2_/_1]"]}>
+    <InfoBackgroundImage1 additionalClassNames={["[grid-area:2/1]"]}>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Nome do cliente</p>
@@ -799,9 +799,9 @@ function Info6() {
 
 function Info7() {
   return (
-    <InfoBackgroundImage1 additionalClassNames={["[grid-area:2_/_2]"]}>
+    <InfoBackgroundImage1 additionalClassNames={["[grid-area:2/2]"]}>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Telefone de contato</p>
@@ -814,7 +814,7 @@ function Info7() {
 function Info8() {
   return (
     <BackgroundImage122 additionalClassNames={["h-[217px]", "w-[908px]"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border gap-6 grid grid-cols-[repeat(2,_minmax(0px,_1fr))] grid-rows-[repeat(2,_minmax(0px,_1fr))] h-[217px] p-[16px] relative w-[908px]">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border gap-6 grid grid-cols-[repeat(2,minmax(0px,1fr))] grid-rows-[repeat(2,minmax(0px,1fr))] h-[217px] p-[16px] relative w-[908px]">
         <Info4 />
         <Info5 />
         <Info6 />
@@ -855,54 +855,54 @@ function Table() {
       className="h-40 relative rounded-2xl shrink-0 w-[874px]"
       data-name="table"
     >
-      <div className="box-border grid grid-cols-[repeat(3,_minmax(0px,_1fr))] grid-rows-[repeat(4,_minmax(0px,_1fr))] h-40 overflow-clip p-px relative w-[874px]">
+      <div className="box-border grid grid-cols-[repeat(3,minmax(0px,1fr))] grid-rows-[repeat(4,minmax(0px,1fr))] h-40 overflow-clip p-px relative w-[874px]">
         <TablecellBackgroundImageAndText
           text="Item 1"
-          additionalClassNames={["[grid-area:2_/_1]"]}
+          additionalClassNames={["[grid-area:2/1]"]}
         />
         <TablecellBackgroundImageAndText
           text="Item 2"
-          additionalClassNames={["[grid-area:3_/_1]"]}
+          additionalClassNames={["[grid-area:3/1]"]}
         />
         <TablecellBackgroundImageAndText
           text="Item 3"
-          additionalClassNames={["[grid-area:4_/_1]"]}
+          additionalClassNames={["[grid-area:4/1]"]}
         />
         <TablecellBackgroundImageAndText
           text="Quantity"
-          additionalClassNames={["[grid-area:1_/_2]"]}
+          additionalClassNames={["[grid-area:1/2]"]}
         />
         <TablecellBackgroundImageAndText
           text="1"
-          additionalClassNames={["[grid-area:2_/_2]"]}
+          additionalClassNames={["[grid-area:2/2]"]}
         />
         <TablecellBackgroundImageAndText
           text="1"
-          additionalClassNames={["[grid-area:3_/_2]"]}
+          additionalClassNames={["[grid-area:3/2]"]}
         />
         <TablecellBackgroundImageAndText
           text="1"
-          additionalClassNames={["[grid-area:4_/_2]"]}
+          additionalClassNames={["[grid-area:4/2]"]}
         />
         <TablecellBackgroundImageAndText
           text="Price"
-          additionalClassNames={["[grid-area:1_/_3]"]}
+          additionalClassNames={["[grid-area:1/3]"]}
         />
         <TablecellBackgroundImageAndText
           text="R$ 1,00"
-          additionalClassNames={["[grid-area:2_/_3]"]}
+          additionalClassNames={["[grid-area:2/3]"]}
         />
         <TablecellBackgroundImageAndText
           text="R$ 1,00"
-          additionalClassNames={["[grid-area:3_/_3]"]}
+          additionalClassNames={["[grid-area:3/3]"]}
         />
         <TablecellBackgroundImageAndText
           text="R$ 1,00"
-          additionalClassNames={["[grid-area:4_/_3]"]}
+          additionalClassNames={["[grid-area:4/3]"]}
         />
         <TablecellBackgroundImageAndText
           text="Item"
-          additionalClassNames={["[grid-area:1_/_1]"]}
+          additionalClassNames={["[grid-area:1/1]"]}
         />
       </div>
       <div className="absolute border border-[#dbdbdb] border-solid inset-0 pointer-events-none rounded-2xl" />
@@ -913,7 +913,7 @@ function Table() {
 function Content() {
   return (
     <BackgroundImage122>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-[16px] relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-[16px] relative">
         <Table />
       </div>
     </BackgroundImage122>
@@ -949,7 +949,7 @@ function Info11() {
   return (
     <InfoBackgroundImage2>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Subtotal</p>
@@ -963,7 +963,7 @@ function Info12() {
   return (
     <InfoBackgroundImage2>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Taxas</p>
@@ -976,7 +976,7 @@ function Info12() {
 function Value6() {
   return (
     <BackgroundImage13>
-      <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left">
+      <div className="basis-0 css-xb5jc6 font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold grow leading-[0] min-h-px min-w-px relative shrink-0 text-[#141414] text-[14px] text-left">
         <p className="block leading-[21px]">R$ 3.25</p>
       </div>
     </BackgroundImage13>
@@ -987,7 +987,7 @@ function Info13() {
   return (
     <InfoBackgroundImage2>
       <div
-        className="css-lbkhcf font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
+        className="css-lbkhcf font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold leading-[0] min-w-full relative shrink-0 text-[14px] text-left text-neutral-500"
         style={{ width: "min-content" }}
       >
         <p className="block leading-[21px]">Total</p>
@@ -1000,7 +1000,7 @@ function Info13() {
 function Info14() {
   return (
     <BackgroundImage122 additionalClassNames={["w-[908px]"]}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-6 items-start justify-start p-[16px] relative w-[908px]">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-6 items-start justify-start p-[16px] relative w-[908px]">
         <Info11 />
         <Info12 />
         <Info13 />
@@ -1024,7 +1024,7 @@ function Sections() {
       className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full"
       data-name="sections"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative size-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative size-full">
         <Section />
         <Section1 />
         <Section2 />
@@ -1099,7 +1099,7 @@ function Buttons() {
   return (
     <div className="relative shrink-0 w-full" data-name="buttons">
       <div className="flex flex-row items-center justify-end relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end px-0 py-4 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end px-0 py-4 relative w-full">
           <Button />
           <Button1 />
         </div>
@@ -1114,7 +1114,7 @@ function Content3() {
       className="basis-0 grow h-[1056px] min-h-px min-w-px relative shrink-0"
       data-name="content"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-[1056px] items-start justify-start overflow-clip p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col h-[1056px] items-start justify-start overflow-clip p-0 relative w-full">
         <Header />
         <Sections />
         <Buttons />
@@ -1127,7 +1127,7 @@ function Main1() {
   return (
     <div className="h-[1082px] relative shrink-0 w-full" data-name="main">
       <div className="flex flex-row justify-center relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 h-[1082px] items-start justify-center px-6 py-5 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-2 h-[1082px] items-start justify-center px-6 py-5 relative w-full">
           <CardList />
           <Content3 />
         </div>

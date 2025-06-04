@@ -111,7 +111,7 @@ export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
           data-name="main"
         >
           <div className="flex flex-row justify-center relative size-full">
-            <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-2 h-[1082px] items-start justify-center px-6 py-5 relative w-full">
+            <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-2 h-[1082px] items-start justify-center px-6 py-5 relative w-full">
               <CardList orders={orders} />
               {orders.length > 0 ? (
                 <OrderDetails order={selectedOrder || null} />
@@ -132,7 +132,7 @@ function EmptyStateWithButton({ onAddOrder }: { onAddOrder: () => void }) {
       className="basis-0 grow h-[1056px] min-h-px min-w-px relative shrink-0"
       data-name="content"
     >
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col h-[1056px] items-start justify-start overflow-clip p-0 relative w-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col h-[1056px] items-start justify-start overflow-clip p-0 relative w-full">
         <EmptyState />
         <ActionButtons onAddOrder={onAddOrder} />
       </div>
@@ -144,7 +144,7 @@ function ActionButtons({ onAddOrder }: { onAddOrder: () => void }) {
   return (
     <div className="relative shrink-0 w-full" data-name="buttons">
       <div className="flex flex-row items-center justify-end relative size-full">
-        <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end px-0 py-4 relative w-full">
+        <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row gap-4 items-center justify-end px-0 py-4 relative w-full">
           <CancelButton />
           <ConfirmButton onAddOrder={onAddOrder} />
         </div>
@@ -156,7 +156,7 @@ function ActionButtons({ onAddOrder }: { onAddOrder: () => void }) {
 function CancelButton() {
   return (
     <div className="relative shrink-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
         <div className="relative rounded-2xl shrink-0" data-name="Content">
           <div className="box-border content-stretch flex flex-col items-center justify-center overflow-clip p-0 relative">
             <div className="relative shrink-0">
@@ -166,7 +166,7 @@ function CancelButton() {
                     style={{
                       fontVariationSettings: "'wdth' 100",
                     }}
-                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-muted-foreground tracking-[0.15px]"
+                    className="css-7m7p53 flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-muted-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Cancelar pedido
@@ -186,7 +186,7 @@ function CancelButton() {
 function ConfirmButton({ onAddOrder }: { onAddOrder: () => void }) {
   return (
     <button className="relative shrink-0" onClick={onAddOrder}>
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-row items-center justify-center p-0 relative">
         <div
           className="bg-primary relative rounded-2xl shrink-0"
           data-name="Content"
@@ -199,7 +199,7 @@ function ConfirmButton({ onAddOrder }: { onAddOrder: () => void }) {
                     style={{
                       fontVariationSettings: "'wdth' 100",
                     }}
-                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
+                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Confirmar pedido
