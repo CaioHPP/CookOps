@@ -41,7 +41,8 @@ import { Check, CreditCard, Edit, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function PaymentMethodsConfig() {  const [paymentMethods, setPaymentMethods] = useState<
+export default function PaymentMethodsConfig() {
+  const [paymentMethods, setPaymentMethods] = useState<
     FormaPagamentoResponseDto[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +69,8 @@ export default function PaymentMethodsConfig() {  const [paymentMethods, setPaym
     } finally {
       setIsLoading(false);
     }
-  };  const handleSubmit = async (e: React.FormEvent) => {
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome.trim()) {
@@ -209,14 +211,18 @@ export default function PaymentMethodsConfig() {  const [paymentMethods, setPaym
             Gerencie os métodos de pagamento aceitos no estabelecimento
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">          <div className="flex justify-end">
+        <CardContent className="space-y-4">
+          {" "}
+          <div className="flex justify-end">
             <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
               <DialogTrigger asChild>
-                <Button onClick={() => {
-                  setEditingMethod(null);
-                  setFormData({ nome: "", ativo: true });
-                  setIsDialogOpen(true);
-                }}>
+                <Button
+                  onClick={() => {
+                    setEditingMethod(null);
+                    setFormData({ nome: "", ativo: true });
+                    setIsDialogOpen(true);
+                  }}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar Método
                 </Button>
@@ -260,9 +266,9 @@ export default function PaymentMethodsConfig() {  const [paymentMethods, setPaym
                     <Label htmlFor="active">Método ativo</Label>
                   </div>
                   <DialogFooter>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={resetForm}
                       disabled={isSubmitting}
                     >
@@ -286,7 +292,6 @@ export default function PaymentMethodsConfig() {  const [paymentMethods, setPaym
               </DialogContent>
             </Dialog>
           </div>
-
           <div className="space-y-3">
             {paymentMethods.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -360,7 +365,8 @@ export default function PaymentMethodsConfig() {  const [paymentMethods, setPaym
                   </div>
                 </div>
               ))
-            )}          </div>
+            )}{" "}
+          </div>
         </CardContent>
       </Card>
     </div>
