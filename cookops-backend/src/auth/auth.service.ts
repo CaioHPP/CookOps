@@ -2,6 +2,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { EmpresaService } from 'src/empresa/empresa.service';
 import { LoginUsuarioResponseDto } from 'src/usuario/dto/login-usuario.dto';
 import { UsuarioService } from 'src/usuario/usuario.service';
 
@@ -9,6 +10,7 @@ import { UsuarioService } from 'src/usuario/usuario.service';
 export class AuthService {
   constructor(
     private usuarioService: UsuarioService,
+    private empresaService: EmpresaService,
     private jwtService: JwtService,
   ) {}
 
@@ -20,10 +22,19 @@ export class AuthService {
     throw new UnauthorizedException('Credenciais inválidas');
   }
 
-  login(user: LoginUsuarioResponseDto) {
+  async login(user: LoginUsuarioResponseDto) {
+    const empresa = await this.empresaService.findOne(user.empresaId);
+
+    if (!empresa) {
+      throw new UnauthorizedException('Empresa não encontrada');
+    }
+
     const payload = {
       user: user.user,
+      nome: user.nome,
+      email: user.email,
       empresaId: user.empresaId,
+      nomeEmpresa: empresa.nome,
       role: user.role,
     };
 

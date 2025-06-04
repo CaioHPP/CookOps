@@ -19,10 +19,12 @@ import {
   User,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 import { Switch } from "../ui/switch";
 
 export function Navbar() {
   const { setTheme, theme } = useTheme();
+
   return (
     <div className="w-full border-b bg-background" data-name="navbar">
       <div className="flex h-16 items-center justify-between px-6">
@@ -33,38 +35,46 @@ export function Navbar() {
         <div className="flex items-center gap-6">
           {/* Navigation Items */}
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-sm font-medium"
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Pedidos
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-sm font-medium"
-            >
-              <ChefHat className="h-4 w-4" />
-              Produção
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-sm font-medium"
-            >
-              <Menu className="h-4 w-4" />
-              Cardápio
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-sm font-medium"
-            >
-              <Sliders className="h-4 w-4" />
-              Configurações
-            </Button>
+            <Link href="/pedidos" className="text-sm font-medium">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm font-medium"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                Pedidos
+              </Button>
+            </Link>
+            <Link href="/producao" className="text-sm font-medium">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm font-medium"
+              >
+                <ChefHat className="h-4 w-4" />
+                Produção
+              </Button>
+            </Link>
+            <Link href="/cardapio" className="text-sm font-medium">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm font-medium"
+              >
+                <Menu className="h-4 w-4" />
+                Cardápio
+              </Button>
+            </Link>
+            <Link href="/configuracoes" className="text-sm font-medium">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm font-medium"
+              >
+                <Sliders className="h-4 w-4" />
+                Configurações
+              </Button>
+            </Link>
           </div>
 
           {/* User actions */}
@@ -80,7 +90,9 @@ export function Navbar() {
                 <Button variant="ghost" size="sm" className="gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="" alt="Usuário" />
-                    <AvatarFallback className="text-xs">U</AvatarFallback>
+                    <AvatarFallback className="text-xs">
+                      {sessionStorage.getItem("nome")?.charAt(0)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -89,10 +101,12 @@ export function Navbar() {
                   <User className="h-4 w-4" />
                   Perfil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  Configurações
-                </DropdownMenuItem>
+                <Link href="/configuracoes">
+                  <DropdownMenuItem className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    Configurações
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="gap-2">
                   <div className="flex items-center gap-2">

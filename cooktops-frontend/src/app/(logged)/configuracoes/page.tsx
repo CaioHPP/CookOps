@@ -1,6 +1,5 @@
 "use client";
 
-import { Navbar } from "@/components/NavBar/NavBar";
 import {
   Card,
   CardDescription,
@@ -40,7 +39,7 @@ const configuracaoItems = [
   },
 ];
 
-export default function ConfiguracoesPage() {
+export default function Configuracoes() {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const handleItemClick = (itemId: string) => {
@@ -48,18 +47,14 @@ export default function ConfiguracoesPage() {
     // TODO: Implementar navegação ou modal específico para cada seção
     console.log(`Configuração selecionada: ${itemId}`);
   };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <Navbar />
-
       <div className="flex">
         {/* Sidebar */}
         <div className="w-72 bg-white border-r border-gray-200 min-h-screen p-6">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Marmitaria do Japa
+              {sessionStorage.getItem("nomeEmpresa") || "CookOps"}
             </h1>
             <p className="text-sm text-gray-600">Configurações do sistema</p>
           </div>

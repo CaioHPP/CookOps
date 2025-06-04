@@ -16,6 +16,11 @@ export class AuthService {
 
     const decoded: DecodedTokenDto = jwtDecode(accessToken); // Salva o token no sessionStorage e como cookie
     sessionStorage.setItem("token", accessToken);
+    sessionStorage.setItem("nome", decoded.nome);
+    sessionStorage.setItem("email", decoded.email);
+    sessionStorage.setItem("nomeEmpresa", decoded.nomeEmpresa);
+    //sessionStorage.setItem("empresaId", decoded.empresaId);
+    // sessionStorage.setItem("role", decoded.role);
 
     // Também salva como cookie para o middleware
     document.cookie = `token=${accessToken}; path=/; max-age=${
@@ -28,6 +33,7 @@ export class AuthService {
     sessionStorage.removeItem("token");
     // Remove o cookie também
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    sessionStorage.clear(); // Limpa todos os dados do sessionStorage
   }
 
   static getToken(): string | null {

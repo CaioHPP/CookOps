@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navbar } from "../NavBar/Navbar";
 import { CardList } from "./CardList";
 import { EmptyState } from "./EmptyState";
 import { OrderDetails } from "./OrderDetails";
@@ -107,7 +106,6 @@ export function OrderPanel({ initialOrders = [] }: OrderPanelProps) {
   return (
     <div className="bg-background relative size-full" data-name="order-panel">
       <div className="box-border content-stretch flex flex-col items-start justify-start p-0 relative size-full">
-        <Navbar />
         <div
           className="h-[1082px] relative shrink-0 w-full bg-background "
           data-name="main"

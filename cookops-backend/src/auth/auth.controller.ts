@@ -25,6 +25,8 @@ export class AuthController {
     const user = await this.authService.validateUser(body.email, body.senha);
     const jwtPayload = {
       user: user.id,
+      nome: user.nome,
+      email: user.email,
       empresaId: user.empresaId,
       role: user.role,
     };

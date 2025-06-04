@@ -4,7 +4,10 @@ export interface LoginResponseDto {
 
 export interface DecodedTokenDto {
   user: string;
+  nome: string;
+  email: string;
   empresaId: string;
+  nomeEmpresa: string;
   role: string;
   exp: number;
 }

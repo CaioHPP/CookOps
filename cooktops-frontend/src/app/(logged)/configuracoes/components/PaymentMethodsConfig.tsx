@@ -105,7 +105,7 @@ export default function PaymentMethodsConfig() {
     setEditingMethod(method);
     setFormData({
       nome: method.nome,
-      ativo: true, // Since the API doesn't have ativo field, we'll simulate it
+      ativo: method.ativo,
     });
     setShowForm(true);
   };
@@ -176,11 +176,13 @@ export default function PaymentMethodsConfig() {
                     <CreditCard className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{method.nome}</p>
-                      <p className="text-sm text-muted-foreground">Ativo</p>
+                      <p className="text-sm text-muted-foreground">
+                        {method.ativo ? "Ativo" : "Inativo"}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch checked={true} disabled />
+                    <Switch checked={method.ativo} disabled />
                     <Button
                       variant="outline"
                       size="sm"
