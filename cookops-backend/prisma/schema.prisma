@@ -18,10 +18,12 @@ model Empresa {
   cnpj         String?
   email        String?
   telefone     String?
+  enderecoId   String?
   planoAtualId Int
   criadaEm     DateTime @default(now())
 
   plano          Plano                @relation(fields: [planoAtualId], references: [id])
+  endereco       Endereco?            @relation(fields: [enderecoId], references: [id])
   usuarios       Usuario[]
   boards         Board[]
   pedidos        Pedido[]
@@ -164,7 +166,8 @@ model Endereco {
   cep         String?
   referencia  String?
 
-  pedidos Pedido[]
+  pedidos  Pedido[]
+  empresas Empresa[]
 }
 
 model LogMovimentacao {

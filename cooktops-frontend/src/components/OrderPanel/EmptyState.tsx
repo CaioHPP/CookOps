@@ -3,7 +3,7 @@ import svgPaths from "../../imports/svg-oxrsuyqcqv";
 export function EmptyState() {
   return (
     <div className="basis-0 grow min-h-px min-w-px relative shrink-0 w-full">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid box-border content-stretch flex flex-col gap-4 items-center justify-center p-0 relative size-full">
+      <div className="bg-clip-padding border-0 border-transparent border-solid box-border content-stretch flex flex-col gap-4 items-center justify-center p-0 relative size-full">
         <div className="relative shrink-0 w-[360px]">
           <div className="box-border content-stretch flex flex-col gap-8 items-center justify-center p-0 relative w-[360px]">
             <EmptyRafiki />
@@ -33,7 +33,7 @@ function EmptyRafiki() {
 function BackgroundComplete() {
   return (
     <div
-      className="[grid-area:1_/_1] h-[223.187px] ml-0 mt-0 relative w-[322.096px]"
+      className="[grid-area:1/1] h-[223.187px] ml-0 mt-0 relative w-[322.096px]"
       data-name="background-complete"
     >
       <svg
@@ -372,7 +372,7 @@ function BackgroundComplete() {
 function BackgroundSimple() {
   return (
     <div
-      className="[grid-area:1_/_1] h-[119.575px] ml-[42.642px] mt-[67.957px] relative w-[200.893px]"
+      className="[grid-area:1/1] h-[119.575px] ml-[42.642px] mt-[67.957px] relative w-[200.893px]"
       data-name="background-simple"
     >
       <svg
@@ -402,7 +402,7 @@ function BackgroundSimple() {
 function Shadow() {
   return (
     <div
-      className="[grid-area:1_/_1] h-[14.585px] ml-[36.146px] mt-[225.415px] relative w-[249.805px]"
+      className="[grid-area:1/1] h-[14.585px] ml-[36.146px] mt-[225.415px] relative w-[249.805px]"
       data-name="Shadow"
     >
       <svg
@@ -422,7 +422,7 @@ function Shadow() {
 function Box() {
   return (
     <div
-      className="[grid-area:1_/_1] h-[57.932px] ml-[73.707px] mt-[171.703px] relative w-[97.806px]"
+      className="[grid-area:1/1] h-[57.932px] ml-[73.707px] mt-[171.703px] relative w-[97.806px]"
       data-name="Box"
     >
       <svg
@@ -474,7 +474,7 @@ function Box() {
 function Character() {
   return (
     <div
-      className="[grid-area:1_/_1] h-[213.343px] ml-[83.739px] mt-[19.364px] relative w-[155.299px]"
+      className="[grid-area:1/1] h-[213.343px] ml-[83.739px] mt-[19.364px] relative w-[155.299px]"
       data-name="Character"
     >
       <svg
@@ -772,11 +772,11 @@ function Content() {
       <div className="box-border content-stretch flex flex-col gap-2 items-start justify-start leading-[0] p-0 relative text-center text-muted-foreground w-full">
         <ContentText
           text="Não há nenhuma ordem"
-          className="font-['Plus_Jakarta_Sans:Bold',_sans-serif] font-bold text-[20px]"
+          className="font-['Plus_Jakarta_Sans:Bold',sans-serif] font-bold text-[20px]"
         />
         <ContentText
           text="Clique no botão abaixo para gerar uma nova ordem"
-          className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-[14px]"
+          className="font-['Plus_Jakarta_Sans:Regular',sans-serif] font-normal text-[14px]"
         />
       </div>
     </div>
@@ -811,7 +811,7 @@ function Button() {
                   <Add />
                   <div
                     style={{ fontVariationSettings: "'wdth' 100" }}
-                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',_sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
+                    className="css-jvcgrh flex flex-col font-['Roboto:Medium',sans-serif] font-medium justify-center leading-[0] relative shrink-0 text-[16px] text-left text-nowrap text-primary-foreground tracking-[0.15px]"
                   >
                     <p className="adjustLetterSpacing block leading-[24px] whitespace-pre">
                       Nova ordem

@@ -56,6 +56,16 @@ export class EmpresaController {
     return this.empresaService.findAll();
   }
 
+  @Get('minhaempresa/')
+  @ApiOperation({
+    summary: 'Buscar dados completos da empresa do usuário autenticado',
+  })
+  findMyCompany(@Request() req: { user: { empresaId: string } }) {
+    if (!req.user.empresaId)
+      throw new ForbiddenException('Usuário não pertence a uma empresa');
+    return this.empresaService.findEmpresaCompleta(req.user.empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar uma empresa pelo ID' })
   @ApiParam({ name: 'id', description: 'ID da empresa' })
@@ -89,16 +99,5 @@ export class EmpresaController {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.empresaService.remove(id);
-  }
-
-  @Get('pedidos/ultimas-12-horas')
-  @ApiOperation({
-    summary: 'Buscar pedidos da empresa criados nas últimas 12 horas',
-    description:
-      'Retorna todos os pedidos da empresa do usuário autenticado que foram criados nas últimas 12 horas, ordenados por data de criação (mais recentes primeiro)',
-  })
-  findPedidosUltimas12Horas(@Request() req: { user: { empresaId: string } }) {
-    const empresaId = req.user.empresaId;
-    return this.pedidoService.findByEmpresaIdLast12Hours(empresaId);
   }
 }

@@ -1,6 +1,7 @@
 import {
   FormaPagamentoRequestAddDto,
   FormaPagamentoRequestUpdateDto,
+  ToggleStatusFormaPagamentoRequestDto,
 } from "@/types/dto/formapagamento/request/formapagamento-request.dto";
 import { FormaPagamentoResponseDto } from "@/types/dto/formapagamento/response/formapagamento-response.dto";
 import { API_ROUTES } from "../api.routes";
@@ -53,5 +54,14 @@ export class FormaPagamentoService {
   static async deleteFormaPagamento(id: number): Promise<void> {
     const url = `${API_ROUTES.FORMA_PAGAMENTO.DELETE_FORMA_PAGAMENTO}/${id}`;
     await api.delete(url);
+  }
+
+  static async toggleStatusFormaPagamento(
+    id: number,
+    data: ToggleStatusFormaPagamentoRequestDto
+  ): Promise<FormaPagamentoResponseDto> {
+    const url = `${API_ROUTES.FORMA_PAGAMENTO.TOGGLE_STATUS_FORMA_PAGAMENTO}/${id}/toggle-status`;
+    const response = await api.patch<FormaPagamentoResponseDto>(url, data);
+    return response.data;
   }
 }

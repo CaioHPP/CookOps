@@ -2,6 +2,7 @@ import {
   EmpresaRequestAddDto,
   EmpresaRequestUpdateDto,
 } from "@/types/dto/empresa/request/empresa-request.dto";
+import { EmpresaCompletaResponseDto } from "@/types/dto/empresa/response/empresa-completa-response.dto";
 import { EmpresaResponseDto } from "@/types/dto/empresa/response/empresa-response.dto";
 import { API_ROUTES } from "../api.routes";
 import api from "../axios";
@@ -38,9 +39,15 @@ export class EmpresaService {
     const response = await api.put<EmpresaResponseDto>(url, data);
     return response.data;
   }
-
   static async deleteEmpresa(id: string): Promise<void> {
     const url = `${API_ROUTES.EMPRESA.DELETE_EMPRESA}/${id}`;
     await api.delete(url);
+  }
+
+  static async getEmpresaCompletaByAuth(): Promise<EmpresaCompletaResponseDto> {
+    const response = await api.get<EmpresaCompletaResponseDto>(
+      API_ROUTES.EMPRESA.GET_EMPRESA_COMPLETA_BY_AUTH
+    );
+    return response.data;
   }
 }

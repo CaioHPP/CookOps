@@ -44,6 +44,15 @@ export class CreateEmpresaDto {
   @IsPhoneNumber('BR')
   telefone?: string;
 
+  @ApiProperty({
+    description: 'ID do endereço da empresa',
+    required: false,
+    example: 'endereco-id-123',
+  })
+  @IsOptional()
+  @IsString()
+  enderecoId?: string;
+
   @ApiProperty({ description: 'ID do plano atual', example: 'plano-1' })
   @IsNotEmpty()
   @IsInt()

@@ -5,6 +5,8 @@ export const API_ROUTES = {
   EMPRESA: {
     ADD_EMPRESA: "/empresas",
     GET_EMPRESAS: "/empresas",
+    GET_EMPRESA_BY_AUTH: "/empresas/minhaempresa/",
+    GET_EMPRESA_COMPLETA_BY_AUTH: "/empresas/minhaempresa/",
     GET_EMPRESA_BY_ID: "/empresas",
     UPDATE_EMPRESA: "/empresas",
     DELETE_EMPRESA: "/empresas",
@@ -22,6 +24,7 @@ export const API_ROUTES = {
     GET_PEDIDOS: "/pedidos",
     GET_PEDIDOS_BY_EMPRESA: "/pedidos/empresa/",
     GET_PEDIDO_BY_ID: "/pedidos",
+    GET_PEDIDOS_ULTIMAS_12_HORAS: "/pedidos/ultimas-12-horas/",
     UPDATE_PEDIDO: "/pedidos",
     DELETE_PEDIDO: "/pedidos",
     MOVER_PEDIDO: "/pedidos/mover",
@@ -67,6 +70,7 @@ export const API_ROUTES = {
     GET_FORMA_PAGAMENTO_BY_ID: "/formapagamentos",
     UPDATE_FORMA_PAGAMENTO: "/formapagamentos",
     DELETE_FORMA_PAGAMENTO: "/formapagamentos",
+    TOGGLE_STATUS_FORMA_PAGAMENTO: "/formapagamentos",
   },
   FONTE_PEDIDO: {
     ADD_FONTE_PEDIDO: "/fontepedidos",
