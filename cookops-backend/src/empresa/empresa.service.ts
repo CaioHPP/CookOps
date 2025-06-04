@@ -17,11 +17,12 @@ export class EmpresaService {
   ) {}
 
   async create(data: CreateEmpresaDto): Promise<Empresa> {
-    const { planoAtualId, ...rest } = data;
+    const { planoAtualId, enderecoId, ...rest } = data;
     const empresa = await this.prisma.empresa.create({
       data: {
         ...rest,
-        plano: { connect: { id: planoAtualId } },
+        planoAtualId,
+        ...(enderecoId && { enderecoId }),
       },
     });
 
@@ -79,13 +80,32 @@ export class EmpresaService {
     return empresa;
   }
 
+  async findEmpresaCompleta(id: string): Promise<any> {
+    const empresa = await this.prisma.empresa.findUnique({
+      where: { id },
+      include: {
+        plano: true,
+        endereco: true,
+        assinatura: true,
+        configuracao: true,
+      },
+    });
+
+    if (!empresa) {
+      throw new NotFoundException('Empresa não encontrada');
+    }
+
+    return empresa;
+  }
+
   update(id: string, data: UpdateEmpresaDto): Promise<Empresa> {
-    const { planoAtualId, ...rest } = data;
+    const { planoAtualId, enderecoId, ...rest } = data;
     return this.prisma.empresa.update({
       where: { id },
       data: {
         ...rest,
-        ...(planoAtualId && { plano: { connect: { id: planoAtualId } } }),
+        ...(planoAtualId && { planoAtualId }),
+        ...(enderecoId !== undefined && { enderecoId }),
       },
     });
   }

@@ -51,6 +51,17 @@ export class PedidoController {
     return this.pedidoService.findAll();
   }
 
+  @Get('ultimas-12-horas/')
+  @ApiOperation({
+    summary: 'Buscar pedidos da empresa criados nas últimas 12 horas',
+    description:
+      'Retorna todos os pedidos da empresa do usuário autenticado que foram criados nas últimas 12 horas, ordenados por data de criação (mais recentes primeiro)',
+  })
+  findPedidosUltimas12Horas(@Request() req: { user: { empresaId: string } }) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findByEmpresaIdLast12Hours(empresaId);
+  }
+
   @Get('empresa/')
   @ApiOperation({ summary: 'Listar pedidos da empresa do usuário autenticado' })
   findByEmpresaId(@Request() req: { user: { empresaId: string } }) {

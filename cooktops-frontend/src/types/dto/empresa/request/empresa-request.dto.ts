@@ -5,6 +5,7 @@ export const EmpresaRequestAddSchema = z.object({
   cnpj: z.string().optional(),
   email: z.string().email().optional(),
   telefone: z.string().optional(),
+  enderecoId: z.string().optional(),
   planoAtualId: z.number(),
 });
 
@@ -13,6 +14,7 @@ export const EmpresaRequestUpdateSchema = z.object({
   cnpj: z.string().optional(),
   email: z.string().email().optional(),
   telefone: z.string().optional(),
+  enderecoId: z.string().optional(),
   planoAtualId: z.number().optional(),
 });
 
