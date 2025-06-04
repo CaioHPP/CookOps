@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
-import { Tabs } from "./Tabs";
+import { useMemo, useState } from "react";
 import type { TabItem } from "./Tabs";
-import type { Order, CardListProps } from "./types";
+import { Tabs } from "./Tabs";
+import type { CardListProps, Order } from "./types";
 
 export function CardList({
   orders = [],
@@ -14,13 +14,15 @@ export function CardList({
     { id: "balcao", label: "Balcão" },
     { id: "app", label: "App" },
   ];
-
   const filteredOrders = useMemo(() => {
     if (!orders || orders.length === 0) return [];
 
+    // Filter out orders without valid ids to prevent key warnings
+    const validOrders = orders.filter((order) => order && order.id);
+
     return activeTab === "all"
-      ? orders
-      : orders.filter((order) => order.source === activeTab);
+      ? validOrders
+      : validOrders.filter((order) => order.source === activeTab);
   }, [orders, activeTab]);
 
   const handleTabChange = (tabId: string) => {

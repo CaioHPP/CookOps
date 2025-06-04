@@ -1,5 +1,8 @@
 "use client";
 
+import CompanyDataConfig from "@/components/CompanyDataConfig/CompanyDataConfig";
+import OrdersConfig from "@/components/OrdersConfig/OrdersConfig";
+import PaymentMethodsConfig from "@/components/PaymentMethodsConfig/PaymentMethodsConfig";
 import {
   Card,
   CardDescription,
@@ -8,9 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Building2, ChevronRight, CreditCard, ShoppingBag } from "lucide-react";
 import { useState } from "react";
-import CompanyDataConfig from "./components/CompanyDataConfig";
-import OrdersConfig from "./components/OrdersConfig";
-import PaymentMethodsConfig from "./components/PaymentMethodsConfig";
 
 const configuracaoItems = [
   {
