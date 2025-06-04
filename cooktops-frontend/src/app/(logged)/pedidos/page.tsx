@@ -1,7 +1,7 @@
 "use client";
 
 import { PedidoService } from "@/api/services/pedido.service";
-import { OrderPanel } from "@/components/OrderPanel/OrderPanel";
+import OrderPanel from "@/components/OrderPanel/OrderPanel";
 import { PedidoResponseDto } from "@/types/dto/pedido/response/pedido-response.dto";
 import { useEffect, useState } from "react";
 
