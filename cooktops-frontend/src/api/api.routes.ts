@@ -75,4 +75,10 @@ export const API_ROUTES = {
     UPDATE_FONTE_PEDIDO: "/fontepedidos",
     DELETE_FONTE_PEDIDO: "/fontepedidos",
   },
+  CONFIGURACAO_EMPRESA: {
+    GET_CONFIGURACAO: "/configuracao-empresa",
+    CREATE_CONFIGURACAO: "/configuracao-empresa",
+    UPDATE_CONFIGURACAO: "/configuracao-empresa",
+    DELETE_CONFIGURACAO: "/configuracao-empresa",
+  },
 };

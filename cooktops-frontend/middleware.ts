@@ -15,6 +15,7 @@ const protectedRoutes = [
   "/pedidoitem",
   "/endereco",
   "/pedidostatus",
+  "/configuracoes",
 ];
 
 export function middleware(req: NextRequest) {
@@ -59,5 +60,6 @@ export const config = {
     "/pedidoitem",
     "/endereco",
     "/pedidostatus",
+    "/configuracoes",
   ],
 };

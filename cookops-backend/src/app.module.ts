@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AssinaturaModule } from './assinatura/assinatura.module';
 import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
+import { ConfiguracaoEmpresaModule } from './configuracao-empresa/configuracao-empresa.module';
 import { EmpresaModule } from './empresa/empresa.module';
 import { FontePedidoModule } from './fontepedido/fontepedido.module';
 import { FormaPagamentoModule } from './formapagamento/formapagamento.module';
@@ -30,6 +31,7 @@ import { UsuarioModule } from './usuario/usuario.module';
     LogMovimentacaoModule,
     PedidoStatusModule,
     AssinaturaModule,
+    ConfiguracaoEmpresaModule,
     AuthModule,
     ThrottlerModule.forRoot({
       //Limite de 20 requisições por minuto por IP

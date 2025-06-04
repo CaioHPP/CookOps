@@ -21,13 +21,14 @@ model Empresa {
   planoAtualId Int
   criadaEm     DateTime @default(now())
 
-  plano          Plano            @relation(fields: [planoAtualId], references: [id])
+  plano          Plano                @relation(fields: [planoAtualId], references: [id])
   usuarios       Usuario[]
   boards         Board[]
   pedidos        Pedido[]
   produtos       Produto[]
   assinatura     Assinatura?
   FormaPagamento FormaPagamento[]
+  configuracao   ConfiguracaoEmpresa?
 }
 
 model Usuario {
@@ -138,6 +139,7 @@ model Produto {
 model FormaPagamento {
   id        Int      @id @default(autoincrement())
   nome      String
+  ativo     Boolean  @default(true)
   empresaId String
   empresa   Empresa  @relation(fields: [empresaId], references: [id])
   pedidos   Pedido[]
@@ -175,4 +177,21 @@ model LogMovimentacao {
   pedido     Pedido        @relation(fields: [pedidoId], references: [id])
   deStatus   PedidoStatus? @relation("PedidoStatusOrigem", fields: [deStatusId], references: [id])
   paraStatus PedidoStatus  @relation("PedidoStatusDestino", fields: [paraStatusId], references: [id])
+}
+
+model ConfiguracaoEmpresa {
+  id                      String   @id @default(cuid())
+  empresaId               String   @unique
+  horarioAbertura         String   @default("08:00")
+  horarioFechamento       String   @default("18:00")
+  diasFuncionamento       String   @default("segunda,terca,quarta,quinta,sexta") // CSV dos dias
+  tempoPreparoMedio       Int      @default(30) // em minutos
+  notificacaoNovoPedido   Boolean  @default(true)
+  notificacaoPedidoPronto Boolean  @default(true)
+  notificacaoSms          Boolean  @default(false)
+  emailMarketing          Boolean  @default(false)
+  criadoEm                DateTime @default(now())
+  atualizadoEm            DateTime @updatedAt
+
+  empresa Empresa @relation(fields: [empresaId], references: [id])
 }

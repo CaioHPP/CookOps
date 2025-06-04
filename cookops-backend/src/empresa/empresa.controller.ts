@@ -18,6 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { PedidoService } from 'src/pedido/pedido.service';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { EmpresaService } from './empresa.service';
@@ -27,7 +28,10 @@ import { EmpresaService } from './empresa.service';
 @Controller('empresas')
 @UseGuards(JwtAuthGuard)
 export class EmpresaController {
-  constructor(private readonly empresaService: EmpresaService) {}
+  constructor(
+    private readonly empresaService: EmpresaService,
+    private readonly pedidoService: PedidoService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Criar uma nova empresa' })
@@ -85,5 +89,16 @@ export class EmpresaController {
     if (req.user.role !== 'ADMIN')
       throw new ForbiddenException('Acesso negado');
     return this.empresaService.remove(id);
+  }
+
+  @Get('pedidos/ultimas-12-horas')
+  @ApiOperation({
+    summary: 'Buscar pedidos da empresa criados nas últimas 12 horas',
+    description:
+      'Retorna todos os pedidos da empresa do usuário autenticado que foram criados nas últimas 12 horas, ordenados por data de criação (mais recentes primeiro)',
+  })
+  findPedidosUltimas12Horas(@Request() req: { user: { empresaId: string } }) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findByEmpresaIdLast12Hours(empresaId);
   }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateFormaPagamentoDto {
   @ApiProperty({
@@ -17,4 +17,13 @@ export class CreateFormaPagamentoDto {
   })
   @IsString()
   empresaId: string;
+
+  @ApiProperty({
+    description: 'Método de pagamento ativo?',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  ativo?: boolean;
 }

@@ -193,7 +193,6 @@ export class PedidoService {
       where: { id },
     });
   }
-
   findByEmpresaId(empresaId: string): Promise<Pedido[]> {
     return this.prisma.pedido.findMany({
       where: { empresaId },
@@ -207,6 +206,34 @@ export class PedidoService {
             produto: true, // Inclui os detalhes do produto em cada item
           },
         },
+      },
+    });
+  }
+
+  async findByEmpresaIdLast12Hours(empresaId: string): Promise<Pedido[]> {
+    const dozeHorasAtras = new Date();
+    dozeHorasAtras.setHours(dozeHorasAtras.getHours() - 12);
+
+    return this.prisma.pedido.findMany({
+      where: {
+        empresaId,
+        criadoEm: {
+          gte: dozeHorasAtras,
+        },
+      },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true,
+          },
+        },
+      },
+      orderBy: {
+        criadoEm: 'desc',
       },
     });
   }
