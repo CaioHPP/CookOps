@@ -1,6 +1,17 @@
 "use client";
 
 import { FormaPagamentoService } from "@/api/services/formapagamento.service";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,6 +30,7 @@ import {
 import { FormaPagamentoResponseDto } from "@/types/dto/formapagamento/response/formapagamento-response.dto";
 import { Check, CreditCard, Edit, Plus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function PaymentMethodsConfig() {
   const [paymentMethods, setPaymentMethods] = useState<
@@ -48,12 +60,11 @@ export default function PaymentMethodsConfig() {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nome.trim()) {
-      alert("Nome é obrigatório");
+      toast.error("Nome é obrigatório");
       return;
     }
 
@@ -67,7 +78,7 @@ export default function PaymentMethodsConfig() {
           editingMethod.id,
           updateData
         );
-        alert("Método de pagamento atualizado com sucesso");
+        toast.success("Método de pagamento atualizado com sucesso");
       } else {
         const createData: FormaPagamentoRequestAddDto = {
           nome: formData.nome,
@@ -75,29 +86,39 @@ export default function PaymentMethodsConfig() {
           ativo: formData.ativo,
         };
         await FormaPagamentoService.addFormaPagamento(createData);
-        alert("Método de pagamento criado com sucesso");
+        toast.success("Método de pagamento criado com sucesso");
       }
 
       await loadPaymentMethods();
       resetForm();
     } catch (error) {
-      alert("Erro ao salvar método de pagamento");
+      toast.error("Erro ao salvar método de pagamento");
       console.error("Erro ao salvar método de pagamento:", error);
     }
   };
-
   const handleDelete = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este método de pagamento?")) {
-      return;
-    }
-
     try {
       await FormaPagamentoService.deleteFormaPagamento(id);
-      alert("Método de pagamento excluído com sucesso");
+      toast.success("Método de pagamento excluído com sucesso");
       await loadPaymentMethods();
     } catch (error) {
-      alert("Erro ao excluir método de pagamento");
+      toast.error("Erro ao excluir método de pagamento");
       console.error("Erro ao excluir método de pagamento:", error);
+    }
+  };
+  const handleToggleStatus = async (id: number, newStatus: boolean) => {
+    try {
+      await FormaPagamentoService.toggleStatusFormaPagamento(id, {
+        ativo: newStatus,
+      });
+      toast.success(
+        `Método de pagamento ${
+          newStatus ? "ativado" : "desativado"
+        } com sucesso`
+      );
+    } catch (error) {
+      toast.error("Erro ao alterar status do método de pagamento");
+      console.error("Erro ao alterar status do método de pagamento:", error);
     }
   };
 
@@ -179,10 +200,15 @@ export default function PaymentMethodsConfig() {
                       <p className="text-sm text-muted-foreground">
                         {method.ativo ? "Ativo" : "Inativo"}
                       </p>
-                    </div>
+                    </div>{" "}
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Switch checked={method.ativo} disabled />
+                    <Switch
+                      checked={method.ativo}
+                      onCheckedChange={(checked) =>
+                        handleToggleStatus(method.id, checked)
+                      }
+                    />{" "}
                     <Button
                       variant="outline"
                       size="sm"
@@ -190,14 +216,38 @@ export default function PaymentMethodsConfig() {
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(method.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Excluir método de pagamento
+                          </AlertDialogTitle>{" "}
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir o método de pagamento
+                            &quot;{method.nome}&quot;? Esta ação não pode ser
+                            desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(method.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))

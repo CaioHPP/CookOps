@@ -70,6 +70,7 @@ export const API_ROUTES = {
     GET_FORMA_PAGAMENTO_BY_ID: "/formapagamentos",
     UPDATE_FORMA_PAGAMENTO: "/formapagamentos",
     DELETE_FORMA_PAGAMENTO: "/formapagamentos",
+    TOGGLE_STATUS_FORMA_PAGAMENTO: "/formapagamentos",
   },
   FONTE_PEDIDO: {
     ADD_FONTE_PEDIDO: "/fontepedidos",

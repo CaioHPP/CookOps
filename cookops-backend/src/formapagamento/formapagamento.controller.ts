@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Request,
@@ -19,6 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { CreateFormaPagamentoDto } from './dto/create-formapagamento.dto';
+import { ToggleStatusFormaPagamentoDto } from './dto/toggle-status-formapagamento.dto';
 import { UpdateFormaPagamentoDto } from './dto/update-formapagamento.dto';
 import { FormaPagamentoService } from './formapagamento.service';
 
@@ -87,5 +89,20 @@ export class FormaPagamentoController {
   @ApiParam({ name: 'id', description: 'ID da forma de pagamento' })
   remove(@Request() req: { user: { role: string } }, @Param('id') id: number) {
     return this.formaPagamentoService.remove(id);
+  }
+
+  @Patch(':id/toggle-status')
+  @ApiOperation({ summary: 'Ativar/desativar uma forma de pagamento' })
+  @ApiParam({ name: 'id', description: 'ID da forma de pagamento' })
+  @ApiBody({
+    type: ToggleStatusFormaPagamentoDto,
+    description: 'Status ativo/inativo da forma de pagamento',
+  })
+  toggleStatus(
+    @Request() req: { user: { role: string; empresaId: string } },
+    @Param('id') id: number,
+    @Body() data: ToggleStatusFormaPagamentoDto,
+  ) {
+    return this.formaPagamentoService.toggleStatus(id, data);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { FormaPagamento } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 import { CreateFormaPagamentoDto } from './dto/create-formapagamento.dto';
+import { ToggleStatusFormaPagamentoDto } from './dto/toggle-status-formapagamento.dto';
 import { UpdateFormaPagamentoDto } from './dto/update-formapagamento.dto';
 
 @Injectable()
@@ -42,6 +43,19 @@ export class FormaPagamentoService {
   findByEmpresaId(empresaId: string): Promise<FormaPagamento[]> {
     return this.prisma.formaPagamento.findMany({
       where: { empresaId },
+    });
+  }
+
+  async toggleStatus(
+    id: number,
+    data: ToggleStatusFormaPagamentoDto,
+  ): Promise<FormaPagamento> {
+    // Verifica se a forma de pagamento existe
+    const forma = await this.findOne(id);
+
+    return this.prisma.formaPagamento.update({
+      where: { id },
+      data: { ativo: data.ativo },
     });
   }
 }
