@@ -13,14 +13,12 @@ export class PedidoService {
     private prisma: PrismaService,
     private pedidoGateway: PedidoGateway,
     private readonly pedidoStatusService: PedidoStatusService,
-    private enderecoService: EnderecoService, // Certifique-se de importar o serviço de Endereço corretamente
+    private enderecoService: EnderecoService,
   ) {}
 
   async create(data: CreatePedidoDto, empresaId: string): Promise<Pedido> {
-    // Remove scalar foreign keys from data before spreading
     const { boardId, pagamentoId, fonteId, endereco, itens, ...rest } = data;
 
-    // Verifica se o endereço existe ou cria um novo
     let enderecoId: string | undefined;
     if (endereco) {
       const enderecoExistente =
@@ -37,7 +35,6 @@ export class PedidoService {
       }
     }
 
-    // Busca o número total de pedidos feitos hoje para a empresa
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const amanha = new Date(hoje);
@@ -83,7 +80,6 @@ export class PedidoService {
       },
     });
 
-    // Emite atualização via websocket para a empresa
     this.pedidoGateway.emitirPedidoCriado(empresaId, {
       acao: 'criado',
       pedidoId: pedido.id,
@@ -102,7 +98,7 @@ export class PedidoService {
         endereco: true,
         itens: {
           include: {
-            produto: true, // Inclui os detalhes do produto em cada item
+            produto: true,
           },
         },
       },
@@ -119,7 +115,7 @@ export class PedidoService {
         endereco: true,
         itens: {
           include: {
-            produto: true, // Inclui os detalhes do produto em cada item
+            produto: true,
           },
         },
       },
@@ -135,10 +131,8 @@ export class PedidoService {
     data: UpdatePedidoDto,
     empresaId: string,
   ): Promise<Pedido> {
-    // Remove scalar foreign keys from data before spreading
     const { statusId, pagamentoId, fonteId, endereco, itens, ...rest } = data;
 
-    // Verifica se o endereço existe ou cria um novo
     let enderecoId: string | undefined;
     if (endereco) {
       const enderecoExistente =
@@ -166,7 +160,7 @@ export class PedidoService {
         ...(enderecoId && { endereco: { connect: { id: enderecoId } } }),
         ...(itens && {
           itens: {
-            deleteMany: {}, // remove todos e recria, simples mas funcional
+            deleteMany: {},
             create: itens
               .filter(
                 (item) =>
@@ -176,7 +170,7 @@ export class PedidoService {
                   item.observacao !== undefined,
               )
               .map((item) => ({
-                ...(item.id && { id: item.id }), // opcional
+                ...(item.id && { id: item.id }),
                 produto: { connect: { id: item.produtoId! } },
                 quantidade: item.quantidade!,
                 precoUnitario: item.precoUnitario!,
@@ -193,6 +187,7 @@ export class PedidoService {
       where: { id },
     });
   }
+
   findByEmpresaId(empresaId: string): Promise<Pedido[]> {
     return this.prisma.pedido.findMany({
       where: { empresaId },
@@ -203,22 +198,44 @@ export class PedidoService {
         endereco: true,
         itens: {
           include: {
-            produto: true, // Inclui os detalhes do produto em cada item
+            produto: true,
           },
         },
       },
     });
   }
 
-  async findByEmpresaIdLast12Hours(empresaId: string): Promise<Pedido[]> {
-    const dozeHorasAtras = new Date();
-    dozeHorasAtras.setHours(dozeHorasAtras.getHours() - 12);
+  async findByEmpresaIdWithTimeLimit(empresaId: string): Promise<Pedido[]> {
+    const configuracao = await this.prisma.configuracaoEmpresa.findUnique({
+      where: { empresaId },
+    });
+
+    let horasLimite = 12;
+
+    if (configuracao) {
+      const [horaAbertura] = configuracao.horarioAbertura
+        .split(':')
+        .map(Number);
+      const [horaFechamento] = configuracao.horarioFechamento
+        .split(':')
+        .map(Number);
+
+      let diferencaHoras = horaFechamento - horaAbertura;
+      if (diferencaHoras < 0) {
+        diferencaHoras += 24;
+      }
+
+      horasLimite = diferencaHoras + 2;
+    }
+
+    const tempoLimite = new Date();
+    tempoLimite.setHours(tempoLimite.getHours() - horasLimite);
 
     return this.prisma.pedido.findMany({
       where: {
         empresaId,
         criadoEm: {
-          gte: dozeHorasAtras,
+          gte: tempoLimite,
         },
       },
       include: {
@@ -236,6 +253,10 @@ export class PedidoService {
         criadoEm: 'desc',
       },
     });
+  }
+
+  async findByEmpresaIdLast12Hours(empresaId: string): Promise<Pedido[]> {
+    return this.findByEmpresaIdWithTimeLimit(empresaId);
   }
 
   async moverPedido(
@@ -288,7 +309,6 @@ export class PedidoService {
       },
     });
 
-    // Emite atualização via websocket para a empresa
     this.pedidoGateway.emitirPedidoAtualizado(empresaId, {
       acao: 'movido',
       pedidoId: updated.id,
@@ -297,5 +317,59 @@ export class PedidoService {
     });
 
     return updated;
+  }
+
+  async concluirPedido(id: string, empresaId: string): Promise<Pedido> {
+    const pedido = await this.prisma.pedido.findUnique({
+      where: { id },
+      include: {
+        status: {
+          include: {
+            board: true,
+          },
+        },
+      },
+    });
+
+    if (!pedido) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+
+    if (pedido.status.board.empresaId !== empresaId) {
+      throw new NotFoundException(
+        'Empresa não autorizada a concluir este pedido',
+      );
+    }
+
+    const pedidoAtualizado = await this.prisma.pedido.update({
+      where: { id },
+      data: {
+        concluidoEm: new Date(),
+      },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true,
+          },
+        },
+      },
+    });
+    this.pedidoGateway.emitirPedidoAtualizado(empresaId, {
+      acao: 'concluido',
+      pedidoId: pedidoAtualizado.id,
+    });
+
+    // Emite evento específico de conclusão
+    this.pedidoGateway.emitirPedidoConcluido(empresaId, {
+      acao: 'concluido',
+      pedidoId: pedidoAtualizado.id,
+      pedido: pedidoAtualizado,
+    });
+
+    return pedidoAtualizado;
   }
 }

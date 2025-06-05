@@ -1,3 +1,4 @@
+import { MoverPedidoRequestDto } from "@/types/dto/pedido/request/mover-pedido-request.dto";
 import {
   PedidoRequestAddDto,
   PedidoRequestUpdateDto,
@@ -50,13 +51,18 @@ export class PedidoService {
     const url = `${API_ROUTES.PEDIDO.DELETE_PEDIDO}/${id}`;
     await api.delete(url);
   }
-
   static async moverPedido(
     id: string,
-    paraOrdem: number
+    data: MoverPedidoRequestDto
   ): Promise<PedidoResponseDto> {
     const url = `${API_ROUTES.PEDIDO.MOVER_PEDIDO}/${id}`;
-    const response = await api.put<PedidoResponseDto>(url, { paraOrdem });
+    const response = await api.put<PedidoResponseDto>(url, data);
+    return response.data;
+  }
+
+  static async concluirPedido(id: string): Promise<PedidoResponseDto> {
+    const url = `${API_ROUTES.PEDIDO.CONCLUIR_PEDIDO}/${id}`;
+    const response = await api.put<PedidoResponseDto>(url);
     return response.data;
   }
 }

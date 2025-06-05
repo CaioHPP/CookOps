@@ -10,6 +10,7 @@ export interface JwtPayload {
   empresaId: string;
   nomeEmpresa?: string;
   role: string;
+  tempoPreparoMedio?: number;
   [key: string]: any;
 }
 @Injectable()
@@ -21,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET || 'laulau',
     });
   }
-
   validate(payload: JwtPayload) {
     return {
       user: payload.user,
@@ -30,6 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       empresaId: payload.empresaId,
       nomeEmpresa: payload.nomeEmpresa,
       role: payload.role,
+      tempoPreparoMedio: payload.tempoPreparoMedio,
     };
   }
 }

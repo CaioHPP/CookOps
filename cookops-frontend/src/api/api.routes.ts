@@ -28,6 +28,7 @@ export const API_ROUTES = {
     UPDATE_PEDIDO: "/pedidos",
     DELETE_PEDIDO: "/pedidos",
     MOVER_PEDIDO: "/pedidos/mover",
+    CONCLUIR_PEDIDO: "/pedidos/concluir",
   },
   PEDIDO_STATUS: {
     ADD_PEDIDO_STATUS: "/pedidostatus",

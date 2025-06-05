@@ -86,11 +86,43 @@ export class PedidoStatusService {
       }
     }
 
+    // Calcula o limite de tempo baseado na configuração da empresa
+    const configuracao = await this.prisma.configuracaoEmpresa.findUnique({
+      where: { empresaId },
+    });
+
+    let horasLimite = 12; // Padrão de 12 horas
+
+    if (configuracao) {
+      // Calcula a diferença entre horário de fechamento e abertura + 2 horas
+      const [horaAbertura] = configuracao.horarioAbertura
+        .split(':')
+        .map(Number);
+      const [horaFechamento] = configuracao.horarioFechamento
+        .split(':')
+        .map(Number);
+
+      let diferencaHoras = horaFechamento - horaAbertura;
+      if (diferencaHoras < 0) {
+        diferencaHoras += 24; // Para casos onde fecha no dia seguinte
+      }
+
+      horasLimite = diferencaHoras + 2;
+    }
+
+    const tempoLimite = new Date();
+    tempoLimite.setHours(tempoLimite.getHours() - horasLimite);
+
     const statusList = await this.prisma.pedidoStatus.findMany({
       where: { boardId: boardId },
       orderBy: { ordem: 'asc' },
       include: {
         pedidos: {
+          where: {
+            criadoEm: {
+              gte: tempoLimite,
+            },
+          },
           orderBy: { criadoEm: 'asc' },
         },
       },
@@ -123,11 +155,43 @@ export class PedidoStatusService {
       }
     }
 
+    // Calcula o limite de tempo baseado na configuração da empresa
+    const configuracao = await this.prisma.configuracaoEmpresa.findUnique({
+      where: { empresaId },
+    });
+
+    let horasLimite = 12; // Padrão de 12 horas
+
+    if (configuracao) {
+      // Calcula a diferença entre horário de fechamento e abertura + 2 horas
+      const [horaAbertura] = configuracao.horarioAbertura
+        .split(':')
+        .map(Number);
+      const [horaFechamento] = configuracao.horarioFechamento
+        .split(':')
+        .map(Number);
+
+      let diferencaHoras = horaFechamento - horaAbertura;
+      if (diferencaHoras < 0) {
+        diferencaHoras += 24; // Para casos onde fecha no dia seguinte
+      }
+
+      horasLimite = diferencaHoras + 2;
+    }
+
+    const tempoLimite = new Date();
+    tempoLimite.setHours(tempoLimite.getHours() - horasLimite);
+
     const statusList = await this.prisma.pedidoStatus.findMany({
       where: { boardId: boardId },
       orderBy: { ordem: 'asc' },
       include: {
         pedidos: {
+          where: {
+            criadoEm: {
+              gte: tempoLimite,
+            },
+          },
           orderBy: { criadoEm: 'asc' },
           include: {
             itens: {
@@ -145,6 +209,7 @@ export class PedidoStatusService {
 
     return statusList.map((status) => ({
       statusId: status.id,
+      boardId: status.boardId,
       titulo: status.titulo,
       ordem: status.ordem,
       pedidos: status.pedidos.map((pedido) => ({

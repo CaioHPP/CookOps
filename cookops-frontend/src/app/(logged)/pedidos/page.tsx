@@ -26,6 +26,7 @@ export default function PedidosPage() {
 
     carregarPedidos();
   }, []); // Transformar dados dos pedidos para o formato esperado pelo OrderPanel
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const ordersFormatted = pedidos.map((pedido, index) => ({
     id: pedido.id,
     orderNumber: pedido.codigo || `${index + 1}`,

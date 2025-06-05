@@ -13,12 +13,15 @@ export class AuthService {
     );
 
     const accessToken = response.data.access_token;
-
     const decoded: DecodedTokenDto = jwtDecode(accessToken); // Salva o token no sessionStorage e como cookie
     sessionStorage.setItem("token", accessToken);
     sessionStorage.setItem("nome", decoded.nome);
     sessionStorage.setItem("email", decoded.email);
     sessionStorage.setItem("nomeEmpresa", decoded.nomeEmpresa);
+    sessionStorage.setItem(
+      "tempoPreparoMedio",
+      decoded.tempoPreparoMedio?.toString() || "30"
+    );
     //sessionStorage.setItem("empresaId", decoded.empresaId);
     // sessionStorage.setItem("role", decoded.role);
 

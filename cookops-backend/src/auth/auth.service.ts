@@ -2,6 +2,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { EmpresaCompletaDto } from 'src/empresa/dto/empresa-completa.dto';
 import { EmpresaService } from 'src/empresa/empresa.service';
 import { LoginUsuarioResponseDto } from 'src/usuario/dto/login-usuario.dto';
 import { UsuarioService } from 'src/usuario/usuario.service';
@@ -21,13 +22,18 @@ export class AuthService {
     }
     throw new UnauthorizedException('Credenciais inválidas');
   }
-
   async login(user: LoginUsuarioResponseDto) {
-    const empresa = await this.empresaService.findOne(user.empresaId);
+    const empresa: EmpresaCompletaDto =
+      (await this.empresaService.findEmpresaCompleta(
+        user.empresaId,
+      )) as EmpresaCompletaDto;
 
     if (!empresa) {
       throw new UnauthorizedException('Empresa não encontrada');
     }
+
+    // Pega o tempo médio de preparo da configuração da empresa (padrão 30 se não existir)
+    const tempoPreparoMedio = empresa.configuracao?.tempoPreparoMedio || 30;
 
     const payload = {
       user: user.user,
@@ -36,6 +42,7 @@ export class AuthService {
       empresaId: user.empresaId,
       nomeEmpresa: empresa.nome,
       role: user.role,
+      tempoPreparoMedio,
     };
 
     return {

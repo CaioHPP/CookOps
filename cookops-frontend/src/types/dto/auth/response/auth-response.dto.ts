@@ -9,5 +9,6 @@ export interface DecodedTokenDto {
   empresaId: string;
   nomeEmpresa: string;
   role: string;
+  tempoPreparoMedio?: number;
   exp: number;
 }

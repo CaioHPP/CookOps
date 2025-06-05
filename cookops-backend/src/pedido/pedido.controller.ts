@@ -128,4 +128,15 @@ export class PedidoController {
     const empresaId = req.user.empresaId;
     return this.pedidoService.remove(id);
   }
+
+  @Put('concluir/:id')
+  @ApiOperation({ summary: 'Concluir um pedido' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
+  concluirPedido(
+    @Request() req: { user: { empresaId: string } },
+    @Param('id') id: string,
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.concluirPedido(id, empresaId);
+  }
 }
