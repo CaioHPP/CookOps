@@ -3,18 +3,45 @@
 import { PedidoStatusService } from "@/api/services/pedidostatus.service";
 import { PedidoResponseDto } from "@/types/dto/pedido/response/pedido-response.dto";
 import { PedidoStatusResponseWithPedidosAndItensDto } from "@/types/dto/pedidostatus/response/pedidostatus-response.dto";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export function usePedidoStatus(boardId?: string) {
-  const [statusList, setStatusList] = useState<
+  // Estado dos dados brutos (sem filtro)
+  const [statusListRaw, setStatusListRaw] = useState<
     PedidoStatusResponseWithPedidosAndItensDto[]
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mostrarConcluidos, setMostrarConcluidos] = useState(false);
 
   // Controla se deve ignorar atualizações via WebSocket para evitar loops
-  const ignorarProximaAtualizacao = useRef(false); // Carregar status com pedidos e itens
+  const ignorarProximaAtualizacao = useRef(false);
+
+  // Dados filtrados (computed) - atualiza automaticamente quando filtro muda
+  const statusList = useMemo(() => {
+    return statusListRaw.map((status) => ({
+      ...status,
+      pedidos: mostrarConcluidos
+        ? status.pedidos
+        : status.pedidos.filter((pedido) => !pedido.concluidoEm),
+    }));
+  }, [statusListRaw, mostrarConcluidos]);
+
+  // Função para alternar filtro de pedidos concluídos (sem recarregar dados)
+  const alternarMostrarConcluidos = useCallback(() => {
+    setMostrarConcluidos((prev) => !prev);
+  }, []);
+
+  // Função para obter o status com maior ordem (último status)
+  const obterUltimoStatus = useCallback(() => {
+    if (statusList.length === 0) return null;
+    return statusList.reduce((maior, status) =>
+      status.ordem > maior.ordem ? status : maior
+    );
+  }, [statusList]);
+
+  // Carregar status com pedidos e itens (agora salva dados brutos)
   const carregarStatusComPedidosEItens = useCallback(
     async (silencioso = false) => {
       if (!boardId) return;
@@ -24,9 +51,12 @@ export function usePedidoStatus(boardId?: string) {
           setLoading(true);
         }
         setError(null);
+
         const data =
           await PedidoStatusService.getPedidoStatusWithPedidosAndItens(boardId);
-        setStatusList(data);
+
+        // Salvar dados brutos (sem filtro) - o useMemo se encarrega da filtragem
+        setStatusListRaw(data);
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -45,10 +75,10 @@ export function usePedidoStatus(boardId?: string) {
     [boardId]
   );
 
-  // Função para mover pedido otimisticamente (antes da confirmação da API)
+  // Função para mover pedido otimisticamente (atualiza dados brutos)
   const moverPedidoOtimista = useCallback(
     (pedidoId: string, fromStatusId: number, toStatusId: number) => {
-      setStatusList((prevStatusList) => {
+      setStatusListRaw((prevStatusList) => {
         const novaLista = [...prevStatusList];
 
         // Encontrar o pedido no status de origem
@@ -66,14 +96,21 @@ export function usePedidoStatus(boardId?: string) {
             toStatusId,
           });
           return prevStatusList;
-        }
-
-        // Remover pedido do status de origem
+        } // Remover pedido do status de origem
         const pedidoIndex = novaLista[fromIndex].pedidos.findIndex(
           (p) => p.id === pedidoId
         );
         if (pedidoIndex !== -1) {
           pedidoMovido = novaLista[fromIndex].pedidos[pedidoIndex];
+
+          // Se o pedido estava concluído, limpar a data de conclusão ao mover
+          if (pedidoMovido.concluidoEm) {
+            pedidoMovido = {
+              ...pedidoMovido,
+              concluidoEm: undefined,
+            };
+          }
+
           novaLista[fromIndex].pedidos.splice(pedidoIndex, 1);
 
           // Adicionar pedido ao status de destino
@@ -103,7 +140,36 @@ export function usePedidoStatus(boardId?: string) {
     [moverPedidoOtimista]
   );
 
-  // Obter quantidade total de pedidos
+  // Função para atualizar pedido otimisticamente ao concluir
+  const concluirPedidoOtimista = useCallback((pedidoId: string) => {
+    setStatusListRaw((prevStatusList) => {
+      const novaLista = [...prevStatusList];
+
+      // Encontrar o pedido em qualquer status e atualizar concluidoEm
+      for (const status of novaLista) {
+        const pedidoIndex = status.pedidos.findIndex((p) => p.id === pedidoId);
+        if (pedidoIndex !== -1) {
+          status.pedidos[pedidoIndex] = {
+            ...status.pedidos[pedidoIndex],
+            concluidoEm: new Date().toISOString(),
+          };
+          break;
+        }
+      }
+
+      return novaLista;
+    });
+
+    // Marcar para ignorar a próxima atualização via WebSocket
+    ignorarProximaAtualizacao.current = true;
+
+    // Resetar flag após um tempo para evitar que fique permanentemente true
+    setTimeout(() => {
+      ignorarProximaAtualizacao.current = false;
+    }, 2000);
+  }, []);
+
+  // Obter quantidade total de pedidos (usa dados filtrados)
   const getTotalPedidos = useCallback(() => {
     return statusList.reduce(
       (total, status) => total + status.pedidos.length,
@@ -111,7 +177,7 @@ export function usePedidoStatus(boardId?: string) {
     );
   }, [statusList]);
 
-  // Obter pedidos por status
+  // Obter pedidos por status (usa dados filtrados)
   const getPedidosPorStatus = useCallback(
     (statusId: number) => {
       const status = statusList.find((s) => s.statusId === statusId);
@@ -119,6 +185,7 @@ export function usePedidoStatus(boardId?: string) {
     },
     [statusList]
   );
+
   // Atualizar lista após mudança de status do pedido
   const atualizarAposMudanca = useCallback(
     (silencioso = false) => {
@@ -134,6 +201,7 @@ export function usePedidoStatus(boardId?: string) {
     },
     [carregarStatusComPedidosEItens]
   );
+
   // Carregar dados na inicialização
   useEffect(() => {
     if (boardId) {
@@ -145,11 +213,15 @@ export function usePedidoStatus(boardId?: string) {
     statusList,
     loading,
     error,
+    mostrarConcluidos,
+    alternarMostrarConcluidos,
+    obterUltimoStatus,
     carregarStatusComPedidosEItens,
     getTotalPedidos,
     getPedidosPorStatus,
     atualizarAposMudanca,
     moverPedidoOtimista,
     reverterMovimentacaoPedido,
+    concluirPedidoOtimista,
   };
 }

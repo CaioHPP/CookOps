@@ -2,6 +2,7 @@
 
 import { BoardService } from "@/api/services/board.service";
 import { useAuth } from "@/hooks/useAuth";
+import { usePedidos } from "@/hooks/usePedidos";
 import { usePedidoStatus } from "@/hooks/usePedidoStatus";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { obterTempoPreparoMedio } from "@/lib/tempo-utils";
@@ -9,6 +10,7 @@ import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto"
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BoardSelector } from "./BoardSelector";
+import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
 
 // Definir interface para WebSocket messages localmente se necessário
@@ -24,14 +26,21 @@ export default function ProductionKanban() {
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+
+  // Hook para gerenciar pedidos
+  const { concluirPedido } = usePedidos();
   // Hook para gerenciar status dos pedidos
   const {
     statusList: statusColumns,
     loading: statusLoading,
     error: statusError,
+    mostrarConcluidos,
+    alternarMostrarConcluidos,
+    obterUltimoStatus,
     atualizarAposMudanca,
     moverPedidoOtimista,
     reverterMovimentacaoPedido,
+    concluirPedidoOtimista,
   } = usePedidoStatus(selectedBoard); // WebSocket para atualizações em tempo real
   const { isConnected } = useWebSocket({
     empresaId,
@@ -89,6 +98,25 @@ export default function ProductionKanban() {
   const handleBoardChange = (boardId: string) => {
     setSelectedBoard(boardId);
   };
+  // Função para completar pedido
+  const handleCompleteOrder = async (orderId: string) => {
+    try {
+      // Aplicar mudança otimisticamente primeiro
+      concluirPedidoOtimista(orderId);
+      toast.success("Pedido concluído com sucesso!");
+
+      // Fazer a chamada para o backend de forma silenciosa
+      await concluirPedido(orderId);
+    } catch (error) {
+      console.error("Erro ao concluir pedido:", error);
+      toast.error("Erro ao concluir pedido. Tente novamente.");
+      // Em caso de erro, atualizar para reverter mudanças otimistas
+      atualizarAposMudanca(true);
+    }
+  };
+
+  // Obter o último status (com maior ordem)
+  const ultimoStatus = obterUltimoStatus();
 
   // Função para atualizar após operações
   const handleRefresh = () => {
@@ -155,8 +183,7 @@ export default function ProductionKanban() {
                 {isConnected ? "Conectado" : "Desconectado"}
               </span>
             </div>
-          </div>
-
+          </div>{" "}
           <div className="flex items-center gap-4">
             <button
               onClick={handleRefresh}
@@ -173,6 +200,14 @@ export default function ProductionKanban() {
             />
           </div>
         </div>
+
+        {/* Área de filtros separada */}
+        {selectedBoard && (
+          <FilterArea
+            mostrarConcluidos={mostrarConcluidos}
+            onToggleConcluidos={alternarMostrarConcluidos}
+          />
+        )}
       </div>
 
       {/* Área de conteúdo */}
@@ -207,6 +242,7 @@ export default function ProductionKanban() {
           <KanbanBoard
             statusColumns={statusColumns}
             loading={statusLoading}
+            lastStatusId={ultimoStatus?.statusId}
             onMoveOrder={(orderId, fromStatusId, toStatusId) => {
               console.log("Pedido movido:", {
                 orderId,
@@ -229,6 +265,7 @@ export default function ProductionKanban() {
               // Reverter mudança em caso de erro
               reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}
+            onCompleteOrder={handleCompleteOrder}
           />
         )}
       </div>

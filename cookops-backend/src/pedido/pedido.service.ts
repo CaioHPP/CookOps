@@ -294,11 +294,22 @@ export class PedidoService {
       );
     }
 
+    // Verificar se o pedido estava concluído e limpar data de conclusão ao mover
+    const dataUpdate: {
+      status: { connect: { id: number } };
+      concluidoEm?: null;
+    } = {
+      status: { connect: { id: paraStatus.id } },
+    };
+
+    // Se o pedido estava concluído, limpar a data de conclusão ao mover para outro status
+    if (pedido.concluidoEm) {
+      dataUpdate.concluidoEm = null;
+    }
+
     const updated = await this.prisma.pedido.update({
       where: { id },
-      data: {
-        status: { connect: { id: paraStatus.id } },
-      },
+      data: dataUpdate,
     });
 
     await this.prisma.logMovimentacao.create({

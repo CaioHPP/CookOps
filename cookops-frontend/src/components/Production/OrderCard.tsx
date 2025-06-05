@@ -6,8 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { usePedidos } from "@/hooks/usePedidos";
 import {
-  calcularTempoDecorrido,
-  calcularTempoRestante,
+  calcularTempoDecorridoComTempo,
+  calcularTempoRestanteComTempo,
   formatarDataAmigavel,
 } from "@/lib/tempo-utils";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ import {
   Package,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface OrderCardEnhancedProps {
   order: PedidoResponseDto;
@@ -39,6 +39,16 @@ export function OrderCard({
   const { tempoPreparoMedio } = useAuth();
   const { concluirPedido, isPedidoConcluido } = usePedidos();
   const [isCompletingOrder, setIsCompletingOrder] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Atualizar tempo a cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Atualizar a cada 1 minuto
+
+    return () => clearInterval(interval);
+  }, []);
 
   const {
     attributes,
@@ -55,16 +65,24 @@ export function OrderCard({
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       }
     : undefined;
-
   const totalItens =
     order.itens?.reduce((acc, item) => acc + item.quantidade, 0) || 0;
-  const tempoDecorrido = calcularTempoDecorrido(order.criadoEm);
+
+  // Usar currentTime para cálculos dinâmicos dos tempos
+  const tempoDecorrido = calcularTempoDecorridoComTempo(
+    order.criadoEm,
+    currentTime
+  );
   const isCompleto = isPedidoConcluido(order);
 
   // Calcular tempo restante se o pedido não estiver concluído
   const tempoRestante =
     !isCompleto && tempoPreparoMedio
-      ? calcularTempoRestante(order.criadoEm, tempoPreparoMedio)
+      ? calcularTempoRestanteComTempo(
+          order.criadoEm,
+          tempoPreparoMedio,
+          currentTime
+        )
       : null;
 
   const isAtrasado = tempoRestante?.status === "atrasado";
@@ -139,7 +157,6 @@ export function OrderCard({
             R$ {formatCurrency(order.valorTotal)}
           </div>
         </div>
-
         {/* Informações do cliente */}
         {order.endereco && (
           <div className="flex items-start gap-2 text-sm">
@@ -156,26 +173,31 @@ export function OrderCard({
             </div>
           </div>
         )}
-
         {/* Informações dos itens */}
         <div className="flex items-center gap-2 text-sm">
           <Package className="w-4 h-4 text-muted-foreground" />
           <span className="font-medium">
             {totalItens} {totalItens === 1 ? "item" : "itens"}
           </span>
-        </div>
-
+        </div>{" "}
         {/* Lista de itens resumida */}
         {order.itens && order.itens.length > 0 && (
           <div className="space-y-1">
             {order.itens.slice(0, 3).map((item) => (
-              <div key={item.id} className="flex justify-between text-xs">
-                <span className="truncate">
-                  {item.quantidade}x {item.produto?.nome || `Item ${item.id}`}
-                </span>
-                <span className="text-muted-foreground ml-2">
-                  R$ {formatCurrency(item.precoUnitario * item.quantidade)}
-                </span>
+              <div key={item.id} className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="truncate">
+                    {item.quantidade}x {item.produto?.nome || `Item ${item.id}`}
+                  </span>
+                  <span className="text-muted-foreground ml-2">
+                    R$ {formatCurrency(item.precoUnitario * item.quantidade)}
+                  </span>
+                </div>{" "}
+                {item.observacao && (
+                  <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded italic">
+                    &ldquo;{item.observacao}&rdquo;
+                  </div>
+                )}
               </div>
             ))}
             {order.itens.length > 3 && (
@@ -185,14 +207,12 @@ export function OrderCard({
             )}
           </div>
         )}
-
         {/* Observações */}
         {order.observacao && (
           <div className="text-xs p-2 bg-muted rounded">
             <strong>Obs:</strong> {order.observacao}
           </div>
         )}
-
         {/* Footer com tempo e controles */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -238,7 +258,6 @@ export function OrderCard({
             </Button>
           )}
         </div>
-
         {/* Informações de fonte e pagamento */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

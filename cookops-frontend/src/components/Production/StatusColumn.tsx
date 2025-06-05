@@ -10,9 +10,16 @@ import { OrderCard } from "./OrderCard";
 interface StatusColumnProps {
   status: PedidoStatusResponseWithPedidosAndItensDto;
   orders: PedidoResponseDto[];
+  isLastStatus?: boolean;
+  onCompleteOrder?: (orderId: string) => void;
 }
 
-export function StatusColumn({ status, orders }: StatusColumnProps) {
+export function StatusColumn({
+  status,
+  orders,
+  isLastStatus = false,
+  onCompleteOrder,
+}: StatusColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: status.statusId.toString(),
   });
@@ -74,7 +81,8 @@ export function StatusColumn({ status, orders }: StatusColumnProps) {
             <OrderCard
               key={order.id}
               order={order}
-              showCompleteButton={status.ordem === 3} // Mostrar botão apenas no status "Pronto"
+              showCompleteButton={isLastStatus}
+              onComplete={() => onCompleteOrder?.(order.id)}
             />
           ))
         )}

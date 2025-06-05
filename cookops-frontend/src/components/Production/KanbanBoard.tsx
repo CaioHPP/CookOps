@@ -21,6 +21,7 @@ import { StatusColumn } from "./StatusColumn";
 interface KanbanBoardProps {
   statusColumns: PedidoStatusResponseWithPedidosAndItensDto[];
   loading: boolean;
+  lastStatusId?: number;
   onMoveOrder?: (
     orderId: string,
     fromStatusId: number,
@@ -31,13 +32,16 @@ interface KanbanBoardProps {
     fromStatusId: number,
     toStatusId: number
   ) => void;
+  onCompleteOrder?: (orderId: string) => void;
 }
 
 export function KanbanBoard({
   statusColumns,
   loading,
+  lastStatusId,
   onMoveOrder,
   onMoveError,
+  onCompleteOrder,
 }: KanbanBoardProps) {
   const [activeOrder, setActiveOrder] = useState<PedidoResponseDto | null>(
     null
@@ -174,16 +178,18 @@ export function KanbanBoard({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      {" "}
       <div className="flex gap-6 p-6 h-full overflow-x-auto mx-w-full">
         {statusColumns.map((column) => (
           <StatusColumn
             key={column.statusId}
             status={column}
             orders={column.pedidos}
+            isLastStatus={column.statusId === lastStatusId}
+            onCompleteOrder={onCompleteOrder}
           />
         ))}
       </div>
-
       {/* Overlay para mostrar o item sendo arrastado */}
       <DragOverlay>
         {activeOrder ? <OrderCard order={activeOrder} isDragging /> : null}
