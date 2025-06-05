@@ -131,12 +131,10 @@ export default function ProductionKanban() {
   return (
     <div className="h-full flex flex-col">
       {/* Header com informações e controles */}
-      <div className="border-b border-gray-200 p-4 bg-white">
+      <div className="border-b border-gray-200 p-4 bg-background">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Produção - Painel Kanban
-            </h1>
+            <h1 className="text-xl font-semibold">Produção - Painel Kanban</h1>
             <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
               <span>Total de pedidos: {totalPedidos}</span>
               {pedidosAtrasados > 0 && (
@@ -159,11 +157,11 @@ export default function ProductionKanban() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={handleRefresh}
               disabled={isLoading}
-              className="px-3 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-3 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
             >
               {isLoading ? "Carregando..." : "Atualizar"}
             </button>
@@ -178,7 +176,7 @@ export default function ProductionKanban() {
       </div>
 
       {/* Área de conteúdo */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden justify-items-center p-4">
         {combinedError ? (
           <div className="p-4">
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -193,7 +191,7 @@ export default function ProductionKanban() {
         ) : isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mt-10"></div>
               <p className="mt-4 text-gray-600">Carregando pedidos...</p>
             </div>
           </div>

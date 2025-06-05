@@ -46,7 +46,7 @@ export default function PedidosPage() {
       })) || [],
   }));
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="h-screen">
         {loading ? (
           <div className="flex items-center justify-center h-full">

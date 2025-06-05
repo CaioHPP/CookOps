@@ -28,7 +28,7 @@ export function StatusColumn({ status, orders }: StatusColumnProps) {
   };
 
   return (
-    <div className="flex flex-col min-w-80 max-w-80">
+    <div className="flex flex-col min-w-80 max-w-80 mx-2">
       {/* Header da coluna */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
