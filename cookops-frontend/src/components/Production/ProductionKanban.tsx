@@ -24,32 +24,32 @@ export default function ProductionKanban() {
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-
   // Hook para gerenciar status dos pedidos
   const {
     statusList: statusColumns,
     loading: statusLoading,
     error: statusError,
     atualizarAposMudanca,
-  } = usePedidoStatus(selectedBoard);
-  // WebSocket para atualizações em tempo real
+    moverPedidoOtimista,
+    reverterMovimentacaoPedido,
+  } = usePedidoStatus(selectedBoard); // WebSocket para atualizações em tempo real
   const { isConnected } = useWebSocket({
     empresaId,
     onPedidoCriado: (message: WebSocketMessage) => {
       console.log("Pedido criado via WebSocket:", message.pedidoId);
-      atualizarAposMudanca();
+      atualizarAposMudanca(true); // Atualização silenciosa
     },
     onPedidoAtualizado: () => {
       console.log("Pedido atualizado via WebSocket");
-      atualizarAposMudanca();
+      atualizarAposMudanca(true); // Atualização silenciosa
     },
     onPedidoConcluido: (message: WebSocketMessage) => {
       console.log("Pedido concluído via WebSocket:", message.pedidoId);
-      atualizarAposMudanca();
+      atualizarAposMudanca(true); // Atualização silenciosa
     },
     onPedidoMovido: () => {
       console.log("Pedido movido via WebSocket");
-      atualizarAposMudanca();
+      atualizarAposMudanca(true); // Atualização silenciosa
     },
     enabled: !!selectedBoard,
   });
@@ -213,7 +213,21 @@ export default function ProductionKanban() {
                 fromStatusId,
                 toStatusId,
               });
-              handleRefresh();
+              // Aplicar mudança otimisticamente
+              moverPedidoOtimista(orderId, fromStatusId, toStatusId);
+            }}
+            onMoveError={(
+              orderId: string,
+              fromStatusId: number,
+              toStatusId: number
+            ) => {
+              console.log("Erro ao mover pedido, revertendo:", {
+                orderId,
+                fromStatusId,
+                toStatusId,
+              });
+              // Reverter mudança em caso de erro
+              reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}
           />
         )}

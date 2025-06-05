@@ -26,12 +26,18 @@ interface KanbanBoardProps {
     fromStatusId: number,
     toStatusId: number
   ) => void;
+  onMoveError?: (
+    orderId: string,
+    fromStatusId: number,
+    toStatusId: number
+  ) => void;
 }
 
 export function KanbanBoard({
   statusColumns,
   loading,
   onMoveOrder,
+  onMoveError,
 }: KanbanBoardProps) {
   const [activeOrder, setActiveOrder] = useState<PedidoResponseDto | null>(
     null
@@ -127,8 +133,8 @@ export function KanbanBoard({
       console.error("Erro ao mover pedido:", error);
 
       // Em caso de erro, reverter a movimentação local
-      if (onMoveOrder) {
-        onMoveOrder(orderId, targetStatus.statusId, currentStatusId);
+      if (onMoveError) {
+        onMoveError(orderId, currentStatusId, targetStatus.statusId);
       }
 
       toast.error("Erro ao mover pedido. Tente novamente.");
