@@ -26,8 +26,8 @@ import { ProdutoService } from './produto.service';
 
 @ApiTags('Produtos')
 @ApiBearerAuth()
-@Controller('produtos')
 @UseGuards(JwtAuthGuard)
+@Controller('produtos')
 export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) {}
 

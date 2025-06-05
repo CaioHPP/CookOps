@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Defina aqui as rotas protegidas
 const protectedRoutes = [
   "/dashboard",
-  "/pedido",
+  "/pedidos",
   "/fontepedido",
   "/formapagamento",
   "/empresa",
@@ -50,7 +50,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard",
-    "/pedido",
+    "/pedidos",
     "/fontepedido",
     "/formapagamento",
     "/empresa",

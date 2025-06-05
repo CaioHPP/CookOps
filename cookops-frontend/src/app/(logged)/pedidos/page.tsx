@@ -67,7 +67,7 @@ export default function PedidosPage() {
             </div>
           </div>
         ) : (
-          <OrderPanel initialOrders={ordersFormatted} />
+          <OrderPanel />
         )}
       </div>
     </div>

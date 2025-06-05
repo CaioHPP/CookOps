@@ -1,4 +1,3 @@
-import React from "react";
 import type { Order } from "./types";
 
 interface OrderDetailsProps {
