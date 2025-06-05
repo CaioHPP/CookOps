@@ -7,15 +7,11 @@ import { PedidoStatusResponseWithPedidosAndItensDto } from "@/types/dto/pedidost
 import {
   DndContext,
   DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useState } from "react";
 import { toast } from "sonner";
-import { OrderCard } from "./OrderCard";
 import { StatusColumn } from "./StatusColumn";
 
 interface KanbanBoardProps {
@@ -43,9 +39,10 @@ export function KanbanBoard({
   onMoveError,
   onCompleteOrder,
 }: KanbanBoardProps) {
-  const [activeOrder, setActiveOrder] = useState<PedidoResponseDto | null>(
-    null
-  );
+  // Estado do overlay desabilitado
+  // const [activeOrder, setActiveOrder] = useState<PedidoResponseDto | null>(
+  //   null
+  // );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -54,30 +51,28 @@ export function KanbanBoard({
       },
     })
   );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const orderId = active.id as string;
-
+  const handleDragStart = () => {
+    // Overlay desabilitado - função mantida para compatibilidade
+    // const { active } = event;
+    // const orderId = active.id as string;
     // Encontrar o pedido que está sendo arrastado
-    for (const column of statusColumns) {
-      const order = column.pedidos.find((pedido) => pedido.id === orderId);
-      if (order) {
-        setActiveOrder(order);
-        break;
-      }
-    }
+    // for (const column of statusColumns) {
+    //   const order = column.pedidos.find((pedido) => pedido.id === orderId);
+    //   if (order) {
+    //     setActiveOrder(order);
+    //     break;
+    //   }
+    // }
   };
   const handleDragOver = () => {
-    // Aqui podemos implementar lógica de preview se necessário
-    // Por enquanto, deixamos vazio pois o visual feedback já é fornecido pelo DragOverlay
+    // Função mantida para compatibilidade
+    // Overlay desabilitado - feedback visual vem dos próprios cards
   };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over) {
-      setActiveOrder(null);
+      // setActiveOrder(null); // Overlay desabilitado
       return;
     }
 
@@ -90,7 +85,7 @@ export function KanbanBoard({
     );
 
     if (!targetStatus) {
-      setActiveOrder(null);
+      // setActiveOrder(null); // Overlay desabilitado
       return;
     }
 
@@ -108,13 +103,13 @@ export function KanbanBoard({
     }
 
     if (!currentOrder || !currentStatusId) {
-      setActiveOrder(null);
+      // setActiveOrder(null); // Overlay desabilitado
       return;
     }
 
     // Se não mudou de status, não fazer nada
     if (currentStatusId === targetStatus.statusId) {
-      setActiveOrder(null);
+      // setActiveOrder(null); // Overlay desabilitado
       return;
     }
     try {
@@ -144,7 +139,7 @@ export function KanbanBoard({
       toast.error("Erro ao mover pedido. Tente novamente.");
     }
 
-    setActiveOrder(null);
+    // setActiveOrder(null); // Overlay desabilitado
   };
 
   if (loading) {
@@ -188,12 +183,8 @@ export function KanbanBoard({
             isLastStatus={column.statusId === lastStatusId}
             onCompleteOrder={onCompleteOrder}
           />
-        ))}
+        ))}{" "}
       </div>
-      {/* Overlay para mostrar o item sendo arrastado */}
-      <DragOverlay>
-        {activeOrder ? <OrderCard order={activeOrder} isDragging /> : null}
-      </DragOverlay>
     </DndContext>
   );
 }
