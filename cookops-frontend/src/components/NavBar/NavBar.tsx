@@ -26,7 +26,10 @@ export function Navbar() {
   const { setTheme, theme } = useTheme();
 
   return (
-    <div className="w-full border-b bg-background" data-name="navbar">
+    <div
+      className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background"
+      data-name="navbar"
+    >
       <div className="flex h-16 items-center justify-between px-6">
         {/* CookOps name at the left */}
         <div className="text-lg font-semibold">CookOps</div>

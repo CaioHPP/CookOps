@@ -81,6 +81,7 @@ export default function PaymentMethodsConfig() {
     try {
       setIsSubmitting(true);
       if (editingMethod) {
+        // Lógica de edição
         const updateData: FormaPagamentoRequestUpdateDto = {
           nome: formData.nome,
           ativo: formData.ativo,
@@ -91,19 +92,24 @@ export default function PaymentMethodsConfig() {
         );
         toast.success("Método de pagamento atualizado com sucesso");
       } else {
+        // Lógica de criação
         const createData: FormaPagamentoRequestAddDto = {
           nome: formData.nome,
-          empresaId: "1", // You should get this from context/auth
+          empresaId: "1", // Será preenchido automaticamente no backend
           ativo: formData.ativo,
         };
         await FormaPagamentoService.addFormaPagamento(createData);
-        toast.success("Método de pagamento criado com sucesso");
+        toast.success("Método de pagamento adicionado com sucesso");
       }
-
-      await loadPaymentMethods();
-      resetForm();
+      await loadPaymentMethods(); // Recarrega a lista
+      setIsDialogOpen(false); // Fecha o modal
+      resetForm(); // Limpa o formulário
     } catch (error) {
-      toast.error("Erro ao salvar método de pagamento");
+      toast.error(
+        editingMethod
+          ? "Erro ao atualizar método de pagamento"
+          : "Erro ao adicionar método de pagamento"
+      );
       console.error("Erro ao salvar método de pagamento:", error);
     } finally {
       setIsSubmitting(false);
@@ -203,17 +209,17 @@ export default function PaymentMethodsConfig() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Métodos de Pagamento
-          </CardTitle>
-          <CardDescription>
-            Gerencie os métodos de pagamento aceitos no estabelecimento
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {" "}
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Métodos de Pagamento
+              </CardTitle>
+              <CardDescription className="mt-1.5">
+                Gerencie os métodos de pagamento aceitos no estabelecimento
+              </CardDescription>
+            </div>
+            {/* Dialog de criação/edição de método de pagamento */}
             <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
               <DialogTrigger asChild>
                 <Button
@@ -227,63 +233,58 @@ export default function PaymentMethodsConfig() {
                   Adicionar Método
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {editingMethod
-                      ? "Editar Método de Pagamento"
-                      : "Novo Método de Pagamento"}
+                    {editingMethod ? "Editar" : "Adicionar"} método de pagamento
                   </DialogTitle>
                   <DialogDescription>
-                    {editingMethod
-                      ? "Edite as informações do método de pagamento"
-                      : "Adicione um novo método de pagamento ao sistema"}
+                    Preencha as informações do método de pagamento abaixo.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nome do Método</Label>
+                    <Label htmlFor="nome">Nome</Label>
                     <Input
-                      id="name"
+                      id="nome"
                       value={formData.nome}
                       onChange={(e) =>
-                        setFormData({ ...formData, nome: e.target.value })
+                        setFormData((prev) => ({
+                          ...prev,
+                          nome: e.target.value,
+                        }))
                       }
-                      placeholder="Ex: Cartão de Crédito, PIX, Dinheiro..."
-                      required
-                      disabled={isSubmitting}
+                      placeholder="Ex: Cartão de crédito"
                     />
                   </div>
                   <div className="flex items-center space-x-2">
+                    <Label htmlFor="ativo">Ativo</Label>
                     <Switch
-                      id="active"
+                      id="ativo"
                       checked={formData.ativo}
                       onCheckedChange={(checked) =>
-                        setFormData({ ...formData, ativo: checked })
+                        setFormData((prev) => ({ ...prev, ativo: checked }))
                       }
-                      disabled={isSubmitting}
                     />
-                    <Label htmlFor="active">Método ativo</Label>
                   </div>
                   <DialogFooter>
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={resetForm}
-                      disabled={isSubmitting}
+                      onClick={() => setIsDialogOpen(false)}
                     >
                       Cancelar
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
-                        <div className="flex items-center">
+                        <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {editingMethod ? "Salvando..." : "Criando..."}
-                        </div>
+                          Salvando...
+                        </>
                       ) : (
                         <>
                           <Check className="h-4 w-4 mr-2" />
-                          {editingMethod ? "Salvar Alterações" : "Criar Método"}
+                          {editingMethod ? "Salvar" : "Adicionar"}
                         </>
                       )}
                     </Button>
@@ -292,6 +293,8 @@ export default function PaymentMethodsConfig() {
               </DialogContent>
             </Dialog>
           </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="space-y-3">
             {paymentMethods.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">

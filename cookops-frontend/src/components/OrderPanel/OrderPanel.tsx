@@ -47,7 +47,7 @@ export default function OrderPanel() {
   };
 
   return (
-    <div className="bg-background h-screen flex flex-col">
+    <div className="bg-background h-[calc(100vh-4rem)] flex">
       <div className="flex-1 flex overflow-hidden">
         <CardList
           orders={orders}
