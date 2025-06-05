@@ -10,7 +10,7 @@ export function CardList({
 }: CardListProps) {
   const [activeTab, setActiveTab] = useState("all");
   const tabs = [
-    { id: "all", label: "All" },
+    { id: "all", label: "Todos" },
     { id: "balcao", label: "Balcão" },
     { id: "app", label: "App" },
   ];
@@ -38,9 +38,9 @@ export function CardList({
   };
 
   return (
-    <aside className="h-full w-80 flex flex-col overflow-hidden bg-white">
-      {/* Tab Header */}
-      <div className="pb-3 px-4 pt-4">
+    <aside className="w-80 flex flex-col bg-background">
+      {/* Tab Header - Fixed */}
+      <div className="fixed w-80 bg-background pt-3 px-4 border-b-2 border-b-border border-r-2 border-r-border">
         <Tabs
           tabs={tabs}
           defaultActiveTab="all"
@@ -48,8 +48,8 @@ export function CardList({
         />
       </div>
 
-      {/* Order List */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Order List - Scrollable */}
+      <div className="mt-[60px] h-[calc(100vh-4rem-60px)] overflow-y-auto border-r-2 border-r-border">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <OrderCard
@@ -63,13 +63,6 @@ export function CardList({
           <EmptyState activeTab={activeTab} tabs={tabs} />
         )}
       </div>
-
-      {/* Tab Info Display */}
-      <TabInfo
-        activeTab={activeTab}
-        tabs={tabs}
-        orderCount={filteredOrders.length}
-      />
     </aside>
   );
 }
@@ -96,7 +89,7 @@ function OrderCard({ order, isSelected = false, onClick }: OrderCardProps) {
       className={`h-[72px] w-full p-4 flex items-center justify-between cursor-pointer transition-all duration-200 border-l-4 ${
         isSelected
           ? "bg-accent border-l-primary shadow-sm"
-          : "bg-white border-l-transparent hover:bg-gray-50 hover:border-l-gray-300"
+          : "bg-background border-l-transparent hover:bg-accent/50 hover:border-l-accent"
       }`}
       onClick={onClick}
     >
@@ -135,30 +128,6 @@ function EmptyState({
       <p className="font-['Plus_Jakarta_Sans:Regular',_sans-serif] font-normal text-muted-foreground text-[14px] leading-[21px]">
         Nenhum pedido encontrado para &ldquo;{activeTabLabel}&rdquo;
       </p>
-    </div>
-  );
-}
-
-function TabInfo({
-  activeTab,
-  tabs,
-  orderCount,
-}: {
-  activeTab: string;
-  tabs: TabItem[];
-  orderCount: number;
-}) {
-  const activeTabLabel =
-    tabs.find((t) => t.id === activeTab)?.label || activeTab;
-
-  return (
-    <div className="p-4 border-t border-input bg-muted">
-      <div className="text-sm text-muted-foreground">
-        <strong>Aba ativa:</strong> {activeTabLabel}
-      </div>
-      <div className="text-sm text-muted-foreground">
-        <strong>Pedidos:</strong> {orderCount}
-      </div>
     </div>
   );
 }

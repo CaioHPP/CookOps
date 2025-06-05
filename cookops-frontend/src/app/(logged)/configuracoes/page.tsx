@@ -51,7 +51,7 @@ export default function Configuracoes() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-72 bg-white border-r border-gray-200 min-h-screen p-6">
+        <div className="fixed left-0 top-16 w-72 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 p-6 overflow-y-auto">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {sessionStorage.getItem("nomeEmpresa") || "CookOps"}
@@ -90,7 +90,7 @@ export default function Configuracoes() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-8">
+        <div className="flex-1 ml-72 p-8">
           {!selectedItem ? (
             <div className="max-w-4xl">
               <div className="mb-8">
