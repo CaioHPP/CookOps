@@ -1,10 +1,34 @@
 "use client";
 
+import { FontePedidoService } from "@/api/services/fontepedido.service";
 import { PedidoStatusService } from "@/api/services/pedidostatus.service";
+import { FontePedidoResponseDto } from "@/types/dto/fontepedido/response/fontepedido-response.dto";
 import { PedidoResponseDto } from "@/types/dto/pedido/response/pedido-response.dto";
 import { PedidoStatusResponseWithPedidosAndItensDto } from "@/types/dto/pedidostatus/response/pedidostatus-response.dto";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+
+// Chaves para session storage
+const STORAGE_KEYS = {
+  MOSTRAR_CONCLUIDOS: "production-filters-mostrar-concluidos",
+  FONTE_SELECIONADA: "production-filters-fonte-selecionada",
+  MOSTRAR_ENTREGA: "production-filters-mostrar-entrega",
+};
+
+// Tipo para o filtro de entrega
+export type TipoFiltroEntrega = "todos" | "apenas-entrega" | "apenas-balcao";
+
+export const OPCOES_FILTRO_ENTREGA = {
+  TODOS: "todos" as const,
+  APENAS_ENTREGA: "apenas-entrega" as const,
+  APENAS_BALCAO: "apenas-balcao" as const,
+};
+
+export const LABELS_FILTRO_ENTREGA = {
+  todos: "Todos os pedidos",
+  "apenas-entrega": "Apenas delivery",
+  "apenas-balcao": "Apenas balcão",
+};
 
 export function usePedidoStatus(boardId?: string) {
   // Estado dos dados brutos (sem filtro)
@@ -13,24 +37,114 @@ export function usePedidoStatus(boardId?: string) {
   >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mostrarConcluidos, setMostrarConcluidos] = useState(false);
+
+  // Estados dos filtros com persistência
+  const [mostrarConcluidos, setMostrarConcluidos] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(STORAGE_KEYS.MOSTRAR_CONCLUIDOS);
+      return saved ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+
+  const [fonteSelecionada, setFonteSelecionada] = useState<number | null>(
+    () => {
+      if (typeof window !== "undefined") {
+        const saved = sessionStorage.getItem(STORAGE_KEYS.FONTE_SELECIONADA);
+        return saved ? JSON.parse(saved) : null;
+      }
+      return null;
+    }
+  );
+  const [filtroEntrega, setFiltroEntrega] = useState<TipoFiltroEntrega>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(STORAGE_KEYS.MOSTRAR_ENTREGA);
+      return saved ? JSON.parse(saved) : OPCOES_FILTRO_ENTREGA.TODOS;
+    }
+    return OPCOES_FILTRO_ENTREGA.TODOS;
+  });
+
+  // Estado para fontes de pedido
+  const [fontesPedido, setFontesPedido] = useState<FontePedidoResponseDto[]>(
+    []
+  );
 
   // Controla se deve ignorar atualizações via WebSocket para evitar loops
   const ignorarProximaAtualizacao = useRef(false);
-
-  // Dados filtrados (computed) - atualiza automaticamente quando filtro muda
+  // Dados filtrados (computed) - atualiza automaticamente quando filtros mudam
   const statusList = useMemo(() => {
     return statusListRaw.map((status) => ({
       ...status,
-      pedidos: mostrarConcluidos
-        ? status.pedidos
-        : status.pedidos.filter((pedido) => !pedido.concluidoEm),
-    }));
-  }, [statusListRaw, mostrarConcluidos]);
+      pedidos: status.pedidos.filter((pedido) => {
+        // Filtro de pedidos concluídos
+        if (!mostrarConcluidos && pedido.concluidoEm) {
+          return false;
+        }
 
-  // Função para alternar filtro de pedidos concluídos (sem recarregar dados)
+        // Filtro por fonte do pedido
+        if (
+          fonteSelecionada !== null &&
+          pedido.fonte?.id !== fonteSelecionada
+        ) {
+          return false;
+        } // Filtro de pedidos de entrega
+        if (
+          filtroEntrega === OPCOES_FILTRO_ENTREGA.APENAS_ENTREGA &&
+          !pedido.endereco
+        ) {
+          return false;
+        }
+
+        // Filtro de pedidos de balcão
+        if (
+          filtroEntrega === OPCOES_FILTRO_ENTREGA.APENAS_BALCAO &&
+          pedido.endereco
+        ) {
+          return false;
+        }
+
+        return true;
+      }),
+    }));
+  }, [statusListRaw, mostrarConcluidos, fonteSelecionada, filtroEntrega]);
+
+  // Carregar fontes de pedido
+  const carregarFontesPedido = useCallback(async () => {
+    try {
+      const fontes = await FontePedidoService.getFontesPagamento();
+      setFontesPedido(fontes);
+    } catch (err) {
+      console.error("Erro ao carregar fontes de pedido:", err);
+    }
+  }, []);
+
+  // Função para alternar filtro de pedidos concluídos (com persistência)
   const alternarMostrarConcluidos = useCallback(() => {
-    setMostrarConcluidos((prev) => !prev);
+    setMostrarConcluidos((prev: boolean) => {
+      const newValue = !prev;
+      sessionStorage.setItem(
+        STORAGE_KEYS.MOSTRAR_CONCLUIDOS,
+        JSON.stringify(newValue)
+      );
+      return newValue;
+    });
+  }, []);
+
+  // Função para alterar fonte selecionada (com persistência)
+  const alterarFonteSelecionada = useCallback((fonteId: number | null) => {
+    setFonteSelecionada(fonteId);
+    sessionStorage.setItem(
+      STORAGE_KEYS.FONTE_SELECIONADA,
+      JSON.stringify(fonteId)
+    );
+  }, []);
+  // Função para alterar filtro de entrega (com persistência)
+  const alterarFiltroEntrega = useCallback((novoFiltro: TipoFiltroEntrega) => {
+    setFiltroEntrega(novoFiltro);
+    sessionStorage.setItem(
+      STORAGE_KEYS.MOSTRAR_ENTREGA,
+      JSON.stringify(novoFiltro)
+    );
   }, []);
 
   // Função para obter o status com maior ordem (último status)
@@ -201,7 +315,6 @@ export function usePedidoStatus(boardId?: string) {
     },
     [carregarStatusComPedidosEItens]
   );
-
   // Carregar dados na inicialização
   useEffect(() => {
     if (boardId) {
@@ -209,12 +322,21 @@ export function usePedidoStatus(boardId?: string) {
     }
   }, [boardId, carregarStatusComPedidosEItens]);
 
+  // Carregar fontes de pedido na inicialização
+  useEffect(() => {
+    carregarFontesPedido();
+  }, [carregarFontesPedido]);
   return {
     statusList,
     loading,
     error,
     mostrarConcluidos,
+    fonteSelecionada,
+    filtroEntrega,
+    fontesPedido,
     alternarMostrarConcluidos,
+    alterarFonteSelecionada,
+    alterarFiltroEntrega,
     obterUltimoStatus,
     carregarStatusComPedidosEItens,
     getTotalPedidos,

@@ -28,14 +28,18 @@ export default function ProductionKanban() {
   const [error, setError] = useState<string>("");
 
   // Hook para gerenciar pedidos
-  const { concluirPedido } = usePedidos();
-  // Hook para gerenciar status dos pedidos
+  const { concluirPedido } = usePedidos(); // Hook para gerenciar status dos pedidos
   const {
     statusList: statusColumns,
     loading: statusLoading,
     error: statusError,
     mostrarConcluidos,
     alternarMostrarConcluidos,
+    fonteSelecionada,
+    alterarFonteSelecionada,
+    filtroEntrega,
+    alterarFiltroEntrega,
+    fontesPedido,
     obterUltimoStatus,
     atualizarAposMudanca,
     moverPedidoOtimista,
@@ -199,13 +203,17 @@ export default function ProductionKanban() {
               loading={loading}
             />
           </div>
-        </div>
-
+        </div>{" "}
         {/* Área de filtros separada */}
         {selectedBoard && (
           <FilterArea
             mostrarConcluidos={mostrarConcluidos}
             onToggleConcluidos={alternarMostrarConcluidos}
+            fonteSelecionada={fonteSelecionada}
+            onFonteChange={alterarFonteSelecionada}
+            filtroEntrega={filtroEntrega}
+            onFiltroEntregaChange={alterarFiltroEntrega}
+            fontesPedido={fontesPedido}
           />
         )}
       </div>
