@@ -91,19 +91,23 @@ model PedidoStatus {
 }
 
 model Pedido {
-  id          String    @id @default(cuid())
-  statusId    Int
-  empresaId   String
-  codigo      String
-  fonteId     Int
-  pagamentoId Int
-  enderecoId  String?
-  desconto    Float     @default(0)
-  taxaEntrega Float     @default(0)
-  valorTotal  Float
-  observacao  String?
-  criadoEm    DateTime  @default(now())
-  concluidoEm DateTime?
+  id                 String    @id @default(cuid())
+  statusId           Int
+  empresaId          String
+  codigo             String
+  fonteId            Int
+  pagamentoId        Int
+  enderecoId         String?
+  desconto           Float     @default(0)
+  taxaEntrega        Float     @default(0)
+  valorTotal         Float
+  observacao         String?
+  confirmado         Boolean   @default(false) // se o pedido foi confirmado
+  confirmaAutomatico Boolean   @default(true) // se deve ser confirmado automaticamente
+  dataConfirmacao    DateTime? // quando foi confirmado
+  usuarioConfirmou   String? // ID do usuário que confirmou (se aplicável)
+  criadoEm           DateTime  @default(now())
+  concluidoEm        DateTime?
 
   status    PedidoStatus      @relation("PedidoStatusAtual", fields: [statusId], references: [id])
   empresa   Empresa           @relation(fields: [empresaId], references: [id])
@@ -148,9 +152,12 @@ model FormaPagamento {
 }
 
 model FontePedido {
-  id             Int     @id @default(autoincrement())
-  nome           String
-  tipoIntegracao String?
+  id                  Int     @id @default(autoincrement())
+  nome                String
+  tipoIntegracao      String?
+  confirmaAutomatico  Boolean @default(true) // se true, pedidos são confirmados automaticamente
+  exigeConfirmacao    Boolean @default(false) // se true, obrigatório confirmar antes de processar
+  tempoLimiteConfirma Int? // tempo em minutos para confirmar (opcional)
 
   pedidos Pedido[]
 }

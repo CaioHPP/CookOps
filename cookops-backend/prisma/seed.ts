@@ -148,7 +148,6 @@ async function main() {
   });
 
   console.log('✅ Formas de pagamento criadas');
-
   // Criar fonte de pedidos
   const fontePedidoBalcao = await prisma.fontePedido.upsert({
     where: { id: 1 },
@@ -156,6 +155,8 @@ async function main() {
     create: {
       nome: 'Balcão',
       tipoIntegracao: 'MANUAL',
+      confirmaAutomatico: true,
+      exigeConfirmacao: false,
     },
   });
 
@@ -165,6 +166,32 @@ async function main() {
     create: {
       nome: 'iFood',
       tipoIntegracao: 'API',
+      confirmaAutomatico: false,
+      exigeConfirmacao: true,
+      tempoLimiteConfirma: 15, // 15 minutos para confirmar
+    },
+  });
+
+  const fontePedidoUberEats = await prisma.fontePedido.upsert({
+    where: { id: 3 },
+    update: {},
+    create: {
+      nome: 'Uber Eats',
+      tipoIntegracao: 'API',
+      confirmaAutomatico: true,
+      exigeConfirmacao: false,
+    },
+  });
+
+  const fontePedidoWhatsApp = await prisma.fontePedido.upsert({
+    where: { id: 4 },
+    update: {},
+    create: {
+      nome: 'WhatsApp',
+      tipoIntegracao: 'MANUAL',
+      confirmaAutomatico: false,
+      exigeConfirmacao: true,
+      tempoLimiteConfirma: 30, // 30 minutos para confirmar
     },
   });
 

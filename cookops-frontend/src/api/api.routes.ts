@@ -25,10 +25,12 @@ export const API_ROUTES = {
     GET_PEDIDOS_BY_EMPRESA: "/pedidos/empresa/",
     GET_PEDIDO_BY_ID: "/pedidos",
     GET_PEDIDOS_ULTIMAS_12_HORAS: "/pedidos/ultimas-12-horas/",
+    GET_PEDIDOS_PENDENTES_CONFIRMACAO: "/pedidos/pendentes-confirmacao",
     UPDATE_PEDIDO: "/pedidos",
     DELETE_PEDIDO: "/pedidos",
     MOVER_PEDIDO: "/pedidos/mover",
     CONCLUIR_PEDIDO: "/pedidos/concluir",
+    CONFIRMAR_PEDIDO: "/pedidos/confirmar",
   },
   PEDIDO_STATUS: {
     ADD_PEDIDO_STATUS: "/pedidostatus",

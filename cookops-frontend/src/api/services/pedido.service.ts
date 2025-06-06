@@ -65,4 +65,20 @@ export class PedidoService {
     const response = await api.put<PedidoResponseDto>(url);
     return response.data;
   }
+
+  static async getPedidosPendentesConfirmacao(): Promise<PedidoResponseDto[]> {
+    const response = await api.get<PedidoResponseDto[]>(
+      API_ROUTES.PEDIDO.GET_PEDIDOS_PENDENTES_CONFIRMACAO
+    );
+    return response.data;
+  }
+
+  static async confirmarPedido(
+    id: string,
+    data?: { usuarioConfirmou?: string }
+  ): Promise<PedidoResponseDto> {
+    const url = `${API_ROUTES.PEDIDO.CONFIRMAR_PEDIDO}/${id}`;
+    const response = await api.put<PedidoResponseDto>(url, data || {});
+    return response.data;
+  }
 }

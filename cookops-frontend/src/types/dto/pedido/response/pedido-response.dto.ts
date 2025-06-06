@@ -25,6 +25,10 @@ export interface PedidoResponseDto {
   taxaEntrega: number;
   valorTotal: number;
   observacao?: string;
+  confirmado: boolean;
+  confirmaAutomatico: boolean;
+  dataConfirmacao?: string;
+  usuarioConfirmou?: string;
   criadoEm: string;
   concluidoEm?: string;
   status?: PedidoStatusResponseDto;

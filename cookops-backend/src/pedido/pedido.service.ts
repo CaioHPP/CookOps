@@ -58,10 +58,25 @@ export class PedidoService {
     }
     const statusId = status.id;
 
+    // Buscar informações da fonte do pedido para determinar a confirmação
+    const fontePedido = await this.prisma.fontePedido.findUnique({
+      where: { id: fonteId },
+    });
+
+    if (!fontePedido) {
+      throw new Error('Fonte do pedido não encontrada');
+    }
+
+    const confirmaAutomatico = fontePedido.confirmaAutomatico;
+    const confirmado = confirmaAutomatico && !fontePedido.exigeConfirmacao;
+
     const pedido = await this.prisma.pedido.create({
       data: {
         ...rest,
         codigo,
+        confirmado,
+        confirmaAutomatico,
+        dataConfirmacao: confirmado ? new Date() : null,
         itens: {
           create: itens?.map((item) => ({
             produto: { connect: { id: item.produtoId } },
@@ -101,6 +116,9 @@ export class PedidoService {
             produto: true,
           },
         },
+      },
+      orderBy: {
+        criadoEm: 'desc',
       },
     });
   }
@@ -188,6 +206,70 @@ export class PedidoService {
     });
   }
 
+  async confirmarPedido(
+    id: string,
+    usuarioConfirmou?: string,
+  ): Promise<Pedido> {
+    const pedido = await this.prisma.pedido.findUnique({
+      where: { id },
+      include: { fonte: true },
+    });
+
+    if (!pedido) {
+      throw new NotFoundException('Pedido não encontrado');
+    }
+
+    if (pedido.confirmado) {
+      throw new Error('Pedido já foi confirmado');
+    }
+
+    // Verificar se a fonte exige confirmação
+    if (!pedido.fonte.exigeConfirmacao && pedido.fonte.confirmaAutomatico) {
+      throw new Error('Este pedido não precisa de confirmação manual');
+    }
+
+    // Verificar tempo limite se configurado
+    if (pedido.fonte.tempoLimiteConfirma) {
+      const tempoLimite = new Date(pedido.criadoEm);
+      tempoLimite.setMinutes(
+        tempoLimite.getMinutes() + pedido.fonte.tempoLimiteConfirma,
+      );
+
+      if (new Date() > tempoLimite) {
+        throw new Error('Tempo limite para confirmação expirado');
+      }
+    }
+
+    const pedidoConfirmado = await this.prisma.pedido.update({
+      where: { id },
+      data: {
+        confirmado: true,
+        dataConfirmacao: new Date(),
+        usuarioConfirmou,
+      },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true,
+          },
+        },
+      },
+    });
+
+    // Emitir evento de pedido confirmado
+    this.pedidoGateway.emitirPedidoCriado(pedido.empresaId, {
+      acao: 'confirmado',
+      pedidoId: pedido.id,
+      statusId: pedido.statusId,
+    });
+
+    return pedidoConfirmado;
+  }
+
   findByEmpresaId(empresaId: string): Promise<Pedido[]> {
     return this.prisma.pedido.findMany({
       where: { empresaId },
@@ -201,6 +283,9 @@ export class PedidoService {
             produto: true,
           },
         },
+      },
+      orderBy: {
+        criadoEm: 'desc',
       },
     });
   }
@@ -382,5 +467,31 @@ export class PedidoService {
     });
 
     return pedidoAtualizado;
+  }
+
+  async findPedidosPendentesConfirmacao(empresaId: string): Promise<Pedido[]> {
+    return this.prisma.pedido.findMany({
+      where: {
+        empresaId,
+        confirmado: false,
+        fonte: {
+          exigeConfirmacao: true,
+        },
+      },
+      include: {
+        status: true,
+        pagamento: true,
+        fonte: true,
+        endereco: true,
+        itens: {
+          include: {
+            produto: true,
+          },
+        },
+      },
+      orderBy: {
+        criadoEm: 'asc',
+      },
+    });
   }
 }

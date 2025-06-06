@@ -17,6 +17,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { ConfirmarPedidoDto } from './dto/confirmar-pedido.dto';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { PedidoService } from './pedido.service';
@@ -129,6 +130,23 @@ export class PedidoController {
     return this.pedidoService.remove(id);
   }
 
+  @Put('confirmar/:id')
+  @ApiOperation({ summary: 'Confirmar um pedido' })
+  @ApiParam({ name: 'id', description: 'ID do pedido' })
+  @ApiBody({
+    type: ConfirmarPedidoDto,
+    description: 'Dados para confirmação do pedido',
+    required: false,
+  })
+  confirmarPedido(
+    @Request() req: { user: { empresaId: string; id: string } },
+    @Param('id') id: string,
+    @Body() data?: ConfirmarPedidoDto,
+  ) {
+    const usuarioConfirmou = data?.usuarioConfirmou || req.user.id;
+    return this.pedidoService.confirmarPedido(id, usuarioConfirmou);
+  }
+
   @Put('concluir/:id')
   @ApiOperation({ summary: 'Concluir um pedido' })
   @ApiParam({ name: 'id', description: 'ID do pedido' })
@@ -138,5 +156,14 @@ export class PedidoController {
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.concluirPedido(id, empresaId);
+  }
+
+  @Get('pendentes-confirmacao')
+  @ApiOperation({ summary: 'Listar pedidos pendentes de confirmação' })
+  findPedidosPendentesConfirmacao(
+    @Request() req: { user: { empresaId: string } },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findPedidosPendentesConfirmacao(empresaId);
   }
 }
