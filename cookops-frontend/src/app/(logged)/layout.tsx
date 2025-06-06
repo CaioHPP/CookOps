@@ -2,6 +2,7 @@
 
 import { AuthService } from "@/api/services/auth.service";
 import { Navbar } from "@/components/NavBar/NavBar";
+import { Toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -56,6 +57,7 @@ export default function LoggedLayout({
     <div className="min-h-svh bg-background">
       <Navbar />
       <main className="flex-1 pt-16">{children}</main>
+      <Toaster />
     </div>
   );
 }
