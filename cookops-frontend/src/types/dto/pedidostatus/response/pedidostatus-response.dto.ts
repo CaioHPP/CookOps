@@ -9,16 +9,10 @@ export interface PedidoStatusResponseDto {
 
 export interface PedidoStatusResponseWithPedidosDto {
   id: number;
+  boardId: string;
   titulo: string;
   ordem: number;
-  pedidos: {
-    id: number;
-    titulo: string;
-    descricao: string;
-    statusId: number;
-    createdAt: Date;
-    updatedAt: Date;
-  }[];
+  pedidos: PedidoResponseDto[];
 }
 
 export interface PedidoStatusResponseWithPedidosAndItensDto {

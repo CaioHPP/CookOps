@@ -75,7 +75,13 @@ export function usePedidoStatus(boardId?: string) {
   const statusList = useMemo(() => {
     return statusListRaw.map((status) => ({
       ...status,
-      pedidos: status.pedidos.filter((pedido) => {
+      pedidos: status.pedidos.filter((pedido: PedidoResponseDto) => {
+        // Filtro para mostrar apenas pedidos confirmados
+
+        if (pedido.confirmado !== true) {
+          return false;
+        }
+
         // Filtro de pedidos concluídos
         if (!mostrarConcluidos && pedido.concluidoEm) {
           return false;

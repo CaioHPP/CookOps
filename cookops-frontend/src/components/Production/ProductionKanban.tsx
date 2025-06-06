@@ -71,9 +71,7 @@ export default function ProductionKanban() {
   useEffect(() => {
     const loadBoards = async () => {
       try {
-        console.log("Carregando boards...");
         const boardsData = await BoardService.getBoardsByEmpresa();
-        console.log("Boards carregados:", boardsData);
 
         if (Array.isArray(boardsData)) {
           setBoards(boardsData);
@@ -252,12 +250,6 @@ export default function ProductionKanban() {
             loading={statusLoading}
             lastStatusId={ultimoStatus?.statusId}
             onMoveOrder={(orderId, fromStatusId, toStatusId) => {
-              console.log("Pedido movido:", {
-                orderId,
-                fromStatusId,
-                toStatusId,
-              });
-              // Aplicar mudança otimisticamente
               moverPedidoOtimista(orderId, fromStatusId, toStatusId);
             }}
             onMoveError={(
@@ -265,12 +257,6 @@ export default function ProductionKanban() {
               fromStatusId: number,
               toStatusId: number
             ) => {
-              console.log("Erro ao mover pedido, revertendo:", {
-                orderId,
-                fromStatusId,
-                toStatusId,
-              });
-              // Reverter mudança em caso de erro
               reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}
             onCompleteOrder={handleCompleteOrder}
