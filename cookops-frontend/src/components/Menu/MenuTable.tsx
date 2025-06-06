@@ -39,11 +39,11 @@ export function MenuTable({ filter }: MenuTableProps) {
 
   const loadProdutos = useCallback(async () => {
     try {
+      setIsLoading(true);
       const data = await getProdutos();
-      console.log("Produtos carregados:", data); // Debug
       setProdutos(data);
     } catch (error) {
-      console.error("Erro ao carregar produtos:", error); // Debug
+      console.error("Erro ao carregar produtos:", error);
       toast({
         title: "Erro ao carregar produtos",
         description: "Não foi possível carregar a lista de produtos.",
@@ -58,7 +58,7 @@ export function MenuTable({ filter }: MenuTableProps) {
     loadProdutos();
   }, [loadProdutos]);
 
-  async function handleToggleStatus(id: number, ativo: boolean) {
+  async function handleToggleStatus(id: string, ativo: boolean) {
     try {
       await updateProduto(id, { ativo });
       setProdutos(
@@ -70,7 +70,8 @@ export function MenuTable({ filter }: MenuTableProps) {
         title: "Status atualizado",
         description: `Produto ${ativo ? "ativado" : "desativado"} com sucesso.`,
       });
-    } catch {
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
       toast({
         title: "Erro ao atualizar status",
         description: "Não foi possível atualizar o status do produto.",
@@ -79,7 +80,7 @@ export function MenuTable({ filter }: MenuTableProps) {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     try {
       await deleteProduto(id);
       setProdutos(produtos.filter((produto) => produto.id !== id));
@@ -87,10 +88,15 @@ export function MenuTable({ filter }: MenuTableProps) {
         title: "Produto excluído",
         description: "Produto excluído com sucesso.",
       });
-    } catch {
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível excluir o produto.";
       toast({
         title: "Erro ao excluir produto",
-        description: "Não foi possível excluir o produto.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -156,7 +162,7 @@ export function MenuTable({ filter }: MenuTableProps) {
               </div>
             </div>
             <div className="flex items-center justify-center font-medium">
-              R$ {formatPrice(produto.preco)}
+              R$ {formatPrice(produto.precoBase)}
             </div>
             <div className="flex items-center justify-center">
               <Badge

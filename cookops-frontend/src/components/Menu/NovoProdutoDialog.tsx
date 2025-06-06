@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageUpload } from "./ImageUpload";
-import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
+import { ImageUpload } from "./ImageUpload";
 import { createProduto } from "@/api/produtos";
 
 interface NovoProdutoDialogProps {
@@ -45,7 +45,6 @@ export function NovoProdutoDialog({
   };
 
   const generateCode = (name: string = formData.nome): string => {
-    // Gera um código baseado no nome do produto
     return name
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -60,20 +59,55 @@ export function NovoProdutoDialog({
     setIsLoading(true);
 
     try {
-      const preco = parseFloat(formData.preco.replace(",", "."));
+      // Validações do nome
+      const nome = formData.nome.trim();
+      if (!nome) {
+        throw new Error("O nome do produto é obrigatório");
+      }
+      if (nome.length < 3) {
+        throw new Error("O nome do produto deve ter pelo menos 3 caracteres");
+      }
+      if (nome.length > 100) {
+        throw new Error(
+          "O nome do produto não pode ter mais de 100 caracteres"
+        );
+      }
 
-      if (isNaN(preco)) {
+      // Validação da descrição
+      const descricao = formData.descricao.trim();
+      if (descricao && descricao.length > 500) {
+        throw new Error("A descrição não pode ter mais de 500 caracteres");
+      }
+
+      // Validação básica do preço
+      const precoString = formData.preco.trim();
+      if (!precoString) {
+        throw new Error("O preço é obrigatório");
+      }
+
+      // Convert price string to number (further validation in createProduto)
+      const precoBase = parseFloat(precoString.replace(",", "."));
+      if (isNaN(precoBase)) {
         throw new Error("Preço inválido");
       }
 
-      await createProduto({
-        nome: formData.nome,
-        descricao: formData.descricao,
-        preco: preco,
-        codigo: formData.codigo || generateCode(formData.nome),
-        imagem: imageUrl,
+      // Validação do código
+      const codigo = formData.codigo.trim();
+      if (codigo && (codigo.length < 3 || codigo.length > 6)) {
+        throw new Error("O código do produto deve ter entre 3 e 6 caracteres");
+      }
+
+      // Construir o objeto do produto
+      const produtoData = {
+        nome,
+        descricao: descricao || undefined,
+        precoBase,
+        codigo: codigo || generateCode(nome),
+        imagem: imageUrl || undefined,
         ativo,
-      });
+      };
+
+      await createProduto(produtoData);
 
       toast({
         title: "Produto criado",
@@ -92,10 +126,24 @@ export function NovoProdutoDialog({
       });
       setImageUrl("");
       setAtivo(true);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao criar produto:", error);
+
+      // Se for um erro da API ou nossa validação
+      if (error instanceof Error) {
+        toast({
+          title: "Erro ao criar produto",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Erro genérico
       toast({
         title: "Erro ao criar produto",
-        description: "Verifique os dados e tente novamente.",
+        description:
+          "Ocorreu um erro inesperado. Verifique os dados e tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -130,7 +178,6 @@ export function NovoProdutoDialog({
                 placeholder="Descreva o item do cardápio"
                 value={formData.descricao}
                 onChange={handleChange}
-                required
               />
             </div>
 
@@ -141,9 +188,15 @@ export function NovoProdutoDialog({
                 type="text"
                 placeholder="0,00"
                 value={formData.preco}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^\d,.]*/g, "");
+                  if (value === "" || /^\d*([,.]\d{0,2})?$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
                 required
-                pattern="^\d*[0-9](|,\d{0,2}|\.\d{0,2}|,\d{0,2}\.\d{0,2})$"
+                pattern="^\d+([,.]\d{0,2})?$"
+                title="Digite um valor válido (ex: 10,90 ou 10.90)"
               />
             </div>
 

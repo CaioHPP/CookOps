@@ -10,24 +10,51 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = AuthService.getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-api.interceptors.response.use(
-  (response) => response,
+// Interceptor para adicionar o token em todas as requisições
+api.interceptors.request.use(
+  (config) => {
+    const token = AuthService.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    // Debug
+    console.log("Config da requisição:", {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data,
+    });
+    return config;
+  },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Handle unauthorized access, e.g., redirect to login
-      console.error("Unauthorized access - redirecting to login");
-      // Optionally, you can redirect the user to the login page
-      // window.location.href = "/login";
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor para tratar erros de resposta
+api.interceptors.response.use(
+  (response) => {
+    // Debug
+    console.log("Resposta da API:", {
+      status: response.status,
+      data: response.data,
+    });
+    return response;
+  },
+  (error) => {
+    // Debug
+    console.error("Erro na requisição:", {
+      status: error.response?.status,
+      message: error.response?.data?.message,
+      config: error.config,
+    });
+
+    if (error.response?.status === 401) {
+      AuthService.logout();
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }
 );
+
 export default api;
