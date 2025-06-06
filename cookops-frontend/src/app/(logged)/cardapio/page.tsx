@@ -48,6 +48,7 @@ export default function CardapioPage() {
       <NovoProdutoDialog
         open={isNewProductDialogOpen}
         onOpenChange={setIsNewProductDialogOpen}
+        onSuccess={() => window.location.reload()}
       />
     </div>
   );
