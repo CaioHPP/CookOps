@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { CardList } from "./CardList";
 import { OrderDetails } from "./OrderDetails";
-import type { Order } from "./types";
+import type { Order, TabType } from "./types";
 
-const orders: Order[] = [
+interface OrderPanelProps {
+  orders?: Order[];
+  activeTab?: TabType;
+  onTabChange?: (tab: TabType) => void;
+  selectedOrder?: Order | null;
+  onOrderSelect?: (order: Order | null) => void;
+  onConfirmOrder?: (id: string) => void;
+  onCancelOrder?: (id: string) => void;
+}
+
+const mockOrders: Order[] = [
   {
     id: "12346",
     itemCount: 3,
@@ -36,28 +46,44 @@ const orders: Order[] = [
   },
 ];
 
-export default function OrderPanel() {
-  const [selectedOrderId, setSelectedOrderId] = useState<string>("");
+export default function OrderPanel({
+  orders = mockOrders,
+  activeTab = "todos",
+  onTabChange,
+  selectedOrder: providedSelectedOrder,
+  onOrderSelect: providedOnOrderSelect,
+  onConfirmOrder = (id) => console.log("Confirm order", id),
+  onCancelOrder = (id) => console.log("Cancel order", id),
+}: OrderPanelProps) {
+  const [localSelectedOrderId, setLocalSelectedOrderId] = useState<string>("");
 
+  // Use provided selectedOrder or fallback to local state
   const selectedOrder =
-    orders.find((order) => order.id === selectedOrderId) || null;
+    providedSelectedOrder !== undefined
+      ? providedSelectedOrder
+      : orders.find((order) => order.id === localSelectedOrderId) || null;
 
   const handleOrderSelect = (order: Order | null) => {
-    setSelectedOrderId(order?.id || "");
+    if (providedOnOrderSelect) {
+      providedOnOrderSelect(order);
+    } else {
+      setLocalSelectedOrderId(order?.id || "");
+    }
   };
-
   return (
     <div className="bg-background h-[calc(100vh-4rem)] flex">
       <div className="flex-1 flex overflow-hidden">
         <CardList
           orders={orders}
-          selectedOrderId={selectedOrderId}
+          selectedOrderId={selectedOrder?.id || ""}
           onOrderSelect={handleOrderSelect}
+          activeTab={activeTab}
+          onTabChange={onTabChange}
         />
         <OrderDetails
           order={selectedOrder}
-          onConfirmOrder={(id) => console.log("Confirm order", id)}
-          onCancelOrder={(id) => console.log("Cancel order", id)}
+          onConfirmOrder={onConfirmOrder}
+          onCancelOrder={onCancelOrder}
         />
       </div>
     </div>

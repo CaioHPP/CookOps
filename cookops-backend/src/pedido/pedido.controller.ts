@@ -70,6 +70,28 @@ export class PedidoController {
     return this.pedidoService.findByEmpresaId(empresaId);
   }
 
+  @Get('empresawithtimelimit/')
+  @ApiOperation({
+    summary: 'Listar pedidos da empresa com limite de tempo',
+    description:
+      'Retorna todos os pedidos da empresa do usuário autenticado, incluindo o tempo limite de preparo. O tempo limite é calculado com base no status do pedido.',
+  })
+  findByEmpresaIdWithTimeLimit(
+    @Request() req: { user: { empresaId: string } },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findByEmpresaIdWithTimeLimit(empresaId);
+  }
+
+  @Get('pendentes-confirmacao')
+  @ApiOperation({ summary: 'Listar pedidos pendentes de confirmação' })
+  findPedidosPendentesConfirmacao(
+    @Request() req: { user: { empresaId: string } },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoService.findPedidosPendentesConfirmacao(empresaId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um pedido pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do pedido' })
@@ -156,14 +178,5 @@ export class PedidoController {
   ) {
     const empresaId = req.user.empresaId;
     return this.pedidoService.concluirPedido(id, empresaId);
-  }
-
-  @Get('pendentes-confirmacao')
-  @ApiOperation({ summary: 'Listar pedidos pendentes de confirmação' })
-  findPedidosPendentesConfirmacao(
-    @Request() req: { user: { empresaId: string } },
-  ) {
-    const empresaId = req.user.empresaId;
-    return this.pedidoService.findPedidosPendentesConfirmacao(empresaId);
   }
 }

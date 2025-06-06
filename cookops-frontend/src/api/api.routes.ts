@@ -25,6 +25,7 @@ export const API_ROUTES = {
     GET_PEDIDOS_BY_EMPRESA: "/pedidos/empresa/",
     GET_PEDIDO_BY_ID: "/pedidos",
     GET_PEDIDOS_ULTIMAS_12_HORAS: "/pedidos/ultimas-12-horas/",
+    GET_PEDIDOS_BY_EMPRESA_WITH_TIME_LIMIT: "/pedidos/empresawithtimelimit/",
     GET_PEDIDOS_PENDENTES_CONFIRMACAO: "/pedidos/pendentes-confirmacao",
     UPDATE_PEDIDO: "/pedidos",
     DELETE_PEDIDO: "/pedidos",

@@ -1,52 +1,60 @@
 "use client";
 
-import { PedidoService } from "@/api/services/pedido.service";
 import OrderPanel from "@/components/OrderPanel/OrderPanel";
-import { PedidoResponseDto } from "@/types/dto/pedido/response/pedido-response.dto";
-import { useEffect, useState } from "react";
+import { Order, TabType } from "@/components/OrderPanel/types";
+import { usePedidosPage } from "@/hooks/usePedidosPage";
+import { useState } from "react";
 
 export default function PedidosPage() {
-  const [pedidos, setPedidos] = useState<PedidoResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>("");
+  const {
+    pedidosFiltrados,
+    loading,
+    error,
+    confirmarPedido,
+    cancelarPedido,
+    atualizarDados,
+    wsConnected,
+    wsError,
+  } = usePedidosPage();
 
-  useEffect(() => {
-    const carregarPedidos = async () => {
-      try {
-        setLoading(true);
-        const pedidosData = await PedidoService.getPedidosByEmpresa();
-        setPedidos(pedidosData);
-      } catch (err: unknown) {
-        console.error("Erro ao carregar pedidos:", err);
-        setError("Erro ao carregar pedidos. Tente novamente.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [activeTab, setActiveTab] = useState<TabType>("todos");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-    carregarPedidos();
-  }, []); // Transformar dados dos pedidos para o formato esperado pelo OrderPanel
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const ordersFormatted = pedidos.map((pedido, index) => ({
-    id: pedido.id,
-    orderNumber: pedido.codigo || `${index + 1}`,
-    itemCount: pedido.itens?.length || 0,
-    total: pedido.valorTotal?.toFixed(2) || "0.00",
-    time: new Date(pedido.criadoEm).toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-    subtotal: pedido.valorTotal - pedido.taxaEntrega - pedido.desconto,
-    taxes: pedido.taxaEntrega,
-    items:
-      pedido.itens?.map((item) => ({
-        name: item.produto?.nome || "Item",
-        quantity: item.quantidade,
-        price: item.precoUnitario,
-      })) || [],
-  }));
+  const handleOrderSelect = (order: Order | null) => {
+    setSelectedOrder(order);
+  };
+
+  const handleConfirmOrder = async (id: string) => {
+    await confirmarPedido(id);
+  };
+
+  const handleCancelOrder = async (id: string) => {
+    await cancelarPedido(id);
+  };
+
+  // Obter pedidos da aba ativa
+  const currentOrders = pedidosFiltrados[activeTab];
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Indicador de status WebSocket */}
+      {wsError && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 text-sm">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+            <span>Atualizações em tempo real indisponíveis</span>
+          </div>
+        </div>
+      )}
+      {wsConnected && (
+        <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 text-sm">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            <span>Atualizações em tempo real ativas</span>
+          </div>
+        </div>
+      )}
+
       <div className="h-screen">
         {loading ? (
           <div className="flex items-center justify-center h-full">
@@ -60,7 +68,7 @@ export default function PedidosPage() {
             <div className="text-center">
               <p className="text-red-600 mb-4">{error}</p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={atualizarDados}
                 className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
               >
                 Tentar Novamente
@@ -68,7 +76,15 @@ export default function PedidosPage() {
             </div>
           </div>
         ) : (
-          <OrderPanel />
+          <OrderPanel
+            orders={currentOrders}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            selectedOrder={selectedOrder}
+            onOrderSelect={handleOrderSelect}
+            onConfirmOrder={handleConfirmOrder}
+            onCancelOrder={handleCancelOrder}
+          />
         )}
       </div>
     </div>

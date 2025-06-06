@@ -1,3 +1,4 @@
+import { ConfirmationBadge } from "./ConfirmationBadge";
 import type { Order } from "./types";
 
 interface OrderDetailsProps {
@@ -29,8 +30,18 @@ export function OrderDetails({
             {order.totalValue.toFixed(2)}
           </h1>
           <p className="text-[14px] text-muted-foreground">
-            Pedido #{order.id}
+            Pedido {order.codigo}
           </p>
+          {/* Badge de confirmação no header */}
+          {order.needsConfirmation && order.timeRemaining && (
+            <div className="mt-2">
+              <ConfirmationBadge
+                timeRemaining={order.timeRemaining}
+                isExpired={order.isExpired || false}
+                tempoRestanteMinutos={order.tempoRestanteMinutos}
+              />
+            </div>
+          )}
         </div>
         <div className="flex gap-3 mt-2">
           <button
@@ -39,22 +50,34 @@ export function OrderDetails({
           >
             Cancelar pedido
           </button>
-          <button
-            onClick={() => onConfirmOrder?.(order.id)}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-colors"
-          >
-            Confirmar pedido
-          </button>
+          {order.needsConfirmation ? (
+            <button
+              onClick={() => onConfirmOrder?.(order.id)}
+              className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+                order.isExpired
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-primary hover:bg-primary/90"
+              }`}
+              disabled={order.isExpired}
+            >
+              {order.isExpired ? "Tempo expirado" : "Confirmar pedido"}
+            </button>
+          ) : (
+            <span className="px-4 py-2 text-sm font-medium text-green-600 bg-green-100 rounded-md">
+              Pedido confirmado
+            </span>
+          )}
         </div>
-      </div>
-
+      </div>{" "}
       {/* Detalhes do pedido */}
       <div className="mb-8">
-        <h2 className="text-[20px] font-bold mb-4 text-foreground">Detalhes do pedido</h2>
+        <h2 className="text-[20px] font-bold mb-4 text-foreground">
+          Detalhes do pedido
+        </h2>
         <div className="grid grid-cols-2 gap-y-6">
           <div>
             <p className="text-sm text-muted-foreground mb-2">Tipo de pedido</p>
-            <p className="text-foreground">{order.source === "balcao" ? "Balcão" : "App"}</p>
+            <p className="text-foreground">{order.source}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-2">Hora do pedido</p>
@@ -72,17 +95,42 @@ export function OrderDetails({
             </p>
             <p className="text-foreground">{order.customerPhone || "-"}</p>
           </div>
+          {order.needsConfirmation && (
+            <>
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Status de confirmação
+                </p>
+                <p className="text-foreground">Aguardando confirmação</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Tempo restante
+                </p>
+                <p
+                  className={`text-foreground ${
+                    order.isExpired ? "text-red-600 font-medium" : ""
+                  }`}
+                >
+                  {order.timeRemaining}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
-
       {/* Items */}
       <div className="mb-8">
         <h2 className="text-[20px] font-bold mb-4 text-foreground">Itens</h2>
         <div className="border border-border rounded-md bg-card">
           <div className="grid grid-cols-[1fr_100px_100px] px-4 py-3 border-b border-b-border bg-muted">
             <div className="text-sm font-medium text-foreground">Item</div>
-            <div className="text-sm font-medium text-center text-foreground">Quantidade</div>
-            <div className="text-sm font-medium text-right text-foreground">Preço</div>
+            <div className="text-sm font-medium text-center text-foreground">
+              Quantidade
+            </div>
+            <div className="text-sm font-medium text-right text-foreground">
+              Preço
+            </div>
           </div>
           <div className="divide-y divide-border">
             {order.items?.map((item) => (
@@ -91,30 +139,38 @@ export function OrderDetails({
                 className="grid grid-cols-[1fr_100px_100px] px-4 py-3"
               >
                 <div className="text-foreground">{item.name}</div>
-                <div className="text-center text-foreground">{item.quantity}</div>
-                <div className="text-right text-foreground">R$ {item.price.toFixed(2)}</div>
+                <div className="text-center text-foreground">
+                  {item.quantity}
+                </div>
+                <div className="text-right text-foreground">
+                  R$ {item.price.toFixed(2)}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
-
       {/* Total */}
       <div className="mb-8 space-y-2">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
-          <span className="text-foreground">R$ {order.subtotal?.toFixed(2)}</span>
+          <span className="text-foreground">
+            R$ {order.subtotal?.toFixed(2)}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Taxas</span>
-          <span className="text-foreground">R$ {order.fees?.toFixed(2) || "0.00"}</span>
+          <span className="text-foreground">
+            R$ {order.fees?.toFixed(2) || "0.00"}
+          </span>
         </div>
         <div className="flex justify-between font-semibold">
           <span className="text-foreground">Total</span>
-          <span className="text-foreground">R$ {order.totalValue.toFixed(2)}</span>
+          <span className="text-foreground">
+            R$ {order.totalValue.toFixed(2)}
+          </span>
         </div>
       </div>
-
       {/* Actions */}
       {/* <div className="flex justify-end gap-3">
         <button

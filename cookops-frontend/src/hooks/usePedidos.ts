@@ -20,7 +20,7 @@ export function usePedidos() {
     try {
       setLoading(true);
       setError(null);
-      const data = await PedidoService.getPedidosByEmpresa();
+      const data = await PedidoService.getPedidosByEmpresaWithTimeLimit();
       setPedidos(data);
     } catch (err) {
       const errorMessage =

@@ -73,6 +73,22 @@ export class PedidoService {
     return response.data;
   }
 
+  static async getPedidosUltimas12Horas(): Promise<PedidoResponseDto[]> {
+    const response = await api.get<PedidoResponseDto[]>(
+      API_ROUTES.PEDIDO.GET_PEDIDOS_ULTIMAS_12_HORAS
+    );
+    return response.data;
+  }
+
+  static async getPedidosByEmpresaWithTimeLimit(): Promise<
+    PedidoResponseDto[]
+  > {
+    const response = await api.get<PedidoResponseDto[]>(
+      API_ROUTES.PEDIDO.GET_PEDIDOS_BY_EMPRESA_WITH_TIME_LIMIT
+    );
+    return response.data;
+  }
+
   static async confirmarPedido(
     id: string,
     data?: { usuarioConfirmou?: string }
