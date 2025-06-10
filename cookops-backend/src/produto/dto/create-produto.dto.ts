@@ -22,6 +22,15 @@ export class CreateProdutoDto {
   @IsString()
   descricao?: string;
 
+  @ApiProperty({
+    description: 'Código de barras do produto',
+    required: false,
+    example: '7891234567890',
+  })
+  @IsOptional()
+  @IsString()
+  codigoBarras?: string;
+
   @ApiProperty({ description: 'Preço base do produto', example: 29.9 })
   @IsNumber()
   precoBase: number;

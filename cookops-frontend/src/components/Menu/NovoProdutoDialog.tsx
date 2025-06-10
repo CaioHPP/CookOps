@@ -42,6 +42,7 @@ export function NovoProdutoDialog({
     defaultValues: {
       nome: "",
       descricao: "",
+      codigoBarras: "",
       precoBase: 0,
       ativo: true,
     },
@@ -55,6 +56,7 @@ export function NovoProdutoDialog({
       await ProdutoService.addProduto({
         nome: data.nome,
         descricao: data.descricao.trim() || undefined,
+        codigoBarras: data.codigoBarras?.trim() || undefined,
         precoBase: data.precoBase,
         ativo: data.ativo,
       });
@@ -103,8 +105,7 @@ export function NovoProdutoDialog({
                   {errors.nome.message}
                 </p>
               )}
-            </div>
-
+            </div>{" "}
             <div>
               <Label htmlFor="descricao">Descrição</Label>
               <Textarea
@@ -119,7 +120,20 @@ export function NovoProdutoDialog({
                 </p>
               )}
             </div>
-
+            <div>
+              <Label htmlFor="codigoBarras">Código de Barras</Label>
+              <Input
+                id="codigoBarras"
+                placeholder="Código de barras (opcional)"
+                {...register("codigoBarras")}
+                className={errors.codigoBarras ? "border-red-500" : ""}
+              />
+              {errors.codigoBarras && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.codigoBarras.message}
+                </p>
+              )}
+            </div>
             <div>
               <Label htmlFor="precoBase">Preço</Label>
               <CurrencyInput
@@ -134,7 +148,6 @@ export function NovoProdutoDialog({
                 </p>
               )}
             </div>
-
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Ativo no cardápio</Label>

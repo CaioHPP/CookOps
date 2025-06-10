@@ -4,6 +4,7 @@ export interface ProdutoResponseDto {
   nome: string;
   descricao?: string;
   codigo?: string;
+  codigoBarras?: string;
   precoBase: number;
   ativo: boolean;
 }

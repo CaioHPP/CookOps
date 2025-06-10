@@ -1,23 +1,23 @@
 "use client";
 
-import { Produto } from "@/api/produtos";
 import { useProdutos } from "@/hooks/useProdutos";
 import { useProdutoWebSocket } from "@/hooks/useProdutoWebSocket";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import { createContext, ReactNode, useContext, useEffect } from "react";
 
 interface ProdutosContextType {
-  produtos: Produto[];
+  produtos: ProdutoResponseDto[];
   loading: boolean;
   error: string | null;
   isInitialized: boolean;
-  carregarProdutos: (showToast?: boolean) => Promise<Produto[]>;
+  carregarProdutos: (showToast?: boolean) => Promise<ProdutoResponseDto[]>;
   toggleStatusProduto: (id: string, ativo: boolean) => Promise<boolean>;
   excluirProduto: (id: string) => Promise<boolean>;
-  atualizarProduto: (produto: Produto) => void;
-  adicionarProduto: (produto: Produto) => void;
+  atualizarProduto: (produto: ProdutoResponseDto) => void;
+  adicionarProduto: (produto: ProdutoResponseDto) => void;
   removerProduto: (produtoId: string) => void;
-  getProdutoById: (id: string) => Produto | undefined;
-  buscarProdutos: (termo: string) => Produto[];
+  getProdutoById: (id: string) => ProdutoResponseDto | undefined;
+  buscarProdutos: (termo: string) => ProdutoResponseDto[];
   formatarPreco: (price: number | null | undefined) => string;
 }
 

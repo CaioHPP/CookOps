@@ -177,6 +177,7 @@ export function useProdutos() {
         (produto) =>
           produto.nome.toLowerCase().includes(termoLower) ||
           produto.codigo?.toLowerCase().includes(termoLower) ||
+          produto.codigoBarras?.toLowerCase().includes(termoLower) ||
           produto.descricao?.toLowerCase().includes(termoLower)
       );
     },

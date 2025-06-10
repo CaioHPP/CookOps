@@ -68,6 +68,7 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
         (produto: ProdutoResponseDto) =>
           produto.nome.toLowerCase().includes(termLower) ||
           produto.codigo?.toLowerCase().includes(termLower) ||
+          produto.codigoBarras?.toLowerCase().includes(termLower) ||
           produto.descricao?.toLowerCase().includes(termLower)
       );
     }
@@ -155,6 +156,13 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-medium truncate">{produto.nome}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {produto.codigoBarras
+                      ? `Cód. Barras: ${produto.codigoBarras}`
+                      : produto.codigo
+                      ? `Cód. Produto: ${produto.codigo}`
+                      : "Sem código"}
+                  </span>
                 </div>
               </div>
 

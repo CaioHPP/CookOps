@@ -206,6 +206,7 @@ async function main() {
       nome: 'Hambúrguer Artesanal',
       descricao:
         'Hambúrguer com carne 180g, queijo, alface, tomate e molho especial',
+      codigoBarras: '7891234567890',
       precoBase: 25.9,
       ativo: true,
       empresaId: empresa.id,
@@ -219,6 +220,7 @@ async function main() {
       id: 'produto-batata',
       nome: 'Batata Frita',
       descricao: 'Porção de batata frita crocante',
+      codigoBarras: '7891234567891',
       precoBase: 12.9,
       ativo: true,
       empresaId: empresa.id,
@@ -232,6 +234,7 @@ async function main() {
       id: 'produto-refrigerante',
       nome: 'Refrigerante 350ml',
       descricao: 'Refrigerante gelado de diversos sabores',
+      codigoBarras: '7891234567892',
       precoBase: 5.9,
       ativo: true,
       empresaId: empresa.id,

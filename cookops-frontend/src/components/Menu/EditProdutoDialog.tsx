@@ -47,6 +47,7 @@ export function EditProdutoDialog({
     defaultValues: {
       nome: "",
       descricao: "",
+      codigoBarras: "",
       precoBase: 0,
       ativo: true,
     },
@@ -61,6 +62,7 @@ export function EditProdutoDialog({
       reset({
         nome: produto.nome,
         descricao: produto.descricao || "",
+        codigoBarras: produto.codigoBarras || "",
         precoBase: produto.precoBase,
         ativo: produto.ativo,
       });
@@ -74,6 +76,7 @@ export function EditProdutoDialog({
       await ProdutoService.updateProduto(produto.id, {
         nome: data.nome,
         descricao: data.descricao.trim() || undefined,
+        codigoBarras: data.codigoBarras?.trim() || undefined,
         precoBase: data.precoBase,
         ativo: data.ativo,
       });
@@ -123,8 +126,7 @@ export function EditProdutoDialog({
                   {errors.nome.message}
                 </p>
               )}
-            </div>
-
+            </div>{" "}
             <div>
               <Label htmlFor="descricao">Descrição</Label>
               <Textarea
@@ -139,7 +141,20 @@ export function EditProdutoDialog({
                 </p>
               )}
             </div>
-
+            <div>
+              <Label htmlFor="codigoBarras">Código de Barras</Label>
+              <Input
+                id="codigoBarras"
+                placeholder="Código de barras (opcional)"
+                {...register("codigoBarras")}
+                className={errors.codigoBarras ? "border-red-500" : ""}
+              />
+              {errors.codigoBarras && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.codigoBarras.message}
+                </p>
+              )}
+            </div>
             <div>
               <Label htmlFor="precoBase">Preço</Label>
               <CurrencyInput
@@ -154,7 +169,6 @@ export function EditProdutoDialog({
                 </p>
               )}
             </div>
-
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Ativo no cardápio</Label>

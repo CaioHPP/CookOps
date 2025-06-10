@@ -131,12 +131,13 @@ model PedidoItem {
 }
 
 model Produto {
-  id        String  @id @default(cuid())
-  empresaId String
-  nome      String
-  descricao String?
-  precoBase Float
-  ativo     Boolean @default(true)
+  id           String  @id @default(cuid())
+  empresaId    String
+  nome         String
+  descricao    String?
+  codigoBarras String?
+  precoBase    Float
+  ativo        Boolean @default(true)
 
   empresa     Empresa      @relation(fields: [empresaId], references: [id])
   itensPedido PedidoItem[]
