@@ -173,17 +173,18 @@ export function KanbanBoard({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      {" "}
-      <div className="flex gap-6 p-6 h-full overflow-x-auto mx-w-full">
-        {statusColumns.map((column) => (
-          <StatusColumn
-            key={column.statusId}
-            status={column}
-            orders={column.pedidos}
-            isLastStatus={column.statusId === lastStatusId}
-            onCompleteOrder={onCompleteOrder}
-          />
-        ))}{" "}
+      <div className="h-[calc(100vh-8rem)] w-full overflow-x-auto">
+        <div className="flex gap-5 min-w-max h-full p-6">
+          {statusColumns.map((column) => (
+            <StatusColumn
+              key={column.statusId}
+              status={column}
+              orders={column.pedidos}
+              isLastStatus={column.statusId === lastStatusId}
+              onCompleteOrder={onCompleteOrder}
+            />
+          ))}
+        </div>
       </div>
     </DndContext>
   );
