@@ -113,6 +113,6 @@ export class ProdutoController {
     @Param('id') id: string,
   ) {
     const empresaId = req.user.empresaId;
-    return this.produtoService.remove(id);
+    return this.produtoService.remove(id, empresaId);
   }
 }

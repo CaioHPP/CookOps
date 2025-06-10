@@ -6,7 +6,7 @@ import { PedidoResponseDto } from "@/types/dto/pedido/response/pedido-response.d
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "./useAuth";
-import { useWebSocket } from "./useWebSocket";
+import { usePedidoWebSocket } from "./usePedidoWebSocket";
 
 export interface PedidosPageFilters {
   todos: boolean; // Pedidos de balcão + app que precisam de confirmação
@@ -269,16 +269,13 @@ export function usePedidosPage() {
     // Recarregar dados quando um pedido for concluído
     carregarPedidosStatusItens();
   }, [carregarPedidosStatusItens]);
-
   // Integração WebSocket
-  const { isConnected: wsConnected, error: wsError } = useWebSocket({
-    empresaId: empresaId || undefined,
+  const { isConnected: wsConnected } = usePedidoWebSocket({
     onPedidoCriado: handlePedidoCriado,
     onPedidoAtualizado: handlePedidoAtualizado,
     onPedidoConcluido: handlePedidoConcluido,
     enabled: !!empresaId,
   });
-
   const result = {
     pedidosFiltrados,
     loading,
@@ -289,7 +286,6 @@ export function usePedidosPage() {
     calcularTempoRestanteConfirmacao,
     formatarTempoRestante,
     wsConnected,
-    wsError,
   };
 
   return result;

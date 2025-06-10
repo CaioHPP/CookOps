@@ -1,26 +1,50 @@
 "use client";
 
+import { MenuTable } from "@/components/Menu/MenuTable";
+import { NovoProdutoDialog } from "@/components/Menu/NovoProdutoDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus } from "lucide-react";
-import { useState } from "react";
-import { NovoProdutoDialog } from "@/components/Menu/NovoProdutoDialog";
-import { MenuTable } from "@/components/Menu/MenuTable";
+import { useProdutosContext } from "@/contexts/ProdutosContext";
+import { Plus, Search } from "lucide-react";
+import { useMemo, useState } from "react";
 
 export default function CardapioPage() {
   const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { produtos, buscarProdutos } = useProdutosContext();
+
+  // Produtos filtrados pela busca
+  const produtosFiltrados = useMemo(() => {
+    if (!searchTerm.trim()) return produtos;
+    return buscarProdutos(searchTerm);
+  }, [produtos, searchTerm, buscarProdutos]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const handleProductCreated = () => {
+    // Não recarregar a página, o WebSocket já atualizará automaticamente
+    setIsNewProductDialogOpen(false);
+  };
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6 place-self-center">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Cardápio</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold">Cardápio</h1>
+          {searchTerm && (
+            <span className="text-sm text-muted-foreground">
+              {produtosFiltrados.length} de {produtos.length} produtos
+            </span>
+          )}
+        </div>{" "}
         <Button onClick={() => setIsNewProductDialogOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Novo produto
         </Button>
       </div>
-
       <Tabs defaultValue="todos" className="w-full">
         <TabsList>
           <TabsTrigger value="todos">Todos</TabsTrigger>
@@ -28,27 +52,32 @@ export default function CardapioPage() {
           <TabsTrigger value="inativos">Inativos</TabsTrigger>
         </TabsList>
 
-        <div className="mt-4">
-          <Input placeholder="O que está buscando?" className="max-w-[400px]" />
+        <div className="mt-4 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar produtos por nome ou descrição..."
+            className="max-w-[400px] pl-10"
+            value={searchTerm}
+            onChange={(e) => handleSearchChange(e.target.value)}
+          />
         </div>
 
         <TabsContent value="todos" className="mt-4">
-          <MenuTable />
+          <MenuTable searchTerm={searchTerm} />
         </TabsContent>
 
         <TabsContent value="ativos" className="mt-4">
-          <MenuTable filter="ativos" />
+          <MenuTable filter="ativos" searchTerm={searchTerm} />
         </TabsContent>
 
         <TabsContent value="inativos" className="mt-4">
-          <MenuTable filter="inativos" />
+          <MenuTable filter="inativos" searchTerm={searchTerm} />
         </TabsContent>
-      </Tabs>
-
+      </Tabs>{" "}
       <NovoProdutoDialog
         open={isNewProductDialogOpen}
         onOpenChange={setIsNewProductDialogOpen}
-        onSuccess={() => window.location.reload()}
+        onSuccess={handleProductCreated}
       />
     </div>
   );

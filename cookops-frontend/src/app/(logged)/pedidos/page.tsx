@@ -14,7 +14,6 @@ export default function PedidosPage() {
     cancelarPedido,
     atualizarDados,
     wsConnected,
-    wsError,
   } = usePedidosPage();
 
   const [activeTab, setActiveTab] = useState<TabType>("todos");
@@ -34,11 +33,10 @@ export default function PedidosPage() {
 
   // Obter pedidos da aba ativa
   const currentOrders = pedidosFiltrados[activeTab];
-
   return (
     <div className="min-h-screen bg-background">
       {/* Indicador de status WebSocket */}
-      {wsError && (
+      {!wsConnected && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 text-sm">
           <div className="flex items-center">
             <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>

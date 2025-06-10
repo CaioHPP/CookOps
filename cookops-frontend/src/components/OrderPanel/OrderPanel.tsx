@@ -16,6 +16,7 @@ interface OrderPanelProps {
 const mockOrders: Order[] = [
   {
     id: "12346",
+    codigo: "#001",
     itemCount: 3,
     totalValue: 3.25,
     time: "10:00",
@@ -33,16 +34,20 @@ const mockOrders: Order[] = [
   },
   {
     id: "12347",
+    codigo: "#002",
     itemCount: 2,
     totalValue: 25.5,
     time: "10:10",
     source: "app",
+    customerName: undefined,
+    customerPhone: undefined,
     items: [
       { id: "4", name: "Item 4", quantity: 1, price: 10.0 },
       { id: "5", name: "Item 5", quantity: 1, price: 15.5 },
     ],
     subtotal: 25.5,
     fees: 0,
+    orderTime: "10:10 AM",
   },
 ];
 

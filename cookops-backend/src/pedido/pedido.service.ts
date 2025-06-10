@@ -1,17 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Pedido } from '@prisma/client';
+import { CentralWebSocketGateway } from 'src/common/gateways/central-websocket.gateway';
 import { EnderecoService } from 'src/endereco/endereco.service';
 import { PedidoStatusService } from 'src/pedidostatus/pedidostatus.service';
 import { PrismaService } from '../prisma.service';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
-import { PedidoGateway } from './pedido.gateway';
 
 @Injectable()
 export class PedidoService {
   constructor(
     private prisma: PrismaService,
-    private pedidoGateway: PedidoGateway,
+    private centralGateway: CentralWebSocketGateway,
     private readonly pedidoStatusService: PedidoStatusService,
     private enderecoService: EnderecoService,
   ) {}
@@ -95,11 +95,14 @@ export class PedidoService {
       },
     });
 
-    this.pedidoGateway.emitirPedidoCriado(empresaId, {
-      acao: 'criado',
-      pedidoId: pedido.id,
-      statusId: pedido.statusId,
-    });
+    this.centralGateway.emitNovoPedido(
+      {
+        acao: 'criado',
+        pedidoId: pedido.id,
+        statusId: pedido.statusId,
+      },
+      empresaId,
+    );
 
     return pedido;
   }
@@ -261,11 +264,14 @@ export class PedidoService {
     });
 
     // Emitir evento de pedido confirmado
-    this.pedidoGateway.emitirPedidoCriado(pedido.empresaId, {
-      acao: 'confirmado',
-      pedidoId: pedido.id,
-      statusId: pedido.statusId,
-    });
+    this.centralGateway.emitNovoPedido(
+      {
+        acao: 'confirmado',
+        pedidoId: pedido.id,
+        statusId: pedido.statusId,
+      },
+      pedido.empresaId,
+    );
 
     return pedidoConfirmado;
   }
@@ -405,12 +411,15 @@ export class PedidoService {
       },
     });
 
-    this.pedidoGateway.emitirPedidoAtualizado(empresaId, {
-      acao: 'movido',
-      pedidoId: updated.id,
-      deStatusId,
-      paraStatusId: paraStatus.id,
-    });
+    this.centralGateway.emitPedidoAtualizado(
+      {
+        acao: 'movido',
+        pedidoId: updated.id,
+        deStatusId,
+        paraStatusId: paraStatus.id,
+      },
+      empresaId,
+    );
 
     return updated;
   }
@@ -454,17 +463,23 @@ export class PedidoService {
         },
       },
     });
-    this.pedidoGateway.emitirPedidoAtualizado(empresaId, {
-      acao: 'concluido',
-      pedidoId: pedidoAtualizado.id,
-    });
+    this.centralGateway.emitPedidoAtualizado(
+      {
+        acao: 'concluido',
+        pedidoId: pedidoAtualizado.id,
+      },
+      empresaId,
+    );
 
     // Emite evento específico de conclusão
-    this.pedidoGateway.emitirPedidoConcluido(empresaId, {
-      acao: 'concluido',
-      pedidoId: pedidoAtualizado.id,
-      pedido: pedidoAtualizado,
-    });
+    this.centralGateway.emitStatusPedidoAlterado(
+      {
+        acao: 'concluido',
+        pedidoId: pedidoAtualizado.id,
+        pedido: pedidoAtualizado,
+      },
+      empresaId,
+    );
 
     return pedidoAtualizado;
   }

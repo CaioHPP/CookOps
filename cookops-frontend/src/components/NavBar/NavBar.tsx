@@ -1,3 +1,4 @@
+import { AuthService } from "@/api/services/auth.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +11,7 @@ import {
 import {
   Bell,
   ChefHat,
+  LogOut,
   Menu,
   Moon,
   Settings,
@@ -20,10 +22,36 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Switch } from "../ui/switch";
 
 export function Navbar() {
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      console.log("Iniciando processo de logout...");
+
+      // Executar logout completo que inclui desconexão do WebSocket
+      await AuthService.logoutComplete();
+
+      console.log("Logout concluído, redirecionando...");
+
+      // Redirecionar para a página de login
+      router.push("/");
+      router.refresh(); // Forçar refresh da página
+    } catch (error) {
+      console.error("Erro durante o logout:", error);
+      // Mesmo com erro, tentar redirecionar
+      router.push("/");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <div
@@ -122,9 +150,14 @@ export function Navbar() {
                     />
                     <Moon className="h-4 w-4" />
                   </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-red-600">
-                  Sair
+                </DropdownMenuItem>{" "}
+                <DropdownMenuItem
+                  className="gap-2 text-red-600"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {isLoggingOut ? "Saindo..." : "Sair"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

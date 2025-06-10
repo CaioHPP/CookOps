@@ -2,7 +2,9 @@
 
 import { AuthService } from "@/api/services/auth.service";
 import { Navbar } from "@/components/NavBar/NavBar";
-import { Toaster } from "@/components/ui/toaster";
+import { WebSocketStatus } from "@/components/WebSocketStatus";
+import { ProdutosProvider } from "@/contexts/ProdutosContext";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -52,12 +54,15 @@ export default function LoggedLayout({
   if (!user) {
     return null;
   }
-
   return (
-    <div className="min-h-svh bg-background">
-      <Navbar />
-      <main className="flex-1 pt-16">{children}</main>
-      <Toaster />
-    </div>
+    <WebSocketProvider>
+      <ProdutosProvider>
+        <div className="min-h-svh bg-background">
+          <Navbar />
+          <main className="flex-1 pt-16">{children}</main>
+          <WebSocketStatus />
+        </div>
+      </ProdutosProvider>
+    </WebSocketProvider>
   );
 }

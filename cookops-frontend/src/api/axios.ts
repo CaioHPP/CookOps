@@ -17,13 +17,16 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Debug
-    console.log("Config da requisição:", {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      data: config.data,
-    });
+
+    // Debug apenas em desenvolvimento
+    if (process.env.NODE_ENV === "development") {
+      console.log("Config da requisição:", {
+        url: config.url,
+        method: config.method,
+        headers: config.headers,
+        data: config.data,
+      });
+    }
     return config;
   },
   (error) => {
@@ -34,20 +37,24 @@ api.interceptors.request.use(
 // Interceptor para tratar erros de resposta
 api.interceptors.response.use(
   (response) => {
-    // Debug
-    console.log("Resposta da API:", {
-      status: response.status,
-      data: response.data,
-    });
+    // Debug apenas em desenvolvimento
+    if (process.env.NODE_ENV === "development") {
+      console.log("Resposta da API:", {
+        status: response.status,
+        data: response.data,
+      });
+    }
     return response;
   },
   (error) => {
-    // Debug
-    console.error("Erro na requisição:", {
-      status: error.response?.status,
-      message: error.response?.data?.message,
-      config: error.config,
-    });
+    // Debug apenas em desenvolvimento
+    if (process.env.NODE_ENV === "development") {
+      console.error("Erro na requisição:", {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        config: error.config,
+      });
+    }
 
     if (error.response?.status === 401) {
       AuthService.logout();

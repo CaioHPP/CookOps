@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AssinaturaModule } from './assinatura/assinatura.module';
 import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
+import { CentralWebSocketModule } from './common/gateways/central-websocket.module';
 import { ConfiguracaoEmpresaModule } from './configuracao-empresa/configuracao-empresa.module';
 import { EmpresaModule } from './empresa/empresa.module';
 import { FontePedidoModule } from './fontepedido/fontepedido.module';
@@ -19,6 +20,7 @@ import { UsuarioModule } from './usuario/usuario.module';
 
 @Module({
   imports: [
+    CentralWebSocketModule, // Gateway centralizado
     ProdutoModule,
     PedidoModule,
     PrismaModule,

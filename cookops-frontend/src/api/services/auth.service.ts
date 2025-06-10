@@ -39,16 +39,65 @@ export class AuthService {
       throw error;
     }
   }
-
   static logout() {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("empresaId");
-    sessionStorage.removeItem("role");
-    sessionStorage.removeItem("nome");
-    sessionStorage.removeItem("email");
-    sessionStorage.removeItem("nomeEmpresa");
-    sessionStorage.removeItem("tempoPreparoMedio");
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    try {
+      // Limpar sessionStorage
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("empresaId");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("nome");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("nomeEmpresa");
+      sessionStorage.removeItem("tempoPreparoMedio");
+
+      // Limpar localStorage (caso tenha algo armazenado)
+      localStorage.removeItem("token");
+      localStorage.removeItem("empresaId");
+      localStorage.removeItem("role");
+      localStorage.removeItem("nome");
+      localStorage.removeItem("email");
+      localStorage.removeItem("nomeEmpresa");
+      localStorage.removeItem("tempoPreparoMedio");
+
+      // Limpar todos os cookies relacionados à autenticação
+      document.cookie =
+        "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+      document.cookie =
+        "empresaId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+      document.cookie =
+        "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+
+      // Limpar sessionStorage completo se necessário
+      sessionStorage.clear();
+
+      console.log("Logout realizado com sucesso - dados limpos");
+    } catch (error) {
+      console.error("Erro durante o logout:", error);
+      // Mesmo com erro, forçar a limpeza básica
+      sessionStorage.clear();
+      localStorage.clear();
+    }
+  }
+
+  static async logoutComplete(): Promise<void> {
+    try {
+      // Emitir evento customizado para notificar componentes sobre o logout
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+      }
+
+      // Aguardar um pouco para que os listeners processem o evento
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Executar logout padrão
+      this.logout();
+
+      // Redirecionamento será feito pelo componente que chama esta função
+    } catch (error) {
+      console.error("Erro no logout completo:", error);
+      // Forçar limpeza mesmo com erro
+      this.logout();
+    }
   }
 
   static getToken(): string | null {

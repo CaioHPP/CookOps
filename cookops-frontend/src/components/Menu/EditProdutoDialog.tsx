@@ -1,4 +1,4 @@
-import { createProduto } from "@/api/produtos";
+import { Produto, updateProduto } from "@/api/produtos";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,20 +11,23 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { type ProdutoFormData } from "@/lib/validations/produto";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-interface NovoProdutoDialogProps {
+interface EditProdutoDialogProps {
+  produto: Produto | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export function NovoProdutoDialog({
+export function EditProdutoDialog({
+  produto,
   open,
   onOpenChange,
   onSuccess,
-}: NovoProdutoDialogProps) {
+}: EditProdutoDialogProps) {
   const {
     register,
     handleSubmit,
@@ -43,27 +46,39 @@ export function NovoProdutoDialog({
   });
 
   const ativo = watch("ativo");
+  // Resetar form quando o produto mudar
+  useEffect(() => {
+    if (produto && open) {
+      reset({
+        nome: produto.nome,
+        descricao: produto.descricao || "",
+        precoBase: produto.precoBase,
+        ativo: produto.ativo,
+      });
+    }
+  }, [produto, open, reset]);
 
   const onSubmit = async (data: ProdutoFormData) => {
+    if (!produto) return;
+
     try {
-      await createProduto({
+      await updateProduto(produto.id, {
         nome: data.nome,
         descricao: data.descricao.trim() || undefined,
         precoBase: data.precoBase,
         ativo: data.ativo,
       });
 
-      toast.success("Produto criado com sucesso!");
+      toast.success("Produto atualizado com sucesso!");
       onOpenChange(false);
       onSuccess?.();
-      reset();
     } catch (error) {
-      console.error("Erro ao criar produto:", error);
+      console.error("Erro ao atualizar produto:", error);
 
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error("Erro ao criar produto. Tente novamente.");
+        toast.error("Erro ao atualizar produto. Tente novamente.");
       }
     }
   };
@@ -75,11 +90,13 @@ export function NovoProdutoDialog({
     onOpenChange(newOpen);
   };
 
+  if (!produto) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Novo Produto</DialogTitle>
+          <DialogTitle>Editar Produto</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -157,7 +174,7 @@ export function NovoProdutoDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Criando..." : "Criar produto"}
+              {isSubmitting ? "Salvando..." : "Salvar alterações"}
             </Button>
           </div>
         </form>

@@ -1,12 +1,4 @@
-import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Produto } from "@/api/produtos";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,232 +10,224 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
-  Produto,
-  deleteProduto,
-  getProdutos,
-  updateProduto,
-} from "@/api/produtos";
-import { useToast } from "@/components/ui/use-toast";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
+import { useProdutosAtivos } from "@/hooks/useProdutosAtivos";
+import { useProdutosInativos } from "@/hooks/useProdutosInativos";
+import {
+  CircleCheck,
+  CircleX,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+  UtensilsCrossed,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { EditProdutoDialog } from "./EditProdutoDialog";
 
 interface MenuTableProps {
   filter?: "ativos" | "inativos";
+  searchTerm?: string;
 }
 
-export function MenuTable({ filter }: MenuTableProps) {
-  const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+export function MenuTable({ filter, searchTerm }: MenuTableProps) {
+  const [editingProduct, setEditingProduct] = useState<Produto | null>(null);
+  // Usar o hook apropriado baseado no filtro
+  const hookAtivos = useProdutosAtivos();
+  const hookInativos = useProdutosInativos();
 
-  const loadProdutos = useCallback(async () => {
+  // Selecionar dados corretos baseado no filtro
+  const {
+    produtos: produtosBase,
+    loading: isLoading,
+    formatarPreco,
+    toggleStatusProduto,
+    excluirProduto,
+  } = filter === "inativos" ? hookInativos : hookAtivos;
+
+  // Aplicar filtro de busca se fornecido
+  const produtos = useMemo(() => {
+    if (!searchTerm?.trim()) return produtosBase;
+
+    const termLower = searchTerm.toLowerCase();
+    return produtosBase.filter(
+      (produto) =>
+        produto.nome.toLowerCase().includes(termLower) ||
+        produto.descricao?.toLowerCase().includes(termLower)
+    );
+  }, [produtosBase, searchTerm]);
+
+  const handleToggleStatus = async (produto: Produto) => {
     try {
-      setIsLoading(true);
-      const data = await getProdutos();
-      setProdutos(data);
+      await toggleStatusProduto(produto.id, !produto.ativo);
     } catch (error) {
-      console.error("Erro ao carregar produtos:", error);
-      toast({
-        title: "Erro ao carregar produtos",
-        description: "Não foi possível carregar a lista de produtos.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      console.error("Erro ao alterar status do produto:", error);
     }
-  }, [toast]);
+  };
 
-  useEffect(() => {
-    loadProdutos();
-  }, [loadProdutos]);
+  const handleEdit = (produto: Produto) => {
+    setEditingProduct(produto);
+  };
 
-  async function handleToggleStatus(id: string, ativo: boolean) {
+  const handleDelete = async (id: string) => {
     try {
-      await updateProduto(id, { ativo });
-      setProdutos(
-        produtos.map((produto) =>
-          produto.id === id ? { ...produto, ativo } : produto
-        )
-      );
-      toast({
-        title: "Status atualizado",
-        description: `Produto ${ativo ? "ativado" : "desativado"} com sucesso.`,
-      });
-    } catch (error) {
-      console.error("Erro ao atualizar status:", error);
-      toast({
-        title: "Erro ao atualizar status",
-        description: "Não foi possível atualizar o status do produto.",
-        variant: "destructive",
-      });
-    }
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      await deleteProduto(id);
-      setProdutos(produtos.filter((produto) => produto.id !== id));
-      toast({
-        title: "Produto excluído",
-        description: "Produto excluído com sucesso.",
-      });
+      await excluirProduto(id);
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Não foi possível excluir o produto.";
-      toast({
-        title: "Erro ao excluir produto",
-        description: errorMessage,
-        variant: "destructive",
-      });
     }
-  }
+  };
 
-  const filteredProdutos = produtos.filter((produto) => {
-    if (filter === "ativos") return produto.ativo;
-    if (filter === "inativos") return !produto.ativo;
-    return true;
-  });
-
-  function formatPrice(price: number | null | undefined): string {
-    if (typeof price !== "number") return "R$ 0,00";
-    return `R$ ${price.toFixed(2)}`;
-  }
+  const handleEditSuccess = () => {
+    setEditingProduct(null);
+  };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground">
-        Carregando produtos...
+        <div className="flex items-center gap-2">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          Carregando produtos...
+        </div>
       </div>
     );
   }
 
-  if (filteredProdutos.length === 0) {
+  if (produtos.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground">
-        Nenhum produto encontrado.
+      <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+        <UtensilsCrossed className="h-12 w-12 mb-4 opacity-50" />
+        <p className="text-lg font-medium">
+          {searchTerm
+            ? "Nenhum produto encontrado"
+            : "Nenhum produto cadastrado"}
+        </p>
+        <p className="text-sm">
+          {searchTerm
+            ? "Tente alterar os termos da busca"
+            : "Clique em 'Novo produto' para começar"}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="border rounded-md">
-      <div className="grid grid-cols-[2fr_100px_120px_2fr_70px] px-4 py-3 border-b bg-muted/50">
-        <div className="text-sm font-medium">Item</div>
-        <div className="text-sm font-medium text-center">Preço</div>
-        <div className="text-sm font-medium text-center">Status</div>
-        <div className="text-sm font-medium">Descrição</div>
-        <div className="text-sm font-medium text-right">Ações</div>
-      </div>
-      <div className="divide-y">
-        {filteredProdutos.map((produto) => (
-          <div
-            key={produto.id}
-            className="grid grid-cols-[2fr_100px_120px_2fr_70px] px-4 py-3 hover:bg-muted/50 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className="relative h-12 w-12 rounded-md overflow-hidden border bg-muted">
-                <Image
-                  src={produto.imagem || "/placeholder.png"}
-                  alt={produto.nome}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
+    <>
+      <div className="border rounded-md">
+        <div className="grid grid-cols-[2fr_120px_100px_2fr_70px] px-4 py-3 border-b bg-muted/50">
+          <div className="text-sm font-medium">Produto</div>
+          <div className="text-sm font-medium text-center">Preço</div>
+          <div className="text-sm font-medium text-center">Status</div>
+          <div className="text-sm font-medium">Descrição</div>
+          <div className="text-sm font-medium text-right">Ações</div>
+        </div>
+        <div className="divide-y">
+          {produtos.map((produto) => (
+            <div
+              key={produto.id}
+              className="grid grid-cols-[2fr_120px_100px_2fr_70px] px-4 py-3 hover:bg-muted/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium truncate">{produto.nome}</span>
+                  <span className="text-sm text-muted-foreground">
+                    ID: {produto.id.slice(-8)}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="font-medium">{produto.nome}</span>
-                <span className="text-sm text-muted-foreground">
-                  #{produto.codigo}
+
+              <div className="flex items-center justify-center font-medium">
+                {formatarPreco(produto.precoBase)}
+              </div>
+
+              <div className="flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={produto.ativo}
+                    onCheckedChange={() => handleToggleStatus(produto)}
+                    disabled={isLoading}
+                  />
+                  {produto.ativo ? (
+                    <CircleCheck className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <CircleX className="h-4 w-4 text-red-600" />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <span className="line-clamp-2 text-sm text-muted-foreground">
+                  {produto.descricao || "Sem descrição"}
                 </span>
               </div>
-            </div>
-            <div className="flex items-center justify-center font-medium">
-              R$ {formatPrice(produto.precoBase)}
-            </div>
-            <div className="flex items-center justify-center">
-              <Badge
-                variant={produto.ativo ? "default" : "secondary"}
-                className={
-                  produto.ativo
-                    ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
-                    : ""
-                }
-              >
-                {produto.ativo ? "Disponível" : "Inativo"}
-              </Badge>
-            </div>
-            <div className="flex items-center">
-              <span className="line-clamp-1 text-sm text-muted-foreground">
-                {produto.descricao}
-              </span>
-            </div>
-            <div className="flex items-center justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleToggleStatus(produto.id, !produto.ativo)
-                    }
-                  >
-                    <Badge
-                      variant="outline"
-                      className={
-                        produto.ativo
-                          ? "border-red-200 text-red-700"
-                          : "border-green-200 text-green-700"
-                      }
-                    >
-                      {produto.ativo ? "Desativar" : "Ativar"}
-                    </Badge>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Editar
-                  </DropdownMenuItem>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        className="cursor-pointer text-destructive focus:text-destructive"
-                        onSelect={(e) => e.preventDefault()}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir &ldquo;{produto.nome}
-                          &rdquo;? Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(produto.id)}
-                          className="bg-red-600 hover:bg-red-700"
+
+              <div className="flex items-center justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleEdit(produto)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar
+                    </DropdownMenuItem>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                          onSelect={(e) => e.preventDefault()}
                         >
+                          <Trash2 className="mr-2 h-4 w-4" />
                           Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirmar exclusão
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir &ldquo;{produto.nome}
+                            &rdquo;? Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(produto.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      {editingProduct && (
+        <EditProdutoDialog
+          produto={editingProduct}
+          open={!!editingProduct}
+          onOpenChange={(open: boolean) => !open && setEditingProduct(null)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+    </>
   );
 }

@@ -1,10 +1,9 @@
 "use client";
 
 import { BoardService } from "@/api/services/board.service";
-import { useAuth } from "@/hooks/useAuth";
 import { usePedidos } from "@/hooks/usePedidos";
 import { usePedidoStatus } from "@/hooks/usePedidoStatus";
-import { useWebSocket } from "@/hooks/useWebSocket";
+import { usePedidoWebSocket } from "@/hooks/usePedidoWebSocket";
 import { obterTempoPreparoMedio } from "@/lib/tempo-utils";
 import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
 import { useEffect, useState } from "react";
@@ -21,7 +20,6 @@ interface WebSocketMessage {
 }
 
 export default function ProductionKanban() {
-  const { empresaId } = useAuth();
   const [boards, setBoards] = useState<BoardResponseDto[]>([]);
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -46,8 +44,7 @@ export default function ProductionKanban() {
     reverterMovimentacaoPedido,
     concluirPedidoOtimista,
   } = usePedidoStatus(selectedBoard); // WebSocket para atualizações em tempo real
-  const { isConnected } = useWebSocket({
-    empresaId,
+  const { isConnected } = usePedidoWebSocket({
     onPedidoCriado: (message: WebSocketMessage) => {
       console.log("Pedido criado via WebSocket:", message.pedidoId);
       atualizarAposMudanca(true); // Atualização silenciosa
