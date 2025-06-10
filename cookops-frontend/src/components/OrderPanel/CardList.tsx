@@ -37,19 +37,19 @@ export function CardList({
   const handleOrderClick = (order: Order) => {
     onOrderSelect?.(order);
   };
-
   return (
-    <aside className="w-80 flex flex-col bg-background">
-      {/* Tab Header - Fixed */}
-      <div className="fixed w-80 bg-background pt-3 px-4 border-b-2 border-b-border border-r-2 border-r-border">
+    <aside className="w-80 flex flex-col bg-background h-full">
+      {/* Tab Header - Fixo no topo da sidebar */}
+      <div className="shrink-0 bg-background px-4 py-3 border-b border-border border-r border-r-border">
         <Tabs
           tabs={tabs}
           defaultActiveTab="todos"
           onTabChange={handleTabChange}
         />
-      </div>{" "}
-      {/* Order List - Scrollable */}
-      <div className="mt-[60px] h-[calc(100vh-4rem-60px)] overflow-y-auto border-r-2 border-r-border">
+      </div>
+
+      {/* Order List - Área com scroll independente */}
+      <div className="flex-1 overflow-y-auto border-r border-r-border">
         {displayOrders.length > 0 ? (
           displayOrders.map((order) => (
             <OrderCard

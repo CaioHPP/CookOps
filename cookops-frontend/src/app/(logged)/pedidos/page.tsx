@@ -34,26 +34,29 @@ export default function PedidosPage() {
   // Obter pedidos da aba ativa
   const currentOrders = pedidosFiltrados[activeTab];
   return (
-    <div className="min-h-screen bg-background">
-      {/* Indicador de status WebSocket */}
-      {!wsConnected && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 text-sm">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
-            <span>Atualizações em tempo real indisponíveis</span>
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
+      {/* Status de WebSocket fixo no topo */}
+      <div className="shrink-0">
+        {!wsConnected && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 text-sm">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+              <span>Atualizações em tempo real indisponíveis</span>
+            </div>
           </div>
-        </div>
-      )}
-      {wsConnected && (
-        <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 text-sm">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-            <span>Atualizações em tempo real ativas</span>
+        )}
+        {wsConnected && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-2 text-sm">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              <span>Atualizações em tempo real ativas</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="h-screen">
+      {/* Conteúdo principal */}
+      <div className="flex-1 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
