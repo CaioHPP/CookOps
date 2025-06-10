@@ -1,4 +1,3 @@
-import { Produto } from "@/api/produtos";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
-import { useProdutosAtivos } from "@/hooks/useProdutosAtivos";
-import { useProdutosInativos } from "@/hooks/useProdutosInativos";
+import { useProdutosContext } from "@/contexts/ProdutosContext";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import {
   CircleCheck,
   CircleX,
@@ -28,7 +27,7 @@ import {
   Trash2,
   UtensilsCrossed,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { EditProdutoDialog } from "./EditProdutoDialog";
 
 interface MenuTableProps {
@@ -37,55 +36,73 @@ interface MenuTableProps {
 }
 
 export function MenuTable({ filter, searchTerm }: MenuTableProps) {
-  const [editingProduct, setEditingProduct] = useState<Produto | null>(null);
-  // Usar o hook apropriado baseado no filtro
-  const hookAtivos = useProdutosAtivos();
-  const hookInativos = useProdutosInativos();
+  const [editingProduct, setEditingProduct] =
+    useState<ProdutoResponseDto | null>(null);
 
-  // Selecionar dados corretos baseado no filtro
+  // Usar apenas o contexto principal
   const {
-    produtos: produtosBase,
+    produtos: todosProdutos,
     loading: isLoading,
     formatarPreco,
     toggleStatusProduto,
     excluirProduto,
-  } = filter === "inativos" ? hookInativos : hookAtivos;
+  } = useProdutosContext();
 
-  // Aplicar filtro de busca se fornecido
+  // Aplicar filtros (status e busca) em uma única operação
   const produtos = useMemo(() => {
-    if (!searchTerm?.trim()) return produtosBase;
+    let produtosFiltrados = todosProdutos;
 
-    const termLower = searchTerm.toLowerCase();
-    return produtosBase.filter(
-      (produto) =>
-        produto.nome.toLowerCase().includes(termLower) ||
-        produto.descricao?.toLowerCase().includes(termLower)
-    );
-  }, [produtosBase, searchTerm]);
-
-  const handleToggleStatus = async (produto: Produto) => {
-    try {
-      await toggleStatusProduto(produto.id, !produto.ativo);
-    } catch (error) {
-      console.error("Erro ao alterar status do produto:", error);
+    // Filtrar por status se especificado
+    if (filter === "ativos") {
+      produtosFiltrados = produtosFiltrados.filter(
+        (produto: ProdutoResponseDto) => produto.ativo
+      );
+    } else if (filter === "inativos") {
+      produtosFiltrados = produtosFiltrados.filter(
+        (produto: ProdutoResponseDto) => !produto.ativo
+      );
+    } // Aplicar filtro de busca se fornecido
+    if (searchTerm?.trim()) {
+      const termLower = searchTerm.toLowerCase();
+      produtosFiltrados = produtosFiltrados.filter(
+        (produto: ProdutoResponseDto) =>
+          produto.nome.toLowerCase().includes(termLower) ||
+          produto.codigo?.toLowerCase().includes(termLower) ||
+          produto.descricao?.toLowerCase().includes(termLower)
+      );
     }
-  };
 
-  const handleEdit = (produto: Produto) => {
+    return produtosFiltrados;
+  }, [todosProdutos, filter, searchTerm]);
+  const handleToggleStatus = useCallback(
+    async (produto: ProdutoResponseDto) => {
+      try {
+        await toggleStatusProduto(produto.id, !produto.ativo);
+      } catch (error) {
+        console.error("Erro ao alterar status do produto:", error);
+      }
+    },
+    [toggleStatusProduto]
+  );
+
+  const handleEdit = useCallback((produto: ProdutoResponseDto) => {
     setEditingProduct(produto);
-  };
+  }, []);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await excluirProduto(id);
-    } catch (error) {
-      console.error("Erro ao excluir produto:", error);
-    }
-  };
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        await excluirProduto(id);
+      } catch (error) {
+        console.error("Erro ao excluir produto:", error);
+      }
+    },
+    [excluirProduto]
+  );
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = useCallback(() => {
     setEditingProduct(null);
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -138,9 +155,6 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="font-medium truncate">{produto.nome}</span>
-                  <span className="text-sm text-muted-foreground">
-                    ID: {produto.id.slice(-8)}
-                  </span>
                 </div>
               </div>
 

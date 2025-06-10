@@ -5,20 +5,12 @@ import { NovoProdutoDialog } from "@/components/Menu/NovoProdutoDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useProdutosContext } from "@/contexts/ProdutosContext";
 import { Plus, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export default function CardapioPage() {
   const [isNewProductDialogOpen, setIsNewProductDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const { produtos, buscarProdutos } = useProdutosContext();
-
-  // Produtos filtrados pela busca
-  const produtosFiltrados = useMemo(() => {
-    if (!searchTerm.trim()) return produtos;
-    return buscarProdutos(searchTerm);
-  }, [produtos, searchTerm, buscarProdutos]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -31,14 +23,10 @@ export default function CardapioPage() {
 
   return (
     <div className="container py-6 space-y-6 place-self-center">
+      {" "}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold">Cardápio</h1>
-          {searchTerm && (
-            <span className="text-sm text-muted-foreground">
-              {produtosFiltrados.length} de {produtos.length} produtos
-            </span>
-          )}
         </div>{" "}
         <Button onClick={() => setIsNewProductDialogOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />

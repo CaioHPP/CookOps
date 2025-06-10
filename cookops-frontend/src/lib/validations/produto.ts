@@ -8,8 +8,7 @@ export const ProdutoFormSchema = z.object({
     .trim(),
   descricao: z
     .string()
-    .max(500, "A descrição não pode ter mais de 500 caracteres")
-    .default(""),
+    .max(500, "A descrição não pode ter mais de 500 caracteres"),
   precoBase: z
     .number({
       required_error: "O preço é obrigatório",

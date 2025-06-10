@@ -5,7 +5,6 @@ export const ProdutoRequestAddSchema = z.object({
   descricao: z.string().optional(),
   precoBase: z.number(),
   ativo: z.boolean().optional(),
-  empresaId: z.string(),
 });
 
 export const ProdutoRequestUpdateSchema = z.object({
@@ -13,7 +12,6 @@ export const ProdutoRequestUpdateSchema = z.object({
   descricao: z.string().optional(),
   precoBase: z.number().optional(),
   ativo: z.boolean().optional(),
-  empresaId: z.string().optional(),
 });
 
 export type ProdutoRequestAddDto = z.infer<typeof ProdutoRequestAddSchema>;

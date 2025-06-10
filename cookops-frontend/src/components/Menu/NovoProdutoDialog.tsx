@@ -1,5 +1,6 @@
-import { createProduto } from "@/api/produtos";
+import { ProdutoService } from "@/api/services/produto.service";
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { type ProdutoFormData } from "@/lib/validations/produto";
-import { useForm } from "react-hook-form";
+import {
+  ProdutoFormSchema,
+  type ProdutoFormData,
+} from "@/lib/validations/produto";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type Resolver, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
 interface NovoProdutoDialogProps {
@@ -33,7 +38,7 @@ export function NovoProdutoDialog({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ProdutoFormData>({
-    // resolver: zodResolver(ProdutoFormSchema),
+    resolver: zodResolver(ProdutoFormSchema) as Resolver<ProdutoFormData>,
     defaultValues: {
       nome: "",
       descricao: "",
@@ -43,10 +48,11 @@ export function NovoProdutoDialog({
   });
 
   const ativo = watch("ativo");
+  const precoBase = watch("precoBase");
 
-  const onSubmit = async (data: ProdutoFormData) => {
+  const onSubmit: SubmitHandler<ProdutoFormData> = async (data) => {
     try {
-      await createProduto({
+      await ProdutoService.addProduto({
         nome: data.nome,
         descricao: data.descricao.trim() || undefined,
         precoBase: data.precoBase,
@@ -116,15 +122,11 @@ export function NovoProdutoDialog({
 
             <div>
               <Label htmlFor="precoBase">Preço</Label>
-              <Input
-                id="precoBase"
-                type="number"
-                step="0.01"
-                min="0"
-                max="99999.99"
-                placeholder="0.00"
-                {...register("precoBase", { valueAsNumber: true })}
+              <CurrencyInput
+                value={precoBase}
+                onValueChange={(value) => setValue("precoBase", value || 0)}
                 className={errors.precoBase ? "border-red-500" : ""}
+                placeholder="R$ 0,00"
               />
               {errors.precoBase && (
                 <p className="text-sm text-red-500 mt-1">

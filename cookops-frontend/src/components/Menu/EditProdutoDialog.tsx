@@ -1,5 +1,7 @@
-import { Produto, updateProduto } from "@/api/produtos";
+import { ProdutoService } from "@/api/services/produto.service";
+
 import { Button } from "@/components/ui/button";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { type ProdutoFormData } from "@/lib/validations/produto";
+import {
+  ProdutoFormSchema,
+  type ProdutoFormData,
+} from "@/lib/validations/produto";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
 interface EditProdutoDialogProps {
-  produto: Produto | null;
+  produto: ProdutoResponseDto;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -35,8 +42,8 @@ export function EditProdutoDialog({
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ProdutoFormData>({
-    // resolver: zodResolver(ProdutoFormSchema),
+  } = useForm({
+    resolver: zodResolver(ProdutoFormSchema),
     defaultValues: {
       nome: "",
       descricao: "",
@@ -46,6 +53,8 @@ export function EditProdutoDialog({
   });
 
   const ativo = watch("ativo");
+  const precoBase = watch("precoBase");
+
   // Resetar form quando o produto mudar
   useEffect(() => {
     if (produto && open) {
@@ -58,11 +67,11 @@ export function EditProdutoDialog({
     }
   }, [produto, open, reset]);
 
-  const onSubmit = async (data: ProdutoFormData) => {
+  const onSubmit: SubmitHandler<ProdutoFormData> = async (data) => {
     if (!produto) return;
 
     try {
-      await updateProduto(produto.id, {
+      await ProdutoService.updateProduto(produto.id, {
         nome: data.nome,
         descricao: data.descricao.trim() || undefined,
         precoBase: data.precoBase,
@@ -133,15 +142,11 @@ export function EditProdutoDialog({
 
             <div>
               <Label htmlFor="precoBase">Preço</Label>
-              <Input
-                id="precoBase"
-                type="number"
-                step="0.01"
-                min="0"
-                max="99999.99"
-                placeholder="0.00"
-                {...register("precoBase", { valueAsNumber: true })}
+              <CurrencyInput
+                value={precoBase}
+                onValueChange={(value) => setValue("precoBase", value || 0)}
                 className={errors.precoBase ? "border-red-500" : ""}
+                placeholder="R$ 0,00"
               />
               {errors.precoBase && (
                 <p className="text-sm text-red-500 mt-1">

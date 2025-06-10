@@ -1,7 +1,7 @@
 "use client";
 
-import { Produto } from "@/api/produtos";
 import { useProdutosContext } from "@/contexts/ProdutosContext";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import { useMemo, useState } from "react";
 
 export function useBuscaProdutos() {
@@ -26,14 +26,17 @@ export function useBuscaProdutos() {
     return resultadosBusca.filter((produto) => !produto.ativo);
   }, [resultadosBusca]);
   // Buscar por categoria específica (se o produto tiver categoria no futuro)
-  const buscarPorCategoria = (categoria: string): Produto[] => {
+  const buscarPorCategoria = (categoria: string): ProdutoResponseDto[] => {
     return produtos.filter((produto) =>
       produto.descricao?.toLowerCase().includes(categoria.toLowerCase())
     );
   };
 
   // Buscar por faixa de preço
-  const buscarPorPreco = (precoMin: number, precoMax: number): Produto[] => {
+  const buscarPorPreco = (
+    precoMin: number,
+    precoMax: number
+  ): ProdutoResponseDto[] => {
     return produtos.filter((produto) => {
       const preco = produto.precoBase || 0;
       return preco >= precoMin && preco <= precoMax;

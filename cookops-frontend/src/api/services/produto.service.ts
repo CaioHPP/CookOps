@@ -19,7 +19,7 @@ export class ProdutoService {
 
   static async getProdutos(): Promise<ProdutoResponseDto[]> {
     const response = await api.get<ProdutoResponseDto[]>(
-      API_ROUTES.PRODUTO.GET_PRODUTOS
+      API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA_AUTH
     );
     return response.data;
   }

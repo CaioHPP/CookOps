@@ -1,7 +1,7 @@
 "use client";
 
-import { Produto } from "@/api/produtos";
 import { useProdutosContext } from "@/contexts/ProdutosContext";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import { useMemo } from "react";
 
 export function useProdutosInativos() {
@@ -24,7 +24,7 @@ export function useProdutosInativos() {
   }, [produtos]);
 
   // Buscar produtos inativos por termo
-  const buscarProdutosInativos = (termo: string): Produto[] => {
+  const buscarProdutosInativos = (termo: string): ProdutoResponseDto[] => {
     const resultados = buscarProdutos(termo);
     return resultados.filter((produto) => !produto.ativo);
   };

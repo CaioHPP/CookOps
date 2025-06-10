@@ -3,6 +3,7 @@ export interface ProdutoResponseDto {
   empresaId: string;
   nome: string;
   descricao?: string;
+  codigo?: string;
   precoBase: number;
   ativo: boolean;
 }

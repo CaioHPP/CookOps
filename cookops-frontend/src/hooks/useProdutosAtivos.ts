@@ -1,7 +1,6 @@
 "use client";
-
-import { Produto } from "@/api/produtos";
 import { useProdutosContext } from "@/contexts/ProdutosContext";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import { useMemo } from "react";
 
 export function useProdutosAtivos() {
@@ -24,7 +23,7 @@ export function useProdutosAtivos() {
   }, [produtos]);
 
   // Buscar produtos ativos por termo
-  const buscarProdutosAtivos = (termo: string): Produto[] => {
+  const buscarProdutosAtivos = (termo: string): ProdutoResponseDto[] => {
     const resultados = buscarProdutos(termo);
     return resultados.filter((produto) => produto.ativo);
   };

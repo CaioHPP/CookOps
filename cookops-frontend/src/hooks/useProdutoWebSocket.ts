@@ -1,14 +1,14 @@
 "use client";
 
-import { Produto } from "@/api/produtos";
 import { useWebSocketContext } from "@/contexts/WebSocketContext";
+import { ProdutoResponseDto } from "@/types/dto/produto/response/produto-response.dto";
 import { useEffect, useRef } from "react";
 
 interface UseProdutoWebSocketProps {
-  onProdutoCriado?: (produto: Produto) => void;
-  onProdutoAtualizado?: (produto: Produto) => void;
+  onProdutoCriado?: (produto: ProdutoResponseDto) => void;
+  onProdutoAtualizado?: (produto: ProdutoResponseDto) => void;
   onProdutoRemovido?: (produtoId: string) => void;
-  onProdutoStatusAlterado?: (produto: Produto) => void;
+  onProdutoStatusAlterado?: (produto: ProdutoResponseDto) => void;
   enabled?: boolean;
 }
 
@@ -31,7 +31,7 @@ export function useProdutoWebSocket({
       ) => {
         console.log("useProdutoWebSocket - Produto criado:", data);
         if (data?.produto && onProdutoCriado) {
-          onProdutoCriado(data.produto as Produto);
+          onProdutoCriado(data.produto as ProdutoResponseDto);
         }
       },
       onProdutoAtualizado: (
@@ -39,7 +39,7 @@ export function useProdutoWebSocket({
       ) => {
         console.log("useProdutoWebSocket - Produto atualizado:", data);
         if (data?.produto && onProdutoAtualizado) {
-          onProdutoAtualizado(data.produto as Produto);
+          onProdutoAtualizado(data.produto as ProdutoResponseDto);
         }
       },
       onProdutoRemovido: (
@@ -55,7 +55,7 @@ export function useProdutoWebSocket({
       ) => {
         console.log("useProdutoWebSocket - Status do produto alterado:", data);
         if (data?.produto && onProdutoStatusAlterado) {
-          onProdutoStatusAlterado(data.produto as Produto);
+          onProdutoStatusAlterado(data.produto as ProdutoResponseDto);
         }
       },
     };
