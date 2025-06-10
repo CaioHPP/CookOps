@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { BoardSelector } from "./BoardSelector";
 import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
+import { NovoBoardDialog } from "./NovoBoardDialog";
+import { Button } from "../ui/button";
+import { PlusCircle } from "lucide-react";
 
 // Definir interface para WebSocket messages localmente se necessário
 interface WebSocketMessage {
@@ -26,6 +29,7 @@ export default function ProductionKanban() {
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
 
   // Hook para gerenciar pedidos
   const { concluirPedido } = usePedidos();
@@ -156,6 +160,21 @@ export default function ProductionKanban() {
   // Combinar erros
   const combinedError = error || statusError;
 
+  const handleBoardCreated = async () => {
+    try {
+      const boardsData = await BoardService.getBoardsByEmpresa();
+      setBoards(boardsData);
+
+      // Select the newly created board if it's the first one
+      if (boardsData.length === 1) {
+        setSelectedBoard(boardsData[0].id);
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar lista de boards:", error);
+      toast.error("Erro ao atualizar lista de boards");
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header com informações e controles */}
@@ -183,8 +202,16 @@ export default function ProductionKanban() {
                 {isConnected ? "Conectado" : "Desconectado"}
               </span>
             </div>
-          </div>{" "}
+          </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsNewBoardDialogOpen(true)}
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Novo Board
+            </Button>
             <button
               onClick={handleRefresh}
               disabled={isLoading}
@@ -269,6 +296,12 @@ export default function ProductionKanban() {
           />
         )}
       </div>
+
+      <NovoBoardDialog
+        open={isNewBoardDialogOpen}
+        onOpenChange={setIsNewBoardDialogOpen}
+        onSuccess={handleBoardCreated}
+      />
     </div>
   );
 }

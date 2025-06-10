@@ -1,4 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+"use client";
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -92,7 +94,6 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src="" alt="Usuário" />
                     <AvatarFallback className="text-xs">
                       {sessionStorage.getItem("nome")?.charAt(0)}
                     </AvatarFallback>

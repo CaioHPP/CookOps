@@ -2,7 +2,7 @@
 
 import { AuthService } from "@/api/services/auth.service";
 import { Navbar } from "@/components/NavBar/NavBar";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
