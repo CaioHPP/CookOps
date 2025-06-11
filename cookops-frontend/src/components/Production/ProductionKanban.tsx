@@ -5,35 +5,36 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePedidos } from "@/hooks/usePedidos";
 import { usePedidoStatus } from "@/hooks/usePedidoStatus";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { obterTempoPreparoMedio } from "@/lib/tempo-utils";
 import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
+import { Button } from "../ui/button";
+import { PlusCircle } from "lucide-react";
+import { BoardConfigDialog } from "./BoardConfigDialog";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BoardSelector } from "./BoardSelector";
 import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
-import { NovoBoardDialog } from "./NovoBoardDialog";
-import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
 
-// Definir interface para WebSocket messages localmente se necessário
+
 interface WebSocketMessage {
   acao: string;
   pedidoId: string;
   data?: unknown;
 }
 
-export default function ProductionKanban() {
+export function ProductionKanban() {
+  // Estados
   const { empresaId } = useAuth();
   const [boards, setBoards] = useState<BoardResponseDto[]>([]);
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
+  const [isBoardConfigOpen, setIsBoardConfigOpen] = useState(false);
+  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(null);
+  // Board state
 
-  // Hook para gerenciar pedidos
+  // Hooks personalizados
   const { concluirPedido } = usePedidos();
-  // Hook para gerenciar status dos pedidos
   const {
     statusList: statusColumns,
     loading: statusLoading,
@@ -45,127 +46,82 @@ export default function ProductionKanban() {
     moverPedidoOtimista,
     reverterMovimentacaoPedido,
     concluirPedidoOtimista,
-  } = usePedidoStatus(selectedBoard); // WebSocket para atualizações em tempo real
+  } = usePedidoStatus(selectedBoard);
+
+  // WebSocket
   const { isConnected } = useWebSocket({
     empresaId,
     onPedidoCriado: (message: WebSocketMessage) => {
       console.log("Pedido criado via WebSocket:", message.pedidoId);
-      atualizarAposMudanca(true); // Atualização silenciosa
+      atualizarAposMudanca(true);
     },
     onPedidoAtualizado: () => {
       console.log("Pedido atualizado via WebSocket");
-      atualizarAposMudanca(true); // Atualização silenciosa
+      atualizarAposMudanca(true);
     },
     onPedidoConcluido: (message: WebSocketMessage) => {
       console.log("Pedido concluído via WebSocket:", message.pedidoId);
-      atualizarAposMudanca(true); // Atualização silenciosa
+      atualizarAposMudanca(true);
     },
     onPedidoMovido: () => {
       console.log("Pedido movido via WebSocket");
-      atualizarAposMudanca(true); // Atualização silenciosa
+      atualizarAposMudanca(true);
     },
     enabled: !!selectedBoard,
   });
 
-  // Carregar boards disponíveis
-  useEffect(() => {
-    const loadBoards = async () => {
-      try {
-        console.log("Carregando boards...");
-        const boardsData = await BoardService.getBoardsByEmpresa();
-        console.log("Boards carregados:", boardsData);
+  // Funções auxiliares
+  const getEstatisticas = () => {
+    if (!statusColumns) {
+      return { totalPedidos: 0, pedidosAtrasados: 0 };
+    }
 
-        if (Array.isArray(boardsData)) {
-          setBoards(boardsData);
+    const total = statusColumns.reduce((acc, column) => acc + column.pedidos.length, 0);
+    const agora = new Date();
+    
+    // Tempo padrão de 30 minutos para considerar um pedido atrasado
+    const TEMPO_PADRAO_MINUTOS = 30;
+    
+    const atrasados = statusColumns.reduce((acc, column) => {
+      if (!column.pedidos) return acc;
+      
+      return acc + column.pedidos.filter(pedido => {
+        if (pedido.concluidoEm) return false; // Pedidos concluídos não contam como atrasados
+        
+        const dataCriacao = new Date(pedido.criadoEm);
+        const tempoDecorridoMinutos = (agora.getTime() - dataCriacao.getTime()) / (1000 * 60);
+        
+        return tempoDecorridoMinutos > TEMPO_PADRAO_MINUTOS;
+      }).length;
+    }, 0);
 
-          // Selecionar o primeiro board automaticamente se houver
-          if (boardsData.length > 0) {
-            setSelectedBoard(boardsData[0].id);
-          }
-        } else {
-          console.warn("Resposta de boards não é um array:", boardsData);
-          setBoards([]);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar boards:", err);
-        setError("Erro ao carregar boards. Verifique sua conexão.");
-        setBoards([]);
-        toast.error("Erro ao carregar boards");
-      } finally {
-        setLoading(false);
-      }
-    };
+    return { totalPedidos: total, pedidosAtrasados: atrasados };
+  };
 
-    loadBoards();
-  }, []);
+  const handleRefresh = () => {
+    atualizarAposMudanca(true);
+  };
 
   const handleBoardChange = (boardId: string) => {
     setSelectedBoard(boardId);
   };
-  // Função para completar pedido
+
   const handleCompleteOrder = async (orderId: string) => {
     try {
-      // Aplicar mudança otimisticamente primeiro
+      await concluirPedido(orderId);
       concluirPedidoOtimista(orderId);
       toast.success("Pedido concluído com sucesso!");
-
-      // Fazer a chamada para o backend de forma silenciosa
-      await concluirPedido(orderId);
     } catch (error) {
+      toast.error("Erro ao concluir pedido");
       console.error("Erro ao concluir pedido:", error);
-      toast.error("Erro ao concluir pedido. Tente novamente.");
-      // Em caso de erro, atualizar para reverter mudanças otimistas
-      atualizarAposMudanca(true);
     }
   };
-
-  // Obter o último status (com maior ordem)
-  const ultimoStatus = obterUltimoStatus();
-
-  // Função para atualizar após operações
-  const handleRefresh = () => {
-    atualizarAposMudanca();
-  };
-
-  // Obter estatísticas dos pedidos
-  const getEstatisticas = () => {
-    const totalPedidos = statusColumns.reduce(
-      (total, column) => total + column.pedidos.length,
-      0
-    );
-
-    const pedidosAtrasados = statusColumns.reduce((total, column) => {
-      return (
-        total +
-        column.pedidos.filter((pedido) => {
-          if (pedido.concluidoEm) return false;
-          const tempoMedio = obterTempoPreparoMedio();
-          const agora = new Date();
-          const criacao = new Date(pedido.criadoEm);
-          const diffMs = agora.getTime() - criacao.getTime();
-          const diffMinutos = Math.floor(diffMs / (1000 * 60));
-          return diffMinutos > tempoMedio;
-        }).length
-      );
-    }, 0);
-
-    return { totalPedidos, pedidosAtrasados };
-  };
-
-  const { totalPedidos, pedidosAtrasados } = getEstatisticas();
-
-  // Mostrar loading se ainda está carregando boards ou status
-  const isLoading = loading || statusLoading;
-
-  // Combinar erros
-  const combinedError = error || statusError;
 
   const handleBoardCreated = async () => {
     try {
       const boardsData = await BoardService.getBoardsByEmpresa();
       setBoards(boardsData);
 
-      // Select the newly created board if it's the first one
       if (boardsData.length === 1) {
         setSelectedBoard(boardsData[0].id);
       }
@@ -175,9 +131,89 @@ export default function ProductionKanban() {
     }
   };
 
+  const handleSaveBoard = async (data: { titulo: string; status: { id: string; titulo: string; }[] }) => {
+    try {
+      // Criar novo board
+      await BoardService.addBoard({
+        titulo: data.titulo,
+        status: data.status.map((s) => s.titulo),
+      });
+      toast.success("Board criado com sucesso!");
+
+      // Recarregar lista de boards
+      const boardsData = await BoardService.getBoardsByEmpresa();
+      setBoards(boardsData);
+
+      if (!selectedBoard && boardsData.length > 0) {
+        setSelectedBoard(boardsData[0].id);
+      }
+
+      setIsBoardConfigOpen(false);
+    } catch (error) {
+      console.error("Erro ao salvar board:", error);
+      toast.error("Erro ao salvar board");
+    }
+  };
+
+  // Board management is now handled in the configuration section
+
+  // Effects
+  useEffect(() => {
+    const loadBoards = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Verificar token
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          throw new Error("Não autorizado. Por favor, faça login novamente.");
+        }
+
+        const boardsData = await BoardService.getBoardsByEmpresa();
+        console.log("Boards carregados:", boardsData);
+
+        if (!boardsData || !Array.isArray(boardsData)) {
+          throw new Error("Resposta inválida do servidor: boards não encontrados");
+        }
+
+        setBoards(boardsData);
+
+        if (boardsData.length > 0) {
+          setSelectedBoard(boardsData[0].id);
+        } else {
+          setError("Nenhum board encontrado. Crie um novo board para começar.");
+        }
+      } catch (error) {
+        const errorMessage = 
+          (error instanceof Error ? error.message : "Erro ao carregar boards. Tente novamente.");
+        
+        console.error("Erro detalhado ao carregar boards:", {
+          error,
+          message: errorMessage,
+          token: sessionStorage.getItem("token") ? "Presente" : "Ausente",
+          empresaId: sessionStorage.getItem("empresaId")
+        });
+        
+        setError(errorMessage);
+        setBoards([]);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBoards();
+  }, []);
+
+  // Valores computados
+  const { totalPedidos, pedidosAtrasados } = getEstatisticas();
+  const combinedError = error || statusError;
+  const isLoading = loading || statusLoading;
+  const ultimoStatus = obterUltimoStatus();
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header com informações e controles */}
       <div className="border-b border-gray-200 p-4 bg-background">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -207,7 +243,10 @@ export default function ProductionKanban() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsNewBoardDialogOpen(true)}
+              onClick={() => {
+                setEditingBoard(null);
+                setIsBoardConfigOpen(true);
+              }}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
               Novo Board
@@ -228,7 +267,6 @@ export default function ProductionKanban() {
           </div>
         </div>
 
-        {/* Área de filtros separada */}
         {selectedBoard && (
           <FilterArea
             mostrarConcluidos={mostrarConcluidos}
@@ -237,7 +275,6 @@ export default function ProductionKanban() {
         )}
       </div>
 
-      {/* Área de conteúdo */}
       <div className="flex-1 overflow-hidden justify-items-center p-4">
         {combinedError ? (
           <div className="p-4">
@@ -276,20 +313,14 @@ export default function ProductionKanban() {
                 fromStatusId,
                 toStatusId,
               });
-              // Aplicar mudança otimisticamente
               moverPedidoOtimista(orderId, fromStatusId, toStatusId);
             }}
-            onMoveError={(
-              orderId: string,
-              fromStatusId: number,
-              toStatusId: number
-            ) => {
+            onMoveError={(orderId, fromStatusId, toStatusId) => {
               console.log("Erro ao mover pedido, revertendo:", {
                 orderId,
                 fromStatusId,
                 toStatusId,
               });
-              // Reverter mudança em caso de erro
               reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}
             onCompleteOrder={handleCompleteOrder}
@@ -297,11 +328,12 @@ export default function ProductionKanban() {
         )}
       </div>
 
-      <NovoBoardDialog
-        open={isNewBoardDialogOpen}
-        onOpenChange={setIsNewBoardDialogOpen}
-        onSuccess={handleBoardCreated}
+      <BoardConfigDialog
+        open={isBoardConfigOpen}
+        onOpenChange={setIsBoardConfigOpen}
+        onSave={handleSaveBoard}
       />
     </div>
   );
 }
+export default ProductionKanban;

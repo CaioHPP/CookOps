@@ -32,27 +32,42 @@ export function LoginCard({
     setError("");
 
     try {
+      if (!email || !password) {
+        setError("Email e senha são obrigatórios");
+        return;
+      }
+      
       await AuthService.login({ email, senha: password });
       router.push("/pedidos");
     } catch (err: unknown) {
-      console.error("Erro ao fazer login:", err); // Tratamento específico de erros
+      console.error("Erro ao fazer login:", err);
       if (err && typeof err === "object") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const errorObj = err as Record<string, any>;
-
+        const errorObj = err as Record<string, unknown>;
+        
         if (errorObj.code === "ERR_NETWORK") {
           setError(
-            "Erro de conexão com o servidor. Verifique se o backend está rodando."
+            "Erro de conexão com o servidor. Verifique se o servidor está rodando na porta 3000."
           );
-        } else if (errorObj.response?.status === 401) {
-          setError("Email ou senha inválidos");
-        } else if (errorObj.response?.status === 500) {
-          setError("Erro interno do servidor");
+        } else if (errorObj.response && typeof errorObj.response === "object") {
+          const response = errorObj.response as { status?: number };
+          if (response.status === 401) {
+            setError("Email ou senha inválidos");
+          } else if (response.status === 404) {
+            setError("Serviço de autenticação não encontrado. Verifique a URL da API.");
+          } else if (response.status === 500) {
+            setError("Erro interno do servidor");
+          }
+        } else if (errorObj.message && typeof errorObj.message === "string") {
+          if (errorObj.message === "Token não fornecido pelo servidor") {
+            setError("Erro de autenticação: token não fornecido");
+          } else {
+            setError(errorObj.message);
+          }
         } else {
-          setError(errorObj.message || "Erro ao fazer login. Tente novamente.");
+          setError("Erro ao fazer login. Tente novamente.");
         }
       } else {
-        setError("Erro desconhecido. Tente novamente.");
+        setError("Erro inesperado. Tente novamente.");
       }
     } finally {
       setIsLoading(false);

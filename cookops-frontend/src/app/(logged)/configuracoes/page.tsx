@@ -9,10 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, ChevronRight, CreditCard, ShoppingBag } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  CreditCard,
+  LayoutDashboard,
+  ShoppingBag,
+} from "lucide-react";
 import { useState } from "react";
+import { QuadrosConfig } from "@/components/BoardConfig/QuadrosConfig";
 
 const configuracaoItems = [
+  {
+    id: "quadros",
+    title: "Quadros de Produção",
+    description: "Gerencie quadros e suas colunas de status",
+    icon: LayoutDashboard,
+    color: "bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/60",
+    iconColor: "text-orange-600",
+  },
   {
     id: "formas-pagamento",
     title: "Formas de pagamento",
@@ -189,6 +204,18 @@ export default function Configuracoes() {
                     </p>
 
                     <CompanyDataConfig />
+                  </div>
+                )}{" "}
+                {selectedItem === "quadros" && (
+                  <div>
+                    <h2 className="text-3xl font-bold text-foreground mb-2">
+                      Quadros de Produção
+                    </h2>
+                    <p className="text-muted-foreground mb-6">
+                      Gerencie os quadros de produção e suas colunas de status
+                    </p>
+
+                    <QuadrosConfig />
                   </div>
                 )}
               </div>

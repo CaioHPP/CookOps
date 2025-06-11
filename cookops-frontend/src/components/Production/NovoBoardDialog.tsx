@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { BoardService } from "@/api/services/board.service";
+import { Plus, X } from "lucide-react";
 import { useState } from "react";
 
 interface NovoBoardDialogProps {
@@ -27,6 +28,7 @@ export function NovoBoardDialog({
 }: NovoBoardDialogProps) {
   const [title, setTitle] = useState("");
   const [boardType, setBoardType] = useState("default");
+  const [customStatuses, setCustomStatuses] = useState<string[]>([""]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -34,10 +36,40 @@ export function NovoBoardDialog({
     event.preventDefault();
     setIsLoading(true);
 
+    // Validate custom statuses if board type is custom
+    if (boardType === "custom") {
+      const filledStatuses = customStatuses.filter(
+        (status) => status.trim() !== ""
+      );
+      if (filledStatuses.length < 2) {
+        toast.error("Erro ao criar board", {
+          description: "Você precisa definir pelo menos 2 status para o board.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check for duplicate statuses
+      const uniqueStatuses = new Set(
+        filledStatuses.map((s) => s.toLowerCase())
+      );
+      if (uniqueStatuses.size !== filledStatuses.length) {
+        toast.error("Erro ao criar board", {
+          description: "Não podem existir status duplicados.",
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
     try {
       await BoardService.addBoard({
         titulo: title,
-        // TODO: Add board type to the API when implementing personalized boards
+        tipo: boardType,
+        status:
+          boardType === "custom"
+            ? customStatuses.filter((s) => s.trim() !== "")
+            : undefined,
       });
 
       toast.success("Board criado com sucesso!", {
@@ -46,6 +78,7 @@ export function NovoBoardDialog({
 
       setTitle("");
       setBoardType("default");
+      setCustomStatuses([""]);
       onSuccess?.();
       onOpenChange(false);
     } catch (_error) {
@@ -55,6 +88,22 @@ export function NovoBoardDialog({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const addStatus = () => {
+    setCustomStatuses([...customStatuses, ""]);
+  };
+
+  const removeStatus = (index: number) => {
+    if (customStatuses.length > 1) {
+      setCustomStatuses(customStatuses.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateStatus = (index: number, value: string) => {
+    const newStatuses = [...customStatuses];
+    newStatuses[index] = value;
+    setCustomStatuses(newStatuses);
   };
 
   return (
@@ -92,7 +141,8 @@ export function NovoBoardDialog({
                   >
                     <div className="font-medium">Board Padrão</div>
                     <p className="text-sm text-muted-foreground">
-                      Status predefinidos: Pendente, Em preparo, Pronto, Entregue
+                      Status predefinidos: Pendente, Em preparo, Pronto,
+                      Entregue
                     </p>
                   </Label>
                 </div>
@@ -104,19 +154,53 @@ export function NovoBoardDialog({
                   >
                     <div className="font-medium">Board Personalizado</div>
                     <p className="text-sm text-muted-foreground">
-                      Configure seus próprios status (em breve)
+                      Defina seus próprios status para o board
                     </p>
                   </Label>
                 </div>
               </RadioGroup>
             </div>
+
+            {boardType === "custom" && (
+              <div className="space-y-4 pt-4">
+                <Label>Status do board</Label>
+                <div className="space-y-2">
+                  {customStatuses.map((status, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={status}
+                        onChange={(e) => updateStatus(index, e.target.value)}
+                        placeholder={`Status ${index + 1}`}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeStatus(index)}
+                        disabled={customStatuses.length === 1}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={addStatus}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar status
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading || !title}>
-              {isLoading ? "Criando..." : "Criar board"}
-            </Button>
-          </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Criando..." : "Criar board"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
