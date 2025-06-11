@@ -1,5 +1,6 @@
 "use client";
 
+import { BoardService } from "@/api/services/board.service";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,10 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
-import { BoardService } from "@/api/services/board.service";
 import { useState } from "react";
-
+import { toast } from "sonner";
 interface NovoBoardDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -28,7 +27,6 @@ export function NovoBoardDialog({
   const [title, setTitle] = useState("");
   const [boardType, setBoardType] = useState("default");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -48,9 +46,10 @@ export function NovoBoardDialog({
       setBoardType("default");
       onSuccess?.();
       onOpenChange(false);
-    } catch (_error) {
+    } catch (error) {
+      console.error("Erro ao criar board:", error);
       toast.error("Erro ao criar board", {
-        description: "Tente novamente mais tarde.",
+        description: "Não foi possível criar o board. Tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -92,7 +91,8 @@ export function NovoBoardDialog({
                   >
                     <div className="font-medium">Board Padrão</div>
                     <p className="text-sm text-muted-foreground">
-                      Status predefinidos: Pendente, Em preparo, Pronto, Entregue
+                      Status predefinidos: Pendente, Em preparo, Pronto,
+                      Entregue
                     </p>
                   </Label>
                 </div>
