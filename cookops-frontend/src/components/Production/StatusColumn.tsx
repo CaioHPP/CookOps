@@ -35,9 +35,9 @@ export function StatusColumn({
   };
 
   return (
-    <div className="flex flex-col min-w-80 max-w-80 mx-2">
-      {/* Header da coluna */}
-      <div className="mb-4">
+    <div className="flex flex-col h-[calc(100vh-12rem)] min-w-[320px] max-w-[320px]">
+      {/* Header da coluna - sempre visível */}
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 pb-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-foreground">{status.titulo}</h3>
           <Badge
@@ -61,11 +61,11 @@ export function StatusColumn({
         </div>
       </div>
 
-      {/* Área de drop */}
+      {/* Área de drop - scrollável */}
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 min-h-96 p-2 rounded-lg border-2 border-dashed transition-colors",
+          "flex-1 overflow-y-auto min-h-[480px] p-2 rounded-lg border-2 border-dashed transition-colors",
           isOver ? "border-primary bg-primary/10" : "border-muted bg-muted/20",
           "space-y-3"
         )}
