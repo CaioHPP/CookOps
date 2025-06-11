@@ -31,6 +31,7 @@ export interface CardListProps {
   selectedOrderId?: string;
   activeTab?: TabType;
   onTabChange?: (tab: TabType) => void;
+  onNewOrder?: () => void;
 }
 
 export type TabType = "todos" | "balcao" | "app";

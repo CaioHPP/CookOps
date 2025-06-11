@@ -92,9 +92,9 @@ export function BuscaProdutos({
                       >
                         {produto.ativo ? "Ativo" : "Inativo"}
                       </Badge>
-                    </div>
+                    </div>{" "}
                     <div className="text-sm text-muted-foreground">
-                      #{produto.codigo} • R${" "}
+                      #{produto.codigoBarras || "N/A"} • R${" "}
                       {produto.precoBase?.toFixed(2).replace(".", ",") ||
                         "0,00"}
                     </div>

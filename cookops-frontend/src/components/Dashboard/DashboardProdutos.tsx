@@ -118,6 +118,7 @@ export function DashboardProdutos() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {" "}
             <div className="space-y-3">
               {produtosMaisCaros.map((produto) => (
                 <div
@@ -127,7 +128,7 @@ export function DashboardProdutos() {
                   <div className="flex-1">
                     <p className="font-medium">{produto.nome}</p>
                     <p className="text-sm text-muted-foreground">
-                      #{produto.codigo}
+                      #{produto.codigoBarras || "N/A"}
                     </p>
                   </div>
                   <Badge variant="outline" className="font-mono">
@@ -148,6 +149,7 @@ export function DashboardProdutos() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {" "}
             <div className="space-y-3">
               {produtosMaisBaratos.map((produto) => (
                 <div
@@ -157,7 +159,7 @@ export function DashboardProdutos() {
                   <div className="flex-1">
                     <p className="font-medium">{produto.nome}</p>
                     <p className="text-sm text-muted-foreground">
-                      #{produto.codigo}
+                      #{produto.codigoBarras || "N/A"}
                     </p>
                   </div>
                   <Badge variant="outline" className="font-mono">

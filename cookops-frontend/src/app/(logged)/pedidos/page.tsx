@@ -2,6 +2,7 @@
 
 import OrderPanel from "@/components/OrderPanel/OrderPanel";
 import { Order, TabType } from "@/components/OrderPanel/types";
+import { NovoPedidoModal } from "@/components/Pedidos/NovoPedidoModal";
 import { usePedidosPage } from "@/hooks/usePedidosPage";
 import { useState } from "react";
 
@@ -14,10 +15,13 @@ export default function PedidosPage() {
     cancelarPedido,
     atualizarDados,
     wsConnected,
+    isConfirmandoPedido,
+    isCancelandoPedido,
   } = usePedidosPage();
 
   const [activeTab, setActiveTab] = useState<TabType>("todos");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
 
   const handleOrderSelect = (order: Order | null) => {
     setSelectedOrder(order);
@@ -29,6 +33,14 @@ export default function PedidosPage() {
 
   const handleCancelOrder = async (id: string) => {
     await cancelarPedido(id);
+  };
+
+  const handleNewOrder = () => {
+    setIsNewOrderModalOpen(true);
+  };
+
+  const handleOrderCreated = () => {
+    atualizarDados();
   };
 
   // Obter pedidos da aba ativa
@@ -85,9 +97,19 @@ export default function PedidosPage() {
             onOrderSelect={handleOrderSelect}
             onConfirmOrder={handleConfirmOrder}
             onCancelOrder={handleCancelOrder}
+            onNewOrder={handleNewOrder}
+            isConfirmandoPedido={isConfirmandoPedido}
+            isCancelandoPedido={isCancelandoPedido}
           />
         )}
       </div>
+
+      {/* Modal de Novo Pedido */}
+      <NovoPedidoModal
+        isOpen={isNewOrderModalOpen}
+        onClose={() => setIsNewOrderModalOpen(false)}
+        onPedidoCriado={handleOrderCreated}
+      />
     </div>
   );
 }

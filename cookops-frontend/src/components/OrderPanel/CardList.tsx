@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import { ConfirmationBadge } from "./ConfirmationBadge";
 import type { TabItem } from "./Tabs";
@@ -10,6 +12,7 @@ export function CardList({
   selectedOrderId,
   activeTab = "todos",
   onTabChange,
+  onNewOrder,
 }: CardListProps) {
   const tabs = [
     { id: "todos", label: "Todos" },
@@ -39,8 +42,21 @@ export function CardList({
   };
   return (
     <aside className="w-80 flex flex-col bg-background h-full">
-      {/* Tab Header - Fixo no topo da sidebar */}
+      {/* Header com título e botão de novo pedido */}
       <div className="shrink-0 bg-background px-4 py-3 border-b border-border border-r border-r-border">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">Pedidos</h2>
+          {onNewOrder && (
+            <Button
+              size="sm"
+              onClick={onNewOrder}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Novo Pedido
+            </Button>
+          )}
+        </div>
         <Tabs
           tabs={tabs}
           defaultActiveTab="todos"

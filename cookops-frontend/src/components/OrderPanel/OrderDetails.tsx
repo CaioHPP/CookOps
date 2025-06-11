@@ -5,12 +5,16 @@ interface OrderDetailsProps {
   order: Order | null;
   onConfirmOrder?: (orderId: string) => void;
   onCancelOrder?: (orderId: string) => void;
+  isConfirmandoPedido?: (orderId: string) => boolean;
+  isCancelandoPedido?: (orderId: string) => boolean;
 }
 
 export function OrderDetails({
   order,
   onConfirmOrder,
   onCancelOrder,
+  isConfirmandoPedido = () => false,
+  isCancelandoPedido = () => false,
 }: OrderDetailsProps) {
   if (!order) {
     return (
@@ -44,25 +48,36 @@ export function OrderDetails({
                 />
               </div>
             )}
-          </div>
+          </div>{" "}
           <div className="flex gap-3 mt-2">
             <button
               onClick={() => onCancelOrder?.(order.id)}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-md transition-colors"
+              disabled={isCancelandoPedido(order.id)}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
+              {isCancelandoPedido(order.id) && (
+                <div className="animate-spin rounded-full h-3 w-3 border border-current border-t-transparent"></div>
+              )}
               Cancelar pedido
             </button>
             {order.needsConfirmation ? (
               <button
                 onClick={() => onConfirmOrder?.(order.id)}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+                disabled={order.isExpired || isConfirmandoPedido(order.id)}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                   order.isExpired
                     ? "bg-red-600 hover:bg-red-700"
                     : "bg-primary hover:bg-primary/90"
                 }`}
-                disabled={order.isExpired}
               >
-                {order.isExpired ? "Tempo expirado" : "Confirmar pedido"}
+                {isConfirmandoPedido(order.id) && (
+                  <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent"></div>
+                )}
+                {order.isExpired
+                  ? "Tempo expirado"
+                  : isConfirmandoPedido(order.id)
+                  ? "Confirmando..."
+                  : "Confirmar pedido"}
               </button>
             ) : (
               <span className="px-4 py-2 text-sm font-medium text-green-600 bg-green-100 rounded-md">

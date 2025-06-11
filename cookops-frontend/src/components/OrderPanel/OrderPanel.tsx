@@ -11,6 +11,9 @@ interface OrderPanelProps {
   onOrderSelect?: (order: Order | null) => void;
   onConfirmOrder?: (id: string) => void;
   onCancelOrder?: (id: string) => void;
+  onNewOrder?: () => void;
+  isConfirmandoPedido?: (id: string) => boolean;
+  isCancelandoPedido?: (id: string) => boolean;
 }
 
 export default function OrderPanel({
@@ -21,6 +24,9 @@ export default function OrderPanel({
   onOrderSelect: providedOnOrderSelect,
   onConfirmOrder = (id) => console.log("Confirm order", id),
   onCancelOrder = (id) => console.log("Cancel order", id),
+  onNewOrder,
+  isConfirmandoPedido = () => false,
+  isCancelandoPedido = () => false,
 }: OrderPanelProps) {
   const [localSelectedOrderId, setLocalSelectedOrderId] = useState<string>("");
 
@@ -45,11 +51,14 @@ export default function OrderPanel({
         onOrderSelect={handleOrderSelect}
         activeTab={activeTab}
         onTabChange={onTabChange}
-      />
+        onNewOrder={onNewOrder}
+      />{" "}
       <OrderDetails
         order={selectedOrder}
         onConfirmOrder={onConfirmOrder}
         onCancelOrder={onCancelOrder}
+        isConfirmandoPedido={isConfirmandoPedido}
+        isCancelandoPedido={isCancelandoPedido}
       />
     </div>
   );

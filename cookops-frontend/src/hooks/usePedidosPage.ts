@@ -19,6 +19,14 @@ export function usePedidosPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
 
+  // Estados de loading para ações específicas
+  const [confirmarLoading, setConfirmarLoading] = useState<Set<string>>(
+    new Set()
+  );
+  const [cancelarLoading, setCancelarLoading] = useState<Set<string>>(
+    new Set()
+  );
+
   const info = useAuth();
   const empresaId = info.empresaId;
 
@@ -34,39 +42,94 @@ export function usePedidosPage() {
       setError(errorMessage);
       toast.error(errorMessage);
     }
-  }, []);
-
-  // Confirmar pedido
+  }, []); // Confirmar pedido com atualização otimista
   const confirmarPedido = useCallback(
     async (pedidoId: string) => {
+      // Adicionar loading para este pedido específico
+      setConfirmarLoading((prev) => new Set(prev).add(pedidoId));
+
       try {
-        await PedidoService.confirmarPedido(pedidoId);
+        // 1. Atualização otimista - atualizar UI imediatamente
+        setpedidosData((prevPedidos) =>
+          prevPedidos.map((pedido) =>
+            pedido.id === pedidoId
+              ? {
+                  ...pedido,
+                  confirmado: true,
+                  dataConfirmacao: new Date().toISOString(),
+                }
+              : pedido
+          )
+        );
+
+        // 2. Mostrar feedback de sucesso imediatamente
         toast.success("Pedido confirmado com sucesso!");
 
-        // Recarregar dados
+        // 3. Fazer a chamada da API em background (silenciosamente)
+        await PedidoService.confirmarPedido(pedidoId);
+
+        // 4. Atualizar dados para garantir consistência (silencioso)
         await carregarPedidosStatusItens();
       } catch (err: unknown) {
+        // 5. Em caso de erro, reverter a mudança otimista
+        setpedidosData((prevPedidos) =>
+          prevPedidos.map((pedido) =>
+            pedido.id === pedidoId
+              ? {
+                  ...pedido,
+                  confirmado: false,
+                  dataConfirmacao: undefined,
+                }
+              : pedido
+          )
+        );
+
         const errorMessage =
           err instanceof Error ? err.message : "Erro ao confirmar pedido";
         toast.error(errorMessage);
+      } finally {
+        // Remover loading para este pedido específico
+        setConfirmarLoading((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(pedidoId);
+          return newSet;
+        });
       }
     },
     [carregarPedidosStatusItens]
-  );
-
-  // Cancelar pedido
+  ); // Cancelar pedido com atualização otimista
   const cancelarPedido = useCallback(
     async (pedidoId: string) => {
+      // Adicionar loading para este pedido específico
+      setCancelarLoading((prev) => new Set(prev).add(pedidoId));
+
       try {
-        await PedidoService.deletePedido(pedidoId);
+        // 1. Atualização otimista - remover pedido da UI imediatamente
+        setpedidosData((prevPedidos) =>
+          prevPedidos.filter((pedido) => pedido.id !== pedidoId)
+        );
+
+        // 2. Mostrar feedback de sucesso imediatamente
         toast.success("Pedido cancelado com sucesso!");
 
-        // Recarregar dados
+        // 3. Fazer a chamada da API em background (silenciosamente)
+        await PedidoService.deletePedido(pedidoId);
+
+        // 4. Atualizar dados para garantir consistência (silencioso)
         await carregarPedidosStatusItens();
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Erro ao cancelar pedido";
-        toast.error(errorMessage);
+      } catch {
+        // 5. Em caso de erro, restaurar pedido na lista
+        toast.error("Erro ao cancelar pedido. Atualizando lista...");
+
+        // Recarregar dados para restaurar o estado correto
+        await carregarPedidosStatusItens();
+      } finally {
+        // Remover loading para este pedido específico
+        setCancelarLoading((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(pedidoId);
+          return newSet;
+        });
       }
     },
     [carregarPedidosStatusItens]
@@ -286,6 +349,9 @@ export function usePedidosPage() {
     calcularTempoRestanteConfirmacao,
     formatarTempoRestante,
     wsConnected,
+    // Estados de loading para ações específicas
+    isConfirmandoPedido: (pedidoId: string) => confirmarLoading.has(pedidoId),
+    isCancelandoPedido: (pedidoId: string) => cancelarLoading.has(pedidoId),
   };
 
   return result;
