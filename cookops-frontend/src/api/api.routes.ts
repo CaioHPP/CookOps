@@ -19,6 +19,7 @@ export const API_ROUTES = {
     UPDATE_BOARD: "/boards",
     DELETE_BOARD: "/boards",
     SET_DEFAULT_BOARD: "/boards/:id/set-default",
+    TOGGLE_ACTIVE_BOARD: "/boards/:id/toggle-active",
   },
   PEDIDO: {
     ADD_PEDIDO: "/pedidos",

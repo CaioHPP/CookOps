@@ -30,6 +30,8 @@ import {
   MoreHorizontal,
   Star,
   Kanban,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -90,15 +92,37 @@ export default function QuadrosConfig() {
 
     try {
       await BoardService.deleteBoard(boardToDelete.id);
-      setBoards((prev) => prev.filter((b) => b.id !== boardToDelete.id));
-      toast.success("Board removido com sucesso!");
+      // Reload boards to get the updated state (inactivated or deleted)
+      await loadBoards();
+      toast.success("Operação realizada com sucesso!");
     } catch (error) {
       console.error("Erro ao remover board:", error);
-      toast.error("Erro ao remover board");
+      toast.error("Erro ao processar operação");
     } finally {
       setDeleteDialogOpen(false);
       setBoardToDelete(null);
     }
+  };
+
+  const handleToggleActive = async (board: BoardResponseDto) => {
+    try {
+      await BoardService.toggleActiveBoard(board.id);
+      // Reload boards to get the updated state
+      await loadBoards();
+      const isCurrentlyInactive = board.titulo.startsWith('[INATIVO]');
+      toast.success(`Board ${isCurrentlyInactive ? 'ativado' : 'inativado'} com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao alterar status do board:", error);
+      toast.error("Erro ao alterar status do board");
+    }
+  };
+
+  const isInactive = (board: BoardResponseDto): boolean => {
+    return board.titulo.startsWith('[INATIVO]');
+  };
+
+  const getBoardDisplayName = (board: BoardResponseDto): string => {
+    return board.titulo.replace('[INATIVO] ', '');
   };
 
   const handleSetDefault = async (board: BoardResponseDto) => {
@@ -228,7 +252,14 @@ export default function QuadrosConfig() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Kanban className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{board.titulo}</span>
+                        <span className={`font-medium ${isInactive(board) ? 'text-muted-foreground' : ''}`}>
+                          {getBoardDisplayName(board)}
+                        </span>
+                        {isInactive(board) && (
+                          <Badge variant="secondary" className="text-xs">
+                            INATIVO
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -237,9 +268,13 @@ export default function QuadrosConfig() {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className="bg-green-50 text-green-700 border-green-200"
+                        className={
+                          isInactive(board)
+                            ? "bg-red-50 text-red-700 border-red-200"
+                            : "bg-green-50 text-green-700 border-green-200"
+                        }
                       >
-                        Ativo
+                        {isInactive(board) ? 'Inativo' : 'Ativo'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -250,19 +285,39 @@ export default function QuadrosConfig() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          {!isInactive(board) && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => handleConfigureBoard(board)}
+                                className="gap-2"
+                              >
+                                <Settings className="h-4 w-4" />
+                                Configurar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleSetDefault(board)}
+                                className="gap-2"
+                              >
+                                <Star className="h-4 w-4" />
+                                Definir como Padrão
+                              </DropdownMenuItem>
+                            </>
+                          )}
                           <DropdownMenuItem
-                            onClick={() => handleConfigureBoard(board)}
+                            onClick={() => handleToggleActive(board)}
                             className="gap-2"
                           >
-                            <Settings className="h-4 w-4" />
-                            Configurar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleSetDefault(board)}
-                            className="gap-2"
-                          >
-                            <Star className="h-4 w-4" />
-                            Definir como Padrão
+                            {isInactive(board) ? (
+                              <>
+                                <CheckCircle className="h-4 w-4" />
+                                Ativar
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="h-4 w-4" />
+                                Inativar
+                              </>
+                            )}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteBoard(board)}

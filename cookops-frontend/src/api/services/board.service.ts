@@ -54,4 +54,10 @@ export class BoardService {
     const response = await api.put<BoardResponseDto>(url);
     return response.data;
   }
+
+  static async toggleActiveBoard(id: string): Promise<BoardResponseDto> {
+    const url = API_ROUTES.BOARD.TOGGLE_ACTIVE_BOARD.replace(":id", id);
+    const response = await api.put<BoardResponseDto>(url);
+    return response.data;
+  }
 }
