@@ -137,4 +137,32 @@ export class PedidoStatusController {
       role,
     );
   }
+
+  @Put('reorder')
+  @ApiOperation({ summary: 'Reordenar status de pedido' })
+  @ApiBody({
+    description: 'Array de status com suas novas ordens',
+    schema: {
+      type: 'object',
+      properties: {
+        updates: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              ordem: { type: 'number' },
+            },
+          },
+        },
+      },
+    },
+  })
+  async reorderStatus(
+    @Request() req: { user: { empresaId: string } },
+    @Body() data: { updates: Array<{ id: number; ordem: number }> },
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.pedidoStatusService.reorderStatus(data.updates, empresaId);
+  }
 }

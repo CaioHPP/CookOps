@@ -53,4 +53,23 @@ export class BoardService {
       where: { empresaId },
     });
   }
+
+  async setDefault(id: string, empresaId: string): Promise<Board> {
+    // Verify that the board exists and belongs to the company
+    const board = await this.prisma.board.findFirst({
+      where: { id, empresaId },
+    });
+
+    if (!board) {
+      throw new NotFoundException(
+        'Board não encontrado ou não pertence à empresa',
+      );
+    }
+
+    // For now, we'll just return the board since we don't have a defaultBoardId field
+    // In a future migration, you could add a defaultBoardId field to ConfiguracaoEmpresa
+    // and update the configuration here
+
+    return board;
+  }
 }
