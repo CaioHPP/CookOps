@@ -18,6 +18,7 @@ export const API_ROUTES = {
     GET_BOARD_BY_ID: "/boards",
     UPDATE_BOARD: "/boards",
     DELETE_BOARD: "/boards",
+    SET_DEFAULT_BOARD: "/boards/:id/set-default",
   },
   PEDIDO: {
     ADD_PEDIDO: "/pedidos",
@@ -43,6 +44,7 @@ export const API_ROUTES = {
     GET_PEDIDO_STATUS_WITH_PEDIDOS: "/pedidostatus/pedidos/:boardId",
     GET_PEDIDO_STATUS_WITH_PEDIDOS_AND_ITENS:
       "/pedidostatus/pedidos/itens/:boardId",
+    REORDER_STATUS: "/pedidostatus/reorder",
   },
   PRODUTO: {
     ADD_PRODUTO: "/produtos",
