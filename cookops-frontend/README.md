@@ -461,3 +461,57 @@ npm run test:coverage   # Executar com coverage
 - **[Axios](https://axios-http.com/docs/intro)** - Cliente HTTP
 
   **Desenvolvido com ❤️ usando as melhores práticas de desenvolvimento frontend**
+
+## 📊 Dashboard Dinâmico - Novas Funcionalidades
+
+### 🎯 **Seleção de Períodos Inteligente**
+
+O dashboard agora oferece análise temporal dinâmica com diferentes granularidades:
+
+#### 📅 **Períodos Disponíveis**
+
+- **7 dias** → Visualização por **dias** (7 pontos no gráfico)
+- **30 dias** → Visualização por **semanas** (4-5 pontos no gráfico)
+- **90 dias** → Visualização por **semanas** (12 pontos no gráfico)
+- **6 meses** → Visualização por **meses** (6 pontos no gráfico)
+- **1 ano** → Visualização por **meses** (12 pontos no gráfico)
+
+#### 🔄 **Funcionalidades Implementadas**
+
+- **Título dinâmico** do gráfico baseado no período selecionado
+- **Descrição automática** da granularidade temporal
+- **Indicadores visuais** do período e unidade de tempo
+- **Detecção de dados mock** com avisos para o usuário
+- **Geração inteligente** de dados quando backend não suporta o período
+
+#### 🛠️ **Componentes Implementados**
+
+```typescript
+// 📁 components/Dashboard/ - 5 componentes especializados
+AdvancedExport.tsx; // Exportação em múltiplos formatos
+AdvancedSettings.tsx; // Configurações personalizáveis
+ChartDrilldown.tsx; // Análise detalhada de gráficos
+DashboardConfig.tsx; // Configuração visual
+PeriodComparison.tsx; // Comparação de períodos
+
+// 📁 hooks/ - 3 hooks especializados
+useChartDrilldown.ts; // Drill-down interativo
+useChartExport.ts; // Exportação avançada
+useDashboardSettings.ts; // Configurações
+```
+
+#### 🎨 **Interface Melhorada**
+
+- **Badges indicadores** mostrando período atual e granularidade
+- **Avisos visuais** quando dados são de demonstração
+- **Seletor de período** com opções 6 meses e 1 ano
+- **Responsividade** mantida em todos os dispositivos
+- **Drill-down interativo** em gráficos
+- **Exportação avançada** em múltiplos formatos
+
+### 🔄 **Próximos Passos**
+
+1. **Implementação Backend** - Agregações mensais e diárias para períodos longos
+2. **Filtros Avançados** - Status e fonte de pedidos
+3. **Exportação** - Dados específicos por período
+4. **Testes Automatizados** - Cobertura completa das funcionalidades

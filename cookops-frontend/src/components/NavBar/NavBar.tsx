@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  BarChart3,
   Bell,
   ChefHat,
   LogOut,
@@ -66,8 +67,19 @@ export function Navbar() {
 
         {/* Right side content */}
         <div className="flex items-center gap-6">
+          {" "}
           {/* Navigation Items */}
           <div className="flex items-center gap-1">
+            <Link href="/dashboard" className="text-sm font-medium">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm font-medium"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
             <Link href="/pedidos" className="text-sm font-medium">
               <Button
                 variant="ghost"
@@ -109,7 +121,6 @@ export function Navbar() {
               </Button>
             </Link>
           </div>
-
           {/* User actions */}
           <div className="flex items-center gap-2">
             {/* Notifications */}

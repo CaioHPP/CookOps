@@ -89,4 +89,13 @@ export const API_ROUTES = {
     UPDATE_CONFIGURACAO: "/configuracao-empresa",
     DELETE_CONFIGURACAO: "/configuracao-empresa",
   },
+  DASHBOARD: {
+    GET_METRICAS_VENDAS: "/dashboard/vendas",
+    GET_METRICAS_PERFORMANCE: "/dashboard/performance",
+    GET_METRICAS_PRODUTOS: "/dashboard/produtos",
+    GET_METRICAS_CRESCIMENTO: "/dashboard/crescimento",
+    GET_METRICAS_FINANCEIRAS: "/dashboard/financeiro",
+    GET_METRICAS_OPERACIONAIS: "/dashboard/operacional",
+    GET_TODAS_METRICAS: "/dashboard",
+  },
 };
