@@ -29,7 +29,7 @@ export function useBoards(): UseBoardsReturn {
       setLoading(true);
       setError(null);
       const data = await BoardService.getBoardsByEmpresa();
-      
+
       if (Array.isArray(data)) {
         setBoards(data);
         // Auto-select first board if none selected
@@ -55,11 +55,11 @@ export function useBoards(): UseBoardsReturn {
   const createBoard = async (title: string) => {
     try {
       const newBoard = await BoardService.addBoard({ titulo: title });
-      setBoards(prev => [...prev, newBoard]);
-      
+      setBoards((prev) => [...prev, newBoard]);
+
       // Select the new board automatically
       setSelectedBoard(newBoard.id);
-      
+
       toast.success("Board criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar board:", error);
@@ -70,11 +70,11 @@ export function useBoards(): UseBoardsReturn {
 
   const updateBoard = async (id: string, title: string) => {
     try {
-      const updatedBoard = await BoardService.updateBoard(id, { titulo: title });
-      setBoards(prev => 
-        prev.map(board => 
-          board.id === id ? updatedBoard : board
-        )
+      const updatedBoard = await BoardService.updateBoard(id, {
+        titulo: title,
+      });
+      setBoards((prev) =>
+        prev.map((board) => (board.id === id ? updatedBoard : board))
       );
       toast.success("Board atualizado com sucesso!");
     } catch (error) {
@@ -87,14 +87,16 @@ export function useBoards(): UseBoardsReturn {
   const deleteBoard = async (id: string) => {
     try {
       await BoardService.deleteBoard(id);
-      setBoards(prev => prev.filter(board => board.id !== id));
-      
+      setBoards((prev) => prev.filter((board) => board.id !== id));
+
       // If deleted board was selected, select first available
       if (selectedBoard === id) {
-        const remainingBoards = boards.filter(b => b.id !== id);
-        setSelectedBoard(remainingBoards.length > 0 ? remainingBoards[0].id : "");
+        const remainingBoards = boards.filter((b) => b.id !== id);
+        setSelectedBoard(
+          remainingBoards.length > 0 ? remainingBoards[0].id : ""
+        );
       }
-      
+
       toast.success("Board removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover board:", error);
@@ -138,7 +140,11 @@ export interface UseBoardStatusReturn {
   statusList: PedidoStatusResponseDto[];
   loading: boolean;
   error: string | null;
-  createStatus: (title: string, order: number, boardId: string) => Promise<void>;
+  createStatus: (
+    title: string,
+    order: number,
+    boardId: string
+  ) => Promise<void>;
   updateStatus: (id: number, title: string) => Promise<void>;
   deleteStatus: (id: number) => Promise<void>;
   reorderStatus: (statusList: PedidoStatusResponseDto[]) => Promise<void>;
@@ -152,7 +158,7 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
 
   const loadStatus = useCallback(async () => {
     if (!boardId) return;
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -173,14 +179,20 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
     }
   }, [boardId, loadStatus]);
 
-  const createStatus = async (title: string, order: number, boardId: string) => {
+  const createStatus = async (
+    title: string,
+    order: number,
+    boardId: string
+  ) => {
     try {
       const newStatus = await PedidoStatusService.addPedidoStatus({
         titulo: title,
         ordem: order,
         boardId: boardId,
       });
-      setStatusList(prev => [...prev, newStatus].sort((a, b) => a.ordem - b.ordem));
+      setStatusList((prev) =>
+        [...prev, newStatus].sort((a, b) => a.ordem - b.ordem)
+      );
       toast.success("Status criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar status:", error);
@@ -194,10 +206,8 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
       const updatedStatus = await PedidoStatusService.updatePedidoStatus(id, {
         titulo: title,
       });
-      setStatusList(prev => 
-        prev.map(status => 
-          status.id === id ? updatedStatus : status
-        )
+      setStatusList((prev) =>
+        prev.map((status) => (status.id === id ? updatedStatus : status))
       );
       toast.success("Status atualizado com sucesso!");
     } catch (error) {
@@ -210,7 +220,7 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
   const deleteStatus = async (id: number) => {
     try {
       await PedidoStatusService.deletePedidoStatus(id);
-      setStatusList(prev => prev.filter(status => status.id !== id));
+      setStatusList((prev) => prev.filter((status) => status.id !== id));
       toast.success("Status removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover status:", error);
@@ -223,13 +233,13 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
     try {
       // Update local state immediately for smooth UX
       setStatusList(newStatusList);
-      
+
       // Prepare updates for API
       const statusUpdates = newStatusList.map((status, index) => ({
         id: status.id,
-        ordem: index + 1
+        ordem: index + 1,
       }));
-      
+
       // Call reorder API
       await PedidoStatusService.reorderStatus(statusUpdates);
       toast.success("Ordem dos status atualizada!");

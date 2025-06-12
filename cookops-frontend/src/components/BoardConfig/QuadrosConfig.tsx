@@ -22,14 +22,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  PlusCircle, 
-  Settings, 
-  Trash2, 
+import {
+  PlusCircle,
+  Settings,
+  Trash2,
   Search,
   MoreHorizontal,
   Star,
-  Kanban
+  Kanban,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -50,9 +50,13 @@ export default function QuadrosConfig() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(null);
+  const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(
+    null
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(null);
+  const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(
+    null
+  );
 
   useEffect(() => {
     loadBoards();
@@ -86,7 +90,7 @@ export default function QuadrosConfig() {
 
     try {
       await BoardService.deleteBoard(boardToDelete.id);
-      setBoards(prev => prev.filter(b => b.id !== boardToDelete.id));
+      setBoards((prev) => prev.filter((b) => b.id !== boardToDelete.id));
       toast.success("Board removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover board:", error);
@@ -109,7 +113,7 @@ export default function QuadrosConfig() {
     }
   };
 
-  const filteredBoards = boards.filter(board =>
+  const filteredBoards = boards.filter((board) =>
     board.titulo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -133,17 +137,17 @@ export default function QuadrosConfig() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Boards</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total de Boards
+            </CardTitle>
             <Kanban className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{boards.length}</div>
-            <p className="text-xs text-muted-foreground">
-              boards configurados
-            </p>
+            <p className="text-xs text-muted-foreground">boards configurados</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Board Padrão</CardTitle>
@@ -156,7 +160,7 @@ export default function QuadrosConfig() {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Status Ativos</CardTitle>
@@ -197,9 +201,11 @@ export default function QuadrosConfig() {
             <div className="text-center py-12 text-muted-foreground">
               <Kanban className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg font-medium">Nenhum board configurado</p>
-              <p className="text-sm">Crie seu primeiro board para começar a organizar a produção</p>
-              <Button 
-                onClick={() => setIsNewBoardDialogOpen(true)} 
+              <p className="text-sm">
+                Crie seu primeiro board para começar a organizar a produção
+              </p>
+              <Button
+                onClick={() => setIsNewBoardDialogOpen(true)}
                 className="mt-4 gap-2"
               >
                 <PlusCircle className="h-4 w-4" />
@@ -229,7 +235,10 @@ export default function QuadrosConfig() {
                       {new Date(board.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
                         Ativo
                       </Badge>
                     </TableCell>
@@ -293,13 +302,14 @@ export default function QuadrosConfig() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o board &ldquo;{boardToDelete?.titulo}&rdquo;? 
-              Esta ação não pode ser desfeita e todos os status e pedidos associados serão perdidos.
+              Tem certeza que deseja excluir o board &ldquo;
+              {boardToDelete?.titulo}&rdquo;? Esta ação não pode ser desfeita e
+              todos os status e pedidos associados serão perdidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDeleteBoard}
               className="bg-destructive hover:bg-destructive/90"
             >

@@ -86,10 +86,9 @@ export class PedidoStatusService {
   static async reorderStatus(
     statusUpdates: Array<{ id: number; ordem: number }>
   ): Promise<void> {
-    const response = await api.put(
-      API_ROUTES.PEDIDO_STATUS.REORDER_STATUS,
-      { updates: statusUpdates }
-    );
+    const response = await api.put(API_ROUTES.PEDIDO_STATUS.REORDER_STATUS, {
+      updates: statusUpdates,
+    });
     return response.data;
   }
 }

@@ -13,12 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Trash2, 
+import {
+  Plus,
+  Trash2,
   GripVertical,
   ChevronLeft,
-  ChevronRight 
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,12 +52,48 @@ interface CustomStatus {
 }
 
 const STATUS_COLORS = [
-  { value: "red", label: "Vermelho", bg: "bg-red-100", text: "text-red-800", border: "border-red-200" },
-  { value: "yellow", label: "Amarelo", bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-200" },
-  { value: "blue", label: "Azul", bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
-  { value: "green", label: "Verde", bg: "bg-green-100", text: "text-green-800", border: "border-green-200" },
-  { value: "purple", label: "Roxo", bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
-  { value: "gray", label: "Cinza", bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
+  {
+    value: "red",
+    label: "Vermelho",
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border-red-200",
+  },
+  {
+    value: "yellow",
+    label: "Amarelo",
+    bg: "bg-yellow-100",
+    text: "text-yellow-800",
+    border: "border-yellow-200",
+  },
+  {
+    value: "blue",
+    label: "Azul",
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    border: "border-blue-200",
+  },
+  {
+    value: "green",
+    label: "Verde",
+    bg: "bg-green-100",
+    text: "text-green-800",
+    border: "border-green-200",
+  },
+  {
+    value: "purple",
+    label: "Roxo",
+    bg: "bg-purple-100",
+    text: "text-purple-800",
+    border: "border-purple-200",
+  },
+  {
+    value: "gray",
+    label: "Cinza",
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    border: "border-gray-200",
+  },
 ];
 
 const DEFAULT_STATUSES: CustomStatus[] = [
@@ -68,10 +104,10 @@ const DEFAULT_STATUSES: CustomStatus[] = [
   { id: "5", titulo: "Finalizado", ordem: 5 },
 ];
 
-function SortableStatusCard({ 
-  status, 
-  onEdit, 
-  onDelete 
+function SortableStatusCard({
+  status,
+  onEdit,
+  onDelete,
 }: {
   status: CustomStatus;
   onEdit: (id: string, titulo: string) => void;
@@ -93,7 +129,9 @@ function SortableStatusCard({
   };
 
   const getStatusColor = (ordem: number) => {
-    return STATUS_COLORS[(ordem - 1) % STATUS_COLORS.length] || STATUS_COLORS[0];
+    return (
+      STATUS_COLORS[(ordem - 1) % STATUS_COLORS.length] || STATUS_COLORS[0]
+    );
   };
 
   const colorConfig = getStatusColor(status.ordem);
@@ -111,11 +149,13 @@ function SortableStatusCard({
       >
         <GripVertical className="h-4 w-4" />
       </div>
-      
+
       <div className="flex-1 flex items-center gap-3">
-        <span className="text-sm text-muted-foreground w-8">#{status.ordem}</span>
-        <Badge 
-          variant="outline" 
+        <span className="text-sm text-muted-foreground w-8">
+          #{status.ordem}
+        </span>
+        <Badge
+          variant="outline"
           className={`${colorConfig.bg} ${colorConfig.text} ${colorConfig.border} px-3 py-1`}
         >
           {status.titulo}
@@ -152,8 +192,12 @@ export function NovoBoardDialog({
   const [title, setTitle] = useState("");
   const [boardType, setBoardType] = useState("default");
   const [isLoading, setIsLoading] = useState(false);
-  const [customStatuses, setCustomStatuses] = useState<CustomStatus[]>(DEFAULT_STATUSES);
-  const [editingStatus, setEditingStatus] = useState<{id: string, title: string} | null>(null);
+  const [customStatuses, setCustomStatuses] =
+    useState<CustomStatus[]>(DEFAULT_STATUSES);
+  const [editingStatus, setEditingStatus] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -165,14 +209,14 @@ export function NovoBoardDialog({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
 
-    const oldIndex = customStatuses.findIndex(item => item.id === active.id);
-    const newIndex = customStatuses.findIndex(item => item.id === over.id);
+    const oldIndex = customStatuses.findIndex((item) => item.id === active.id);
+    const newIndex = customStatuses.findIndex((item) => item.id === over.id);
 
     const newStatuses = arrayMove(customStatuses, oldIndex, newIndex);
-    
+
     // Update order numbers
     const updatedStatuses = newStatuses.map((status, index) => ({
       ...status,
@@ -184,7 +228,7 @@ export function NovoBoardDialog({
 
   const handleAddStatus = () => {
     const newId = Date.now().toString();
-    const newOrder = Math.max(...customStatuses.map(s => s.ordem), 0) + 1;
+    const newOrder = Math.max(...customStatuses.map((s) => s.ordem), 0) + 1;
     const newStatus: CustomStatus = {
       id: newId,
       titulo: `Novo Status ${newOrder}`,
@@ -200,10 +244,10 @@ export function NovoBoardDialog({
 
   const handleSaveEdit = () => {
     if (!editingStatus) return;
-    
-    setCustomStatuses(prev => 
-      prev.map(status => 
-        status.id === editingStatus.id 
+
+    setCustomStatuses((prev) =>
+      prev.map((status) =>
+        status.id === editingStatus.id
           ? { ...status, titulo: editingStatus.title }
           : status
       )
@@ -216,9 +260,9 @@ export function NovoBoardDialog({
       toast.error("Um board precisa ter pelo menos 2 status");
       return;
     }
-    
-    setCustomStatuses(prev => {
-      const filtered = prev.filter(s => s.id !== id);
+
+    setCustomStatuses((prev) => {
+      const filtered = prev.filter((s) => s.id !== id);
       // Reorder after deletion
       return filtered.map((status, index) => ({
         ...status,
@@ -256,7 +300,7 @@ export function NovoBoardDialog({
       // If custom board, create custom statuses
       if (boardType === "custom" && customStatuses.length > 0) {
         await Promise.all(
-          customStatuses.map(status =>
+          customStatuses.map((status) =>
             PedidoStatusService.addPedidoStatus({
               titulo: status.titulo,
               ordem: status.ordem,
@@ -276,7 +320,7 @@ export function NovoBoardDialog({
       setCustomStatuses(DEFAULT_STATUSES);
       setStep(1);
       setEditingStatus(null);
-      
+
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
@@ -351,17 +395,16 @@ export function NovoBoardDialog({
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
-              <Button 
-                onClick={handleNext} 
-                disabled={!canProceed || isLoading}
-              >
+              <Button onClick={handleNext} disabled={!canProceed || isLoading}>
                 {boardType === "custom" ? (
                   <>
                     Próximo
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </>
+                ) : isLoading ? (
+                  "Criando..."
                 ) : (
-                  isLoading ? "Criando..." : "Salvar"
+                  "Salvar"
                 )}
               </Button>
             </div>
@@ -374,17 +417,26 @@ export function NovoBoardDialog({
                 <div className="flex gap-2">
                   <Input
                     value={editingStatus.title}
-                    onChange={(e) => setEditingStatus({ ...editingStatus, title: e.target.value })}
+                    onChange={(e) =>
+                      setEditingStatus({
+                        ...editingStatus,
+                        title: e.target.value,
+                      })
+                    }
                     placeholder="Nome do status"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSaveEdit();
-                      if (e.key === 'Escape') setEditingStatus(null);
+                      if (e.key === "Enter") handleSaveEdit();
+                      if (e.key === "Escape") setEditingStatus(null);
                     }}
                   />
                   <Button size="sm" onClick={handleSaveEdit}>
                     Salvar
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditingStatus(null)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingStatus(null)}
+                  >
                     Cancelar
                   </Button>
                 </div>
@@ -394,23 +446,19 @@ export function NovoBoardDialog({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Colunas de Status</Label>
-                <Button
-                  size="sm"
-                  onClick={handleAddStatus}
-                  className="gap-2"
-                >
+                <Button size="sm" onClick={handleAddStatus} className="gap-2">
                   <Plus className="h-4 w-4" />
                   Adicionar Status
                 </Button>
               </div>
 
-              <DndContext 
-                sensors={sensors} 
+              <DndContext
+                sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext 
-                  items={customStatuses.map(s => s.id)} 
+                <SortableContext
+                  items={customStatuses.map((s) => s.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
@@ -440,8 +488,8 @@ export function NovoBoardDialog({
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   Cancelar
                 </Button>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   disabled={isLoading || customStatuses.length < 2}
                 >
                   {isLoading ? "Criando..." : "Criar Board"}

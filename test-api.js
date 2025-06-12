@@ -1,26 +1,22 @@
 // Script de teste para verificar se as APIs estão funcionando
-const axios = require('axios');
+const axios = require("axios");
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = "http://localhost:3000";
 
 async function testAPI() {
   try {
-    console.log('🧪 Testando APIs do CookOps...\n');
+    console.log("🧪 Testando APIs do CookOps...\n");
 
     // Test 1: Check if backend is running
-    console.log('1. Verificando se o backend está online...');
+    console.log("1. Verificando se o backend está online...");
     const healthCheck = await axios.get(`${BASE_URL}/`);
-    console.log('✅ Backend está online!');
+    console.log("✅ Backend está online!");
 
     // Test 2: Test authentication (optional, may require actual login)
-    console.log('\n2. Testando endpoints disponíveis...');
-    
+    console.log("\n2. Testando endpoints disponíveis...");
+
     // Just check if endpoints are accessible (might get 401, which is expected)
-    const endpoints = [
-      '/boards',
-      '/pedidostatus',
-      '/empresas',
-    ];
+    const endpoints = ["/boards", "/pedidostatus", "/empresas"];
 
     for (const endpoint of endpoints) {
       try {
@@ -35,11 +31,10 @@ async function testAPI() {
       }
     }
 
-    console.log('\n🎉 Teste completo!');
-    
+    console.log("\n🎉 Teste completo!");
   } catch (error) {
-    console.error('❌ Erro nos testes:', error.message);
-    console.log('\n💡 Verifique se o backend está rodando na porta 3000');
+    console.error("❌ Erro nos testes:", error.message);
+    console.log("\n💡 Verifique se o backend está rodando na porta 3000");
   }
 }
 

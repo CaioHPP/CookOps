@@ -20,14 +20,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { 
-  Plus, 
-  Trash2, 
-  Edit2, 
-  GripVertical, 
-  Save, 
+import {
+  Plus,
+  Trash2,
+  Edit2,
+  GripVertical,
+  Save,
   X,
-  Palette
+  Palette,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
@@ -68,23 +68,59 @@ interface StatusColumn {
 }
 
 const STATUS_COLORS = [
-  { value: "red", label: "Vermelho", bg: "bg-red-100", text: "text-red-800", border: "border-red-200" },
-  { value: "yellow", label: "Amarelo", bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-200" },
-  { value: "blue", label: "Azul", bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
-  { value: "green", label: "Verde", bg: "bg-green-100", text: "text-green-800", border: "border-green-200" },
-  { value: "purple", label: "Roxo", bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
-  { value: "gray", label: "Cinza", bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
+  {
+    value: "red",
+    label: "Vermelho",
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border-red-200",
+  },
+  {
+    value: "yellow",
+    label: "Amarelo",
+    bg: "bg-yellow-100",
+    text: "text-yellow-800",
+    border: "border-yellow-200",
+  },
+  {
+    value: "blue",
+    label: "Azul",
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    border: "border-blue-200",
+  },
+  {
+    value: "green",
+    label: "Verde",
+    bg: "bg-green-100",
+    text: "text-green-800",
+    border: "border-green-200",
+  },
+  {
+    value: "purple",
+    label: "Roxo",
+    bg: "bg-purple-100",
+    text: "text-purple-800",
+    border: "border-purple-200",
+  },
+  {
+    value: "gray",
+    label: "Cinza",
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    border: "border-gray-200",
+  },
 ];
 
-function SortableStatusItem({ 
-  status, 
-  onEdit, 
-  onDelete, 
-  onSave, 
+function SortableStatusItem({
+  status,
+  onEdit,
+  onDelete,
+  onSave,
   onCancel,
   isEditing,
   editedTitle,
-  onTitleChange 
+  onTitleChange,
 }: {
   status: StatusColumn;
   onEdit: (id: number) => void;
@@ -129,12 +165,14 @@ function SortableStatusItem({
       >
         <GripVertical className="h-4 w-4" />
       </div>
-      
+
       <div className="flex-1 flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground w-8">#{status.ordem}</span>
-          <Badge 
-            variant="outline" 
+          <span className="text-sm text-muted-foreground w-8">
+            #{status.ordem}
+          </span>
+          <Badge
+            variant="outline"
             className={`${colorConfig.bg} ${colorConfig.text} ${colorConfig.border}`}
           >
             {isEditing ? (
@@ -144,8 +182,8 @@ function SortableStatusItem({
                 className="h-6 px-2 text-xs border-none bg-transparent"
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') onSave(status.id);
-                  if (e.key === 'Escape') onCancel(status.id);
+                  if (e.key === "Enter") onSave(status.id);
+                  if (e.key === "Escape") onCancel(status.id);
                 }}
               />
             ) : (
@@ -224,9 +262,11 @@ export function BoardConfigDialog({
 
   const loadStatusColumns = useCallback(async () => {
     if (!board) return;
-    
+
     try {
-      const statusList = await PedidoStatusService.getPedidoStatusByBoard(board.id);
+      const statusList = await PedidoStatusService.getPedidoStatusByBoard(
+        board.id
+      );
       const formattedStatus = statusList.map((status) => ({
         id: status.id,
         titulo: status.titulo,
@@ -265,7 +305,7 @@ export function BoardConfigDialog({
   };
 
   const handleAddStatus = () => {
-    const newOrder = Math.max(...statusColumns.map(s => s.ordem), 0) + 1;
+    const newOrder = Math.max(...statusColumns.map((s) => s.ordem), 0) + 1;
     const newStatus: StatusColumn = {
       id: Date.now(), // Temporary ID for new items
       titulo: `Novo Status ${newOrder}`,
@@ -279,7 +319,7 @@ export function BoardConfigDialog({
   };
 
   const handleEditStatus = (id: number) => {
-    const status = statusColumns.find(s => s.id === id);
+    const status = statusColumns.find((s) => s.id === id);
     if (status) {
       setEditingStatusId(id);
       setEditedTitle(status.titulo);
@@ -289,7 +329,7 @@ export function BoardConfigDialog({
   const handleSaveStatus = async (id: number) => {
     if (!editedTitle.trim()) return;
 
-    const status = statusColumns.find(s => s.id === id);
+    const status = statusColumns.find((s) => s.id === id);
     if (!status) return;
 
     try {
@@ -300,11 +340,17 @@ export function BoardConfigDialog({
           ordem: status.ordem,
           boardId: board!.id,
         });
-        
-        setStatusColumns(prev => 
-          prev.map(s => 
-            s.id === id 
-              ? { ...s, id: newStatus.id, titulo: editedTitle, isNew: false, isEditing: false }
+
+        setStatusColumns((prev) =>
+          prev.map((s) =>
+            s.id === id
+              ? {
+                  ...s,
+                  id: newStatus.id,
+                  titulo: editedTitle,
+                  isNew: false,
+                  isEditing: false,
+                }
               : s
           )
         );
@@ -313,16 +359,14 @@ export function BoardConfigDialog({
         await PedidoStatusService.updatePedidoStatus(id, {
           titulo: editedTitle,
         });
-        
-        setStatusColumns(prev => 
-          prev.map(s => 
-            s.id === id 
-              ? { ...s, titulo: editedTitle, isEditing: false }
-              : s
+
+        setStatusColumns((prev) =>
+          prev.map((s) =>
+            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s
           )
         );
       }
-      
+
       toast.success("Status salvo com sucesso!");
     } catch (error) {
       console.error("Erro ao salvar status:", error);
@@ -334,22 +378,18 @@ export function BoardConfigDialog({
   };
 
   const handleCancelEdit = (id: number) => {
-    const status = statusColumns.find(s => s.id === id);
-    
+    const status = statusColumns.find((s) => s.id === id);
+
     if (status?.isNew) {
       // Remove new unsaved status
-      setStatusColumns(prev => prev.filter(s => s.id !== id));
+      setStatusColumns((prev) => prev.filter((s) => s.id !== id));
     } else {
       // Cancel edit of existing status
-      setStatusColumns(prev => 
-        prev.map(s => 
-          s.id === id 
-            ? { ...s, isEditing: false }
-            : s
-        )
+      setStatusColumns((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s))
       );
     }
-    
+
     setEditingStatusId(null);
     setEditedTitle("");
   };
@@ -362,15 +402,15 @@ export function BoardConfigDialog({
   const confirmDeleteStatus = async () => {
     if (!statusToDelete) return;
 
-    const status = statusColumns.find(s => s.id === statusToDelete);
+    const status = statusColumns.find((s) => s.id === statusToDelete);
     if (!status) return;
 
     try {
       if (!status.isNew) {
         await PedidoStatusService.deletePedidoStatus(statusToDelete);
       }
-      
-      setStatusColumns(prev => prev.filter(s => s.id !== statusToDelete));
+
+      setStatusColumns((prev) => prev.filter((s) => s.id !== statusToDelete));
       toast.success("Status removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover status:", error);
@@ -383,14 +423,14 @@ export function BoardConfigDialog({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
 
-    const oldIndex = statusColumns.findIndex(item => item.id === active.id);
-    const newIndex = statusColumns.findIndex(item => item.id === over.id);
+    const oldIndex = statusColumns.findIndex((item) => item.id === active.id);
+    const newIndex = statusColumns.findIndex((item) => item.id === over.id);
 
     const newStatusColumns = arrayMove(statusColumns, oldIndex, newIndex);
-    
+
     // Update order numbers
     const updatedColumns = newStatusColumns.map((status, index) => ({
       ...status,
@@ -434,23 +474,19 @@ export function BoardConfigDialog({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Colunas de Status</Label>
-                <Button
-                  size="sm"
-                  onClick={handleAddStatus}
-                  className="gap-2"
-                >
+                <Button size="sm" onClick={handleAddStatus} className="gap-2">
                   <Plus className="h-4 w-4" />
                   Adicionar Status
                 </Button>
               </div>
 
-              <DndContext 
-                sensors={sensors} 
+              <DndContext
+                sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext 
-                  items={statusColumns.map(s => s.id)} 
+                <SortableContext
+                  items={statusColumns.map((s) => s.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
@@ -475,7 +511,9 @@ export function BoardConfigDialog({
                 <div className="text-center py-8 text-muted-foreground">
                   <Palette className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhum status configurado</p>
-                  <p className="text-sm">Clique em &ldquo;Adicionar Status&rdquo; para começar</p>
+                  <p className="text-sm">
+                    Clique em &ldquo;Adicionar Status&rdquo; para começar
+                  </p>
                 </div>
               )}
             </div>
@@ -489,13 +527,17 @@ export function BoardConfigDialog({
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover este status? Esta ação não pode ser desfeita.
-              Todos os pedidos neste status serão movidos para o primeiro status disponível.
+              Tem certeza que deseja remover este status? Esta ação não pode ser
+              desfeita. Todos os pedidos neste status serão movidos para o
+              primeiro status disponível.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteStatus} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDeleteStatus}
+              className="bg-destructive hover:bg-destructive/90"
+            >
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>

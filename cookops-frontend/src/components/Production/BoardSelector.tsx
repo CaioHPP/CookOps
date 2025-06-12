@@ -77,7 +77,7 @@ export function BoardSelector({
               </DropdownMenuItem>
             ))
           )}
-          
+
           {(onCreateBoard || onConfigureBoard) && (
             <>
               <DropdownMenuSeparator />

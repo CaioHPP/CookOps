@@ -13,14 +13,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { 
-  Plus, 
-  Trash2, 
-  Edit2, 
-  GripVertical, 
-  Save, 
+import {
+  Plus,
+  Trash2,
+  Edit2,
+  GripVertical,
+  Save,
   X,
-  Palette
+  Palette,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -59,23 +59,59 @@ interface StatusItem {
 }
 
 const STATUS_COLORS = [
-  { value: "red", label: "Vermelho", bg: "bg-red-100", text: "text-red-800", border: "border-red-200" },
-  { value: "yellow", label: "Amarelo", bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-200" },
-  { value: "blue", label: "Azul", bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
-  { value: "green", label: "Verde", bg: "bg-green-100", text: "text-green-800", border: "border-green-200" },
-  { value: "purple", label: "Roxo", bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
-  { value: "gray", label: "Cinza", bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
+  {
+    value: "red",
+    label: "Vermelho",
+    bg: "bg-red-100",
+    text: "text-red-800",
+    border: "border-red-200",
+  },
+  {
+    value: "yellow",
+    label: "Amarelo",
+    bg: "bg-yellow-100",
+    text: "text-yellow-800",
+    border: "border-yellow-200",
+  },
+  {
+    value: "blue",
+    label: "Azul",
+    bg: "bg-blue-100",
+    text: "text-blue-800",
+    border: "border-blue-200",
+  },
+  {
+    value: "green",
+    label: "Verde",
+    bg: "bg-green-100",
+    text: "text-green-800",
+    border: "border-green-200",
+  },
+  {
+    value: "purple",
+    label: "Roxo",
+    bg: "bg-purple-100",
+    text: "text-purple-800",
+    border: "border-purple-200",
+  },
+  {
+    value: "gray",
+    label: "Cinza",
+    bg: "bg-gray-100",
+    text: "text-gray-800",
+    border: "border-gray-200",
+  },
 ];
 
-function SortableStatusItem({ 
-  status, 
-  onEdit, 
-  onDelete, 
-  onSave, 
+function SortableStatusItem({
+  status,
+  onEdit,
+  onDelete,
+  onSave,
   onCancel,
   isEditing,
   editedTitle,
-  onTitleChange 
+  onTitleChange,
 }: {
   status: StatusItem;
   onEdit: (id: number) => void;
@@ -102,7 +138,9 @@ function SortableStatusItem({
   };
 
   const getStatusColor = (ordem: number) => {
-    return STATUS_COLORS[(ordem - 1) % STATUS_COLORS.length] || STATUS_COLORS[0];
+    return (
+      STATUS_COLORS[(ordem - 1) % STATUS_COLORS.length] || STATUS_COLORS[0]
+    );
   };
 
   const colorConfig = getStatusColor(status.ordem);
@@ -120,12 +158,14 @@ function SortableStatusItem({
       >
         <GripVertical className="h-5 w-5" />
       </div>
-      
+
       <div className="flex-1 flex items-center gap-3">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground font-mono w-8">#{status.ordem}</span>
-          <Badge 
-            variant="outline" 
+          <span className="text-sm text-muted-foreground font-mono w-8">
+            #{status.ordem}
+          </span>
+          <Badge
+            variant="outline"
             className={`${colorConfig.bg} ${colorConfig.text} ${colorConfig.border} px-3 py-1`}
           >
             {isEditing ? (
@@ -135,8 +175,8 @@ function SortableStatusItem({
                 className="h-6 px-2 text-sm border-none bg-transparent p-0 m-0"
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') onSave(status.id);
-                  if (e.key === 'Escape') onCancel(status.id);
+                  if (e.key === "Enter") onSave(status.id);
+                  if (e.key === "Escape") onCancel(status.id);
                 }}
               />
             ) : (
@@ -191,7 +231,11 @@ function SortableStatusItem({
   );
 }
 
-export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListProps) {
+export function StatusList({
+  boardId,
+  statusList,
+  onStatusUpdate,
+}: StatusListProps) {
   const [statusItems, setStatusItems] = useState<StatusItem[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [statusToDelete, setStatusToDelete] = useState<number | null>(null);
@@ -218,7 +262,7 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
   }, [statusList]);
 
   const handleAddStatus = () => {
-    const newOrder = Math.max(...statusItems.map(s => s.ordem), 0) + 1;
+    const newOrder = Math.max(...statusItems.map((s) => s.ordem), 0) + 1;
     const newStatus: StatusItem = {
       id: Date.now(), // Temporary ID for new items
       titulo: `Novo Status ${newOrder}`,
@@ -232,7 +276,7 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
   };
 
   const handleEditStatus = (id: number) => {
-    const status = statusItems.find(s => s.id === id);
+    const status = statusItems.find((s) => s.id === id);
     if (status) {
       setEditingStatusId(id);
       setEditedTitle(status.titulo);
@@ -242,7 +286,7 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
   const handleSaveStatus = async (id: number) => {
     if (!editedTitle.trim()) return;
 
-    const status = statusItems.find(s => s.id === id);
+    const status = statusItems.find((s) => s.id === id);
     if (!status) return;
 
     try {
@@ -253,11 +297,17 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
           ordem: status.ordem,
           boardId: boardId,
         });
-        
-        setStatusItems(prev => 
-          prev.map(s => 
-            s.id === id 
-              ? { ...s, id: newStatus.id, titulo: editedTitle, isNew: false, isEditing: false }
+
+        setStatusItems((prev) =>
+          prev.map((s) =>
+            s.id === id
+              ? {
+                  ...s,
+                  id: newStatus.id,
+                  titulo: editedTitle,
+                  isNew: false,
+                  isEditing: false,
+                }
               : s
           )
         );
@@ -266,16 +316,14 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
         await PedidoStatusService.updatePedidoStatus(id, {
           titulo: editedTitle,
         });
-        
-        setStatusItems(prev => 
-          prev.map(s => 
-            s.id === id 
-              ? { ...s, titulo: editedTitle, isEditing: false }
-              : s
+
+        setStatusItems((prev) =>
+          prev.map((s) =>
+            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s
           )
         );
       }
-      
+
       toast.success("Status salvo com sucesso!");
       onStatusUpdate();
     } catch (error) {
@@ -288,22 +336,18 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
   };
 
   const handleCancelEdit = (id: number) => {
-    const status = statusItems.find(s => s.id === id);
-    
+    const status = statusItems.find((s) => s.id === id);
+
     if (status?.isNew) {
       // Remove new unsaved status
-      setStatusItems(prev => prev.filter(s => s.id !== id));
+      setStatusItems((prev) => prev.filter((s) => s.id !== id));
     } else {
       // Cancel edit of existing status
-      setStatusItems(prev => 
-        prev.map(s => 
-          s.id === id 
-            ? { ...s, isEditing: false }
-            : s
-        )
+      setStatusItems((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s))
       );
     }
-    
+
     setEditingStatusId(null);
     setEditedTitle("");
   };
@@ -316,15 +360,15 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
   const confirmDeleteStatus = async () => {
     if (!statusToDelete) return;
 
-    const status = statusItems.find(s => s.id === statusToDelete);
+    const status = statusItems.find((s) => s.id === statusToDelete);
     if (!status) return;
 
     try {
       if (!status.isNew) {
         await PedidoStatusService.deletePedidoStatus(statusToDelete);
       }
-      
-      setStatusItems(prev => prev.filter(s => s.id !== statusToDelete));
+
+      setStatusItems((prev) => prev.filter((s) => s.id !== statusToDelete));
       toast.success("Status removido com sucesso!");
       onStatusUpdate();
     } catch (error) {
@@ -338,14 +382,14 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
 
-    const oldIndex = statusItems.findIndex(item => item.id === active.id);
-    const newIndex = statusItems.findIndex(item => item.id === over.id);
+    const oldIndex = statusItems.findIndex((item) => item.id === active.id);
+    const newIndex = statusItems.findIndex((item) => item.id === over.id);
 
     const newStatusItems = arrayMove(statusItems, oldIndex, newIndex);
-    
+
     // Update order numbers
     const updatedItems = newStatusItems.map((status, index) => ({
       ...status,
@@ -369,22 +413,19 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
               Configure as colunas do seu board kanban
             </p>
           </div>
-          <Button
-            onClick={handleAddStatus}
-            className="gap-2"
-          >
+          <Button onClick={handleAddStatus} className="gap-2">
             <Plus className="h-4 w-4" />
             Adicionar Status
           </Button>
         </div>
 
-        <DndContext 
-          sensors={sensors} 
+        <DndContext
+          sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext 
-            items={statusItems.map(s => s.id)} 
+          <SortableContext
+            items={statusItems.map((s) => s.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-3">
@@ -409,7 +450,9 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
           <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
             <Palette className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium">Nenhum status configurado</p>
-            <p className="text-sm">Clique em &ldquo;Adicionar Status&rdquo; para começar</p>
+            <p className="text-sm">
+              Clique em &ldquo;Adicionar Status&rdquo; para começar
+            </p>
           </div>
         )}
       </div>
@@ -420,13 +463,17 @@ export function StatusList({ boardId, statusList, onStatusUpdate }: StatusListPr
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover este status? Esta ação não pode ser desfeita.
-              Todos os pedidos neste status serão movidos para o primeiro status disponível.
+              Tem certeza que deseja remover este status? Esta ação não pode ser
+              desfeita. Todos os pedidos neste status serão movidos para o
+              primeiro status disponível.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteStatus} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDeleteStatus}
+              className="bg-destructive hover:bg-destructive/90"
+            >
               Remover
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -10,7 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, ChevronRight, CreditCard, ShoppingBag, Layout } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  CreditCard,
+  ShoppingBag,
+  Layout,
+} from "lucide-react";
 import { useState } from "react";
 
 const configuracaoItems = [
@@ -194,7 +200,8 @@ export default function Configuracoes() {
                       Boards de Produção
                     </h2>
                     <p className="text-muted-foreground mb-6">
-                      Configure e gerencie os boards de produção do seu restaurante
+                      Configure e gerencie os boards de produção do seu
+                      restaurante
                     </p>
 
                     <QuadrosConfig />

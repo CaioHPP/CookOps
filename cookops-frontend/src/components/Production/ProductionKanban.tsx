@@ -30,7 +30,8 @@ export default function ProductionKanban() {
   const [error, setError] = useState<string>("");
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isBoardConfigDialogOpen, setIsBoardConfigDialogOpen] = useState(false);
-  const [selectedBoardForConfig, setSelectedBoardForConfig] = useState<BoardResponseDto | null>(null);
+  const [selectedBoardForConfig, setSelectedBoardForConfig] =
+    useState<BoardResponseDto | null>(null);
 
   // Hook para gerenciar pedidos
   const { concluirPedido } = usePedidos(); // Hook para gerenciar status dos pedidos

@@ -22,13 +22,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { 
-  PlusCircle, 
-  Settings, 
-  Trash2, 
+import {
+  PlusCircle,
+  Settings,
+  Trash2,
   Search,
   MoreHorizontal,
-  Star
+  Star,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -49,9 +49,13 @@ export default function QuadrosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-  const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(null);
+  const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(
+    null
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(null);
+  const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(
+    null
+  );
 
   useEffect(() => {
     loadBoards();
@@ -85,7 +89,7 @@ export default function QuadrosPage() {
 
     try {
       await BoardService.deleteBoard(boardToDelete.id);
-      setBoards(prev => prev.filter(b => b.id !== boardToDelete.id));
+      setBoards((prev) => prev.filter((b) => b.id !== boardToDelete.id));
       toast.success("Board removido com sucesso!");
     } catch (error) {
       console.error("Erro ao remover board:", error);
@@ -108,12 +112,12 @@ export default function QuadrosPage() {
     }
   };
 
-  const filteredBoards = boards.filter(board =>
+  const filteredBoards = boards.filter((board) =>
     board.titulo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR');
+    return new Date(date).toLocaleDateString("pt-BR");
   };
 
   return (
@@ -136,16 +140,16 @@ export default function QuadrosPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Boards</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total de Boards
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{boards.length}</div>
-            <p className="text-xs text-muted-foreground">
-              boards configurados
-            </p>
+            <p className="text-xs text-muted-foreground">boards configurados</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Board Ativo</CardTitle>
@@ -157,16 +161,16 @@ export default function QuadrosPage() {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status Configurados</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Status Configurados
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              total de status
-            </p>
+            <p className="text-xs text-muted-foreground">total de status</p>
           </CardContent>
         </Card>
       </div>
@@ -197,7 +201,9 @@ export default function QuadrosPage() {
           ) : filteredBoards.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8">
               <p className="text-muted-foreground">Nenhum board encontrado</p>
-              <p className="text-sm text-muted-foreground">Clique em &ldquo;Novo Board&rdquo; para começar</p>
+              <p className="text-sm text-muted-foreground">
+                Clique em &ldquo;Novo Board&rdquo; para começar
+              </p>
             </div>
           ) : (
             <Table>
@@ -217,11 +223,12 @@ export default function QuadrosPage() {
                         <span className="font-medium">{board.titulo}</span>
                       </div>
                     </TableCell>
+                    <TableCell>{formatDate(board.createdAt)}</TableCell>
                     <TableCell>
-                      {formatDate(board.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
                         Ativo
                       </Badge>
                     </TableCell>
@@ -285,13 +292,14 @@ export default function QuadrosPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o board &ldquo;{boardToDelete?.titulo}&rdquo;? 
-              Esta ação não pode ser desfeita e todos os status e pedidos associados serão perdidos.
+              Tem certeza que deseja excluir o board &ldquo;
+              {boardToDelete?.titulo}&rdquo;? Esta ação não pode ser desfeita e
+              todos os status e pedidos associados serão perdidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDeleteBoard}
               className="bg-destructive hover:bg-destructive/90"
             >
