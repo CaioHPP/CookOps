@@ -13,7 +13,9 @@ import { formatDate } from "@/lib/utils";
 
 export function QuadrosConfig() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(null);
+  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(
+    null
+  );
   const { data: boards = [], mutate } = useGetBoards();
 
   const columns: ColumnDef<BoardResponseDto>[] = [
@@ -47,10 +49,12 @@ export function QuadrosConfig() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Quadros</CardTitle>
-          <Button onClick={() => {
-            setEditingBoard(null);
-            setIsDialogOpen(true);
-          }}>
+          <Button
+            onClick={() => {
+              setEditingBoard(null);
+              setIsDialogOpen(true);
+            }}
+          >
             <PlusCircle className="h-4 w-4 mr-2" />
             Novo Quadro
           </Button>
@@ -63,13 +67,17 @@ export function QuadrosConfig() {
       <BoardConfigDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        initialData={editingBoard ? {
-          titulo: editingBoard.titulo,
-          status: editingBoard.listas.map(lista => ({
-            id: lista.id.toString(),
-            titulo: lista.titulo,
-          })),
-        } : undefined}
+        initialData={
+          editingBoard
+            ? {
+                titulo: editingBoard.titulo,
+                status: editingBoard.listas.map((lista) => ({
+                  id: lista.id.toString(),
+                  titulo: lista.titulo,
+                })),
+              }
+            : undefined
+        }
         onSave={async (data) => {
           await mutate();
           setIsDialogOpen(false);

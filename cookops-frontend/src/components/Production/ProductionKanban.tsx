@@ -15,7 +15,6 @@ import { BoardSelector } from "./BoardSelector";
 import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
 
-
 interface WebSocketMessage {
   acao: string;
   pedidoId: string;
@@ -30,7 +29,9 @@ export function ProductionKanban() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [isBoardConfigOpen, setIsBoardConfigOpen] = useState(false);
-  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(null);
+  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(
+    null
+  );
   // Board state
 
   // Hooks personalizados
@@ -76,23 +77,30 @@ export function ProductionKanban() {
       return { totalPedidos: 0, pedidosAtrasados: 0 };
     }
 
-    const total = statusColumns.reduce((acc, column) => acc + column.pedidos.length, 0);
+    const total = statusColumns.reduce(
+      (acc, column) => acc + column.pedidos.length,
+      0
+    );
     const agora = new Date();
-    
+
     // Tempo padrão de 30 minutos para considerar um pedido atrasado
     const TEMPO_PADRAO_MINUTOS = 30;
-    
+
     const atrasados = statusColumns.reduce((acc, column) => {
       if (!column.pedidos) return acc;
-      
-      return acc + column.pedidos.filter(pedido => {
-        if (pedido.concluidoEm) return false; // Pedidos concluídos não contam como atrasados
-        
-        const dataCriacao = new Date(pedido.criadoEm);
-        const tempoDecorridoMinutos = (agora.getTime() - dataCriacao.getTime()) / (1000 * 60);
-        
-        return tempoDecorridoMinutos > TEMPO_PADRAO_MINUTOS;
-      }).length;
+
+      return (
+        acc +
+        column.pedidos.filter((pedido) => {
+          if (pedido.concluidoEm) return false; // Pedidos concluídos não contam como atrasados
+
+          const dataCriacao = new Date(pedido.criadoEm);
+          const tempoDecorridoMinutos =
+            (agora.getTime() - dataCriacao.getTime()) / (1000 * 60);
+
+          return tempoDecorridoMinutos > TEMPO_PADRAO_MINUTOS;
+        }).length
+      );
     }, 0);
 
     return { totalPedidos: total, pedidosAtrasados: atrasados };
@@ -131,7 +139,10 @@ export function ProductionKanban() {
     }
   };
 
-  const handleSaveBoard = async (data: { titulo: string; status: { id: string; titulo: string; }[] }) => {
+  const handleSaveBoard = async (data: {
+    titulo: string;
+    status: { id: string; titulo: string }[];
+  }) => {
     try {
       // Criar novo board
       await BoardService.addBoard({
@@ -174,7 +185,9 @@ export function ProductionKanban() {
         console.log("Boards carregados:", boardsData);
 
         if (!boardsData || !Array.isArray(boardsData)) {
-          throw new Error("Resposta inválida do servidor: boards não encontrados");
+          throw new Error(
+            "Resposta inválida do servidor: boards não encontrados"
+          );
         }
 
         setBoards(boardsData);
@@ -185,16 +198,18 @@ export function ProductionKanban() {
           setError("Nenhum board encontrado. Crie um novo board para começar.");
         }
       } catch (error) {
-        const errorMessage = 
-          (error instanceof Error ? error.message : "Erro ao carregar boards. Tente novamente.");
-        
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar boards. Tente novamente.";
+
         console.error("Erro detalhado ao carregar boards:", {
           error,
           message: errorMessage,
           token: sessionStorage.getItem("token") ? "Presente" : "Ausente",
-          empresaId: sessionStorage.getItem("empresaId")
+          empresaId: sessionStorage.getItem("empresaId"),
         });
-        
+
         setError(errorMessage);
         setBoards([]);
         toast.error(errorMessage);

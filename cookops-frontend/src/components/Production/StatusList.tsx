@@ -31,7 +31,11 @@ interface StatusItemProps {
   onTitleChange: (title: string) => void;
 }
 
-export function StatusItem({ status, onDelete, onTitleChange }: StatusItemProps) {
+export function StatusItem({
+  status,
+  onDelete,
+  onTitleChange,
+}: StatusItemProps) {
   const {
     attributes,
     listeners,
@@ -42,7 +46,9 @@ export function StatusItem({ status, onDelete, onTitleChange }: StatusItemProps)
   } = useSortable({ id: status.id });
 
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
     transition,
     zIndex: isDragging ? 1 : 0,
   };

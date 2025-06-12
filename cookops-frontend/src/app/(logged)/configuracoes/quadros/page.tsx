@@ -13,7 +13,9 @@ import { formatDate } from "@/lib/utils";
 
 export default function QuadrosPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(null);
+  const [editingBoard, setEditingBoard] = useState<BoardResponseDto | null>(
+    null
+  );
   const { data: boards = [], mutate } = useGetBoards();
 
   const columns: ColumnDef<BoardResponseDto>[] = [
@@ -62,13 +64,17 @@ export default function QuadrosPage() {
       <BoardConfigDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        initialData={editingBoard ? {
-          titulo: editingBoard.titulo,
-          status: editingBoard.listas.map(lista => ({
-            id: lista.id.toString(),
-            titulo: lista.titulo,
-          })),
-        } : undefined}
+        initialData={
+          editingBoard
+            ? {
+                titulo: editingBoard.titulo,
+                status: editingBoard.listas.map((lista) => ({
+                  id: lista.id.toString(),
+                  titulo: lista.titulo,
+                })),
+              }
+            : undefined
+        }
         onSave={async (data) => {
           // Board saving logic will be handled by the dialog component
           await mutate();
