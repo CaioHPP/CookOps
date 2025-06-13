@@ -20,8 +20,7 @@ export function generateTrendChartData(
   if (!dashboardData) return [];
 
   const periodoNum = parseInt(periodo);
-
-  // Para 1 ano (365 dias) - mostrar por meses (12 meses)
+  // Para 1 ano (365 dias) - mostrar por meses (dados disponíveis)
   if (periodoNum === 365) {
     return (
       dashboardData.crescimento.crescimentoMensal?.map((item) => ({
@@ -32,10 +31,10 @@ export function generateTrendChartData(
     );
   }
 
-  // Para 6 meses (180 dias) - mostrar por meses (6 meses)
+  // Para 6 meses (180 dias) - mostrar por meses (dados disponíveis)
   if (periodoNum === 180) {
     return (
-      dashboardData.crescimento.crescimentoMensal?.slice(-6).map((item) => ({
+      dashboardData.crescimento.crescimentoMensal?.map((item) => ({
         periodo: item.mes,
         vendas: item.totalPedidos,
         crescimento: item.crescimentoPercentual,
@@ -43,18 +42,25 @@ export function generateTrendChartData(
     );
   }
 
-  // Para 90 dias - mostrar por semanas (12 semanas)
+  // Para 90 dias - mostrar por semanas (dados disponíveis)
   if (periodoNum === 90) {
-    // Gerar 12 semanas baseado nos dados semanais existentes
-    const semanasExtendidas = generateWeeklyData(dashboardData, 12);
-    return semanasExtendidas.map((item) => ({
+    return dashboardData.crescimento.crescimentoSemanal.map((item) => ({
       periodo: item.semana,
       vendas: item.totalPedidos,
       crescimento: item.crescimentoPercentual,
     }));
   }
 
-  // Para 7 dias - mostrar por dias (7 dias)
+  // Para 30 dias - mostrar por semanas (dados disponíveis)
+  if (periodoNum === 30) {
+    return dashboardData.crescimento.crescimentoSemanal.map((item) => ({
+      periodo: item.semana,
+      vendas: item.totalPedidos,
+      crescimento: item.crescimentoPercentual,
+    }));
+  }
+
+  // Para 7 dias e outros - usar dados semanais padrão
   if (periodoNum === 7) {
     return (
       dashboardData.crescimento.crescimentoDiario?.map((item) => ({
@@ -65,40 +71,12 @@ export function generateTrendChartData(
     );
   }
 
-  // Para 30 dias e outros - usar dados semanais padrão
+  // Fallback para outros períodos - usar dados semanais padrão
   return dashboardData.crescimento.crescimentoSemanal.map((item) => ({
     periodo: item.semana,
     vendas: item.totalPedidos,
     crescimento: item.crescimentoPercentual,
   }));
-}
-
-/**
- * Gera dados semanais para períodos maiores
- */
-function generateWeeklyData(dashboardData: DashboardData, numWeeks: number) {
-  const semanasBase = dashboardData.crescimento.crescimentoSemanal;
-  const semanasExtendidas = [];
-
-  // Se temos menos semanas que o necessário, extrapolamos
-  for (let i = 0; i < numWeeks; i++) {
-    if (i < semanasBase.length) {
-      semanasExtendidas.push(semanasBase[i]);
-    } else {
-      // Extrapolar dados baseado na última semana disponível
-      const ultimaSemana = semanasBase[semanasBase.length - 1];
-      semanasExtendidas.push({
-        semana: `Semana ${i + 1}`,
-        totalPedidos: Math.max(
-          0,
-          ultimaSemana.totalPedidos - (i - semanasBase.length + 1) * 2
-        ),
-        crescimentoPercentual: ultimaSemana.crescimentoPercentual * 0.9, // Reduz gradualmente
-      });
-    }
-  }
-
-  return semanasExtendidas;
 }
 
 /**
@@ -125,6 +103,7 @@ export function getTimeUnit(periodo: string): string {
   if (periodoNum === 365) return "meses";
   if (periodoNum === 180) return "meses";
   if (periodoNum === 90) return "semanas";
+  if (periodoNum === 30) return "semanas";
   if (periodoNum === 7) return "dias";
 
   return "semanas"; // padrão

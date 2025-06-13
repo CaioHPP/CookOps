@@ -40,6 +40,14 @@ const DEFAULT_CHARTS: DashboardChart[] = [
     component: "LineChart",
   },
   {
+    id: "vendas_dia_semana",
+    name: "Vendas por Dia da Semana",
+    description: "Distribuição de pedidos nos dias da semana",
+    category: "vendas",
+    defaultVisible: true,
+    component: "BarChart",
+  },
+  {
     id: "status_distribution",
     name: "Distribuição por Status",
     description: "Proporção de pedidos por status atual",

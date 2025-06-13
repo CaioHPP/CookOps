@@ -95,6 +95,20 @@ export class HorarioPicoDto {
   percentualTotal: number;
 }
 
+export class VendasDiaSemanaDto {
+  @ApiProperty()
+  diaSemana: string;
+
+  @ApiProperty()
+  totalPedidos: number;
+
+  @ApiProperty()
+  receitaTotal: number;
+
+  @ApiProperty()
+  percentualTotal: number;
+}
+
 export class FontePerformanceDto {
   @ApiProperty()
   fonteId: number;
@@ -152,6 +166,9 @@ export class MetricasCrescimentoDto {
 
   @ApiProperty({ type: [HorarioPicoDto] })
   horariosPico: HorarioPicoDto[];
+
+  @ApiProperty({ type: [VendasDiaSemanaDto] })
+  vendasPorDiaSemana: VendasDiaSemanaDto[];
 
   @ApiProperty({ type: [FontePerformanceDto] })
   performancePorFonte: FontePerformanceDto[];

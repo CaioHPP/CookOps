@@ -24,11 +24,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -40,8 +37,6 @@ interface ChartDrilldownProps {
   onClose: () => void;
   data: DrilldownData | null;
 }
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
   if (!data) return null;
@@ -73,14 +68,28 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               <XAxis dataKey="periodo" />
               <YAxis />{" "}
               <Tooltip
-                formatter={(value: number | string, name: string) => [
-                  name === "receita" ? `R$ ${value.toLocaleString()}` : value,
-                  name === "receita"
-                    ? "Receita"
-                    : name === "pedidos"
-                    ? "Pedidos"
-                    : "Ticket Médio",
-                ]}
+                formatter={(value: number | string, name: string) => {
+                  if (name === "receita") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Receita",
+                    ];
+                  } else if (name === "pedidos") {
+                    return [Number(value).toLocaleString("pt-BR"), "Pedidos"];
+                  } else if (name === "ticketMedio") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Ticket Médio",
+                    ];
+                  }
+                  return [value, name];
+                }}
               />
               <Bar dataKey="receita" fill="#8884d8" name="Receita" />
               <Bar dataKey="pedidos" fill="#82ca9d" name="Pedidos" />
@@ -94,39 +103,151 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
             <BarChart data={data.data} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
-              <YAxis dataKey="metrica" type="category" width={150} />
+              <YAxis dataKey="metrica" type="category" width={150} />{" "}
               <Tooltip
-                formatter={(value: number | string) => [value, "Valor"]}
+                formatter={(
+                  value: number | string,
+                  name: string,
+                  props: { payload?: { unidade?: string } }
+                ) => {
+                  const unit = props.payload?.unidade || "";
+                  if (typeof value === "number") {
+                    if (unit === "%") {
+                      return [`${value.toFixed(2)}%`, "Valor"];
+                    } else if (unit === "min") {
+                      return [`${value.toFixed(1)} min`, "Valor"];
+                    } else {
+                      return [value.toLocaleString("pt-BR"), "Valor"];
+                    }
+                  }
+                  return [value, "Valor"];
+                }}
               />{" "}
               <Bar dataKey="valor" fill="#8884d8" />
             </BarChart>
           </ResponsiveContainer>
         );
-
       case "produtos":
         return (
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.data.slice(0, 5)}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="vendas"
-                label={({ nome, participacao }) => `${nome}: ${participacao}%`}
-              >
-                {data.data.slice(0, 5).map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={data.data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="nome" angle={-45} textAnchor="end" height={100} />
+              <YAxis />
               <Tooltip
-                formatter={(value: number | string) => [value, "Vendas"]}
+                formatter={(value: number | string, name: string) => {
+                  if (name === "quantidadeVendida") {
+                    return [
+                      Number(value).toLocaleString("pt-BR"),
+                      "Quantidade Vendida",
+                    ];
+                  } else if (name === "receita") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Receita",
+                    ];
+                  }
+                  return [value, name];
+                }}
               />
-            </PieChart>
+              <Bar
+                dataKey="quantidadeVendida"
+                fill="#8884d8"
+                name="Quantidade Vendida"
+              />{" "}
+              <Bar dataKey="receita" fill="#82ca9d" name="Receita" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+
+      case "receita_produtos":
+        return (
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={data.data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="nome" angle={-45} textAnchor="end" height={100} />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number | string, name: string) => {
+                  if (name === "receita") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Receita",
+                    ];
+                  } else if (name === "quantidadeVendida") {
+                    return [
+                      Number(value).toLocaleString("pt-BR"),
+                      "Quantidade Vendida",
+                    ];
+                  } else if (name === "ticketMedio") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Ticket Médio",
+                    ];
+                  }
+                  return [value, name];
+                }}
+              />
+              <Bar dataKey="receita" fill="#22c55e" name="Receita" />
+              <Bar
+                dataKey="quantidadeVendida"
+                fill="#3b82f6"
+                name="Quantidade Vendida"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+
+      case "vendas_dia_semana":
+        return (
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={data.data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="diaSemana" />
+              <YAxis />
+              <Tooltip
+                formatter={(value: number | string, name: string) => {
+                  if (name === "totalPedidos") {
+                    return [
+                      Number(value).toLocaleString("pt-BR"),
+                      "Total de Pedidos",
+                    ];
+                  } else if (name === "receitaTotal") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Receita Total",
+                    ];
+                  } else if (name === "ticketMedio") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Ticket Médio",
+                    ];
+                  }
+                  return [value, name];
+                }}
+              />
+              <Bar
+                dataKey="totalPedidos"
+                fill="#3b82f6"
+                name="Total de Pedidos"
+              />
+              <Bar dataKey="receitaTotal" fill="#10b981" name="Receita Total" />
+            </BarChart>
           </ResponsiveContainer>
         );
 
@@ -136,24 +257,39 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
             <LineChart data={data.data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="hora" />
-              <YAxis />{" "}
+              <YAxis />
               <Tooltip
-                formatter={(value: number | string, name: string) => [
-                  name === "receita" ? `R$ ${value.toLocaleString()}` : value,
-                  name === "receita" ? "Receita" : "Pedidos",
-                ]}
+                formatter={(value: number | string, name: string) => {
+                  if (name === "totalPedidos") {
+                    return [
+                      Number(value).toLocaleString("pt-BR"),
+                      "Total de Pedidos",
+                    ];
+                  } else if (name === "receitaEstimada") {
+                    return [
+                      `R$ ${Number(value).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}`,
+                      "Receita Estimada",
+                    ];
+                  }
+                  return [value, name];
+                }}
               />
               <Line
                 type="monotone"
-                dataKey="pedidos"
+                dataKey="totalPedidos"
                 stroke="#8884d8"
                 strokeWidth={2}
+                name="Total de Pedidos"
               />
               <Line
                 type="monotone"
-                dataKey="receita"
+                dataKey="receitaEstimada"
                 stroke="#82ca9d"
                 strokeWidth={2}
+                name="Receita Estimada"
               />
             </LineChart>
           </ResponsiveContainer>
@@ -167,16 +303,44 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
         );
     }
   };
-
   const renderTableCell = (row: Record<string, unknown>, column: string) => {
     const value = row[column];
 
-    const formattedValue =
-      typeof value === "number" && column.includes("receita")
-        ? `R$ ${value.toLocaleString()}`
-        : typeof value === "number" && column.includes("taxa")
-        ? `${value}%`
-        : value?.toString() || "-";
+    // Pular colunas que são IDs (terminam com Id ou começam com id)
+    if (
+      column.toLowerCase().includes("id") ||
+      column.toLowerCase().endsWith("id")
+    ) {
+      return null;
+    }
+
+    let formattedValue: string;
+
+    if (typeof value === "number") {
+      if (
+        column.includes("receita") ||
+        column.includes("Receita") ||
+        column.includes("valor")
+      ) {
+        formattedValue = `R$ ${value.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`;
+      } else if (
+        column.includes("taxa") ||
+        column.includes("Taxa") ||
+        column.includes("percent") ||
+        column.includes("ocupacao")
+      ) {
+        formattedValue = `${value.toFixed(2)}%`;
+      } else if (column.includes("tempo") || column.includes("Tempo")) {
+        formattedValue = `${value.toFixed(1)} min`;
+      } else {
+        formattedValue = value.toLocaleString("pt-BR");
+      }
+    } else {
+      formattedValue = value?.toString() || "-";
+    }
 
     if (column === "status" && value) {
       return (
@@ -203,7 +367,13 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
   const renderTable = () => {
     if (!data.data.length) return null;
 
-    const columns = Object.keys(data.data[0]);
+    const allColumns = Object.keys(data.data[0]);
+    // Filtrar colunas que são IDs
+    const columns = allColumns.filter(
+      (column) =>
+        !column.toLowerCase().includes("id") &&
+        !column.toLowerCase().endsWith("id")
+    );
 
     return (
       <Table>
@@ -219,19 +389,18 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
         <TableBody>
           {data.data.map((row, index) => (
             <TableRow key={index}>
-              {" "}
-              {columns.map((column) => (
-                <TableCell key={column}>
-                  {renderTableCell(row, column)}
-                </TableCell>
-              ))}
+              {columns.map((column) => {
+                const cellContent = renderTableCell(row, column);
+                return cellContent ? (
+                  <TableCell key={column}>{cellContent}</TableCell>
+                ) : null;
+              })}
             </TableRow>
           ))}
         </TableBody>
       </Table>
     );
   };
-
   const renderMetadata = () => {
     if (!data.metadata) return null;
 
@@ -241,17 +410,36 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
           <CardTitle className="text-sm">Resumo do Período</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {Object.entries(data.metadata).map(([key, value]) => (
-            <div key={key} className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground capitalize">
-                {key.replace(/([A-Z])/g, " $1").trim()}:
-              </span>
-              <span className="text-sm font-medium">
-                {typeof value === "object" && value !== null ? (
-                  JSON.stringify(value)
-                ) : typeof value === "number" && key.includes("receita") ? (
-                  `R$ ${value.toLocaleString()}`
-                ) : typeof value === "number" && key.includes("crescimento") ? (
+          {Object.entries(data.metadata).map(([key, value]) => {
+            // Pular campos que são IDs
+            if (
+              key.toLowerCase().includes("id") ||
+              key.toLowerCase().endsWith("id")
+            ) {
+              return null;
+            }
+
+            let formattedValue: React.ReactNode;
+
+            if (typeof value === "object" && value !== null) {
+              // Para objetos complexos, mostrar informações relevantes
+              if ("nome" in value && "totalPedidos" in value) {
+                formattedValue = `${value.nome} (${value.totalPedidos} pedidos)`;
+              } else {
+                formattedValue = JSON.stringify(value);
+              }
+            } else if (typeof value === "number") {
+              if (key.includes("receita") || key.includes("Receita")) {
+                formattedValue = `R$ ${value.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`;
+              } else if (
+                key.includes("crescimento") ||
+                key.includes("taxa") ||
+                key.includes("Taxa")
+              ) {
+                formattedValue = (
                   <div className="flex items-center gap-1">
                     {value >= 0 ? (
                       <TrendingUp className="h-3 w-3 text-green-500" />
@@ -261,24 +449,42 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                     <span
                       className={value >= 0 ? "text-green-600" : "text-red-600"}
                     >
-                      {value.toFixed(1)}%
+                      {value.toFixed(2)}%
                     </span>
                   </div>
-                ) : (
-                  value?.toString() || "-"
-                )}
-              </span>
-            </div>
-          ))}
+                );
+              } else {
+                formattedValue = value.toLocaleString("pt-BR");
+              }
+            } else {
+              formattedValue = value?.toString() || "-";
+            }
+
+            return formattedValue ? (
+              <div key={key} className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground capitalize">
+                  {key.replace(/([A-Z])/g, " $1").trim()}:
+                </span>
+                <span className="text-sm font-medium">{formattedValue}</span>
+              </div>
+            ) : null;
+          })}
         </CardContent>
       </Card>
     );
   };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent
+        className="w-[98vw] max-w-[98vw] h-[95vh] max-h-[95vh] overflow-hidden flex flex-col p-6"
+        style={{
+          width: "98vw",
+          height: "95vh",
+          maxWidth: "98vw",
+          maxHeight: "95vh",
+        }}
+      >
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="flex items-center gap-2">
@@ -296,28 +502,30 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Gráfico */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Visualização</CardTitle>
-            </CardHeader>
-            <CardContent>{renderChart()}</CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Tabela de dados */}
-            <Card className="lg:col-span-2">
+        <div className="flex-1 overflow-y-auto">
+          <div className="space-y-6 p-1">
+            {/* Gráfico */}
+            <Card>
               <CardHeader>
-                <CardTitle className="text-base">Dados Detalhados</CardTitle>
+                <CardTitle className="text-base">Visualização</CardTitle>
               </CardHeader>
-              <CardContent className="max-h-96 overflow-y-auto">
-                {renderTable()}
-              </CardContent>
+              <CardContent>{renderChart()}</CardContent>
             </Card>
 
-            {/* Metadata */}
-            <div className="space-y-4">{renderMetadata()}</div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              {/* Tabela de dados */}
+              <Card className="xl:col-span-2">
+                <CardHeader>
+                  <CardTitle className="text-base">Dados Detalhados</CardTitle>
+                </CardHeader>
+                <CardContent className="max-h-[50vh] overflow-y-auto">
+                  {renderTable()}
+                </CardContent>
+              </Card>
+
+              {/* Metadata */}
+              <div className="space-y-4">{renderMetadata()}</div>
+            </div>
           </div>
         </div>
       </DialogContent>

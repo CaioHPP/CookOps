@@ -666,7 +666,6 @@ export class DashboardService {
           pedidosDiaAnterior > 0
             ? ((totalPedidos - pedidosDiaAnterior) / pedidosDiaAnterior) * 100
             : 0;
-
         crescimentoDiario.push({
           dia: data.toLocaleDateString('pt-BR', { weekday: 'short' }),
           totalPedidos,
@@ -696,15 +695,18 @@ export class DashboardService {
       0,
     );
 
-    const horariosPico: HorarioPicoDto[] = Object.entries(contagemPorHora)
-      .map(([hora, count]) => ({
-        hora: parseInt(hora),
-        totalPedidos: count,
+    // ✅ CORREÇÃO: Retornar TODAS as 24 horas (0-23), não apenas os top 6
+    const horariosPico: HorarioPicoDto[] = Array.from(
+      { length: 24 },
+      (_, hora) => ({
+        hora,
+        totalPedidos: contagemPorHora[hora] || 0,
         percentualTotal:
-          totalPedidosHoras > 0 ? (count / totalPedidosHoras) * 100 : 0,
-      }))
-      .sort((a, b) => b.totalPedidos - a.totalPedidos)
-      .slice(0, 6); // Top 6 horários
+          totalPedidosHoras > 0
+            ? ((contagemPorHora[hora] || 0) / totalPedidosHoras) * 100
+            : 0,
+      }),
+    );
 
     // Performance por fonte
     const fontes = await this.prisma.pedido.groupBy({
@@ -739,11 +741,67 @@ export class DashboardService {
       }),
     );
 
+    // ✅ NOVO: Vendas por dia da semana
+    const pedidosPorDiaSemana = await this.prisma.pedido.findMany({
+      where: {
+        empresaId,
+        criadoEm: { gte: dataInicio },
+        confirmado: true,
+      },
+      select: { criadoEm: true, valorTotal: true },
+    });
+
+    const contagemPorDiaSemana: {
+      [key: string]: { pedidos: number; receita: number };
+    } = {
+      Segunda: { pedidos: 0, receita: 0 },
+      Terça: { pedidos: 0, receita: 0 },
+      Quarta: { pedidos: 0, receita: 0 },
+      Quinta: { pedidos: 0, receita: 0 },
+      Sexta: { pedidos: 0, receita: 0 },
+      Sábado: { pedidos: 0, receita: 0 },
+      Domingo: { pedidos: 0, receita: 0 },
+    };
+
+    const diasSemana = [
+      'Domingo',
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sábado',
+    ];
+
+    pedidosPorDiaSemana.forEach((pedido) => {
+      const diaSemana = diasSemana[new Date(pedido.criadoEm).getUTCDay()];
+      contagemPorDiaSemana[diaSemana].pedidos += 1;
+      contagemPorDiaSemana[diaSemana].receita += pedido.valorTotal;
+    });
+
+    const totalPedidosDiaSemana = Object.values(contagemPorDiaSemana).reduce(
+      (sum, dia) => sum + dia.pedidos,
+      0,
+    );
+
+    const vendasPorDiaSemana = Object.entries(contagemPorDiaSemana).map(
+      ([dia, dados]) => ({
+        diaSemana: dia,
+        totalPedidos: dados.pedidos,
+        receitaTotal: dados.receita,
+        percentualTotal:
+          totalPedidosDiaSemana > 0
+            ? (dados.pedidos / totalPedidosDiaSemana) * 100
+            : 0,
+      }),
+    );
+
     return {
       crescimentoSemanal,
       crescimentoMensal,
       crescimentoDiario,
       horariosPico,
+      vendasPorDiaSemana,
       performancePorFonte,
     };
   }

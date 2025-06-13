@@ -63,11 +63,19 @@ export interface FontePerformance {
   percentualTotal: number;
 }
 
+export interface VendasDiaSemana {
+  diaSemana: string;
+  totalPedidos: number;
+  receitaTotal: number;
+  percentualTotal: number;
+}
+
 export interface MetricasCrescimento {
   crescimentoSemanal: CrescimentoSemanal[];
   crescimentoMensal?: CrescimentoMensal[];
   crescimentoDiario?: CrescimentoDiario[];
   horariosPico: HorarioPico[];
+  vendasPorDiaSemana: VendasDiaSemana[];
   performancePorFonte: FontePerformance[];
 }
 

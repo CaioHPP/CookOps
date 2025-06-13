@@ -48,6 +48,7 @@ import {
   Clock,
   DollarSign,
   Download,
+  Package,
   RefreshCw,
   Settings,
   ShoppingBag,
@@ -200,6 +201,16 @@ export default function Dashboard() {
           color: "hsl(var(--chart-1))",
         },
       },
+      vendasDiaSemana: {
+        pedidos: {
+          label: "Pedidos",
+          color: "hsl(var(--chart-1))",
+        },
+        receita: {
+          label: "Receita (R$)",
+          color: "hsl(var(--chart-2))",
+        },
+      },
       receitaPorProduto: {
         receita: {
           label: "Receita (R$)",
@@ -242,21 +253,43 @@ export default function Dashboard() {
         fill:
           chartConfigs.status[status.titulo.toLowerCase()]?.color || "#8884d8",
       })),
-      produtos: dashboardData.produtos.itensMaisPopulares
-        .slice(0, 8)
-        .map((produto) => ({
-          nome:
-            produto.nome.length > 15
-              ? produto.nome.substring(0, 15) + "..."
-              : produto.nome,
-          vendas: produto.quantidadeVendida,
-          receita: produto.receita,
-        })),
+      produtos: (() => {
+        // Combinar produtos mais populares com produtos de baixo desempenho para ter mais variedade
+        const todosProdutos = [
+          ...dashboardData.produtos.itensMaisPopulares,
+          ...(dashboardData.produtos.produtosBaixoDesempenho || []),
+        ];
+
+        // Remover duplicatas baseado no nome
+        const produtosUnicos = todosProdutos.filter((produto, index, array) => {
+          return array.findIndex((p) => p.nome === produto.nome) === index;
+        });
+
+        // Ordenar por quantidade vendida e pegar os top 8
+        return produtosUnicos
+          .sort((a, b) => b.quantidadeVendida - a.quantidadeVendida)
+          .slice(0, 8)
+          .map((produto) => ({
+            nome:
+              produto.nome.length > 15
+                ? produto.nome.substring(0, 15) + "..."
+                : produto.nome,
+            vendas: produto.quantidadeVendida,
+            receita: produto.receita,
+          }));
+      })(),
       horarios: dashboardData.crescimento.horariosPico.map((horario) => ({
         hora: `${horario.hora}:00`,
         pedidos: horario.totalPedidos,
         percentual: horario.percentualTotal,
       })),
+      vendasDiaSemana:
+        dashboardData.crescimento.vendasPorDiaSemana?.map((dia) => ({
+          dia: dia.diaSemana,
+          pedidos: dia.totalPedidos,
+          receita: dia.receitaTotal,
+          percentual: dia.percentualTotal,
+        })) || [],
       receitaPorProduto:
         dashboardData.produtos.receitaPorProduto?.map((produto) => ({
           nome:
@@ -396,12 +429,11 @@ export default function Dashboard() {
               Atualizar
             </Button>
           </div>
-        </div>
-
+        </div>{" "}
         {/* 1. Cards de Métricas Principais */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Métricas Principais</h3>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {/* Receita Total */}
             <Card>
               <CardHeader className="pb-3">
@@ -454,6 +486,33 @@ export default function Dashboard() {
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Período de {filters.periodo} dias
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Total de Itens Vendidos */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5 text-cyan-600" />
+                  Total de Itens
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {(() => {
+                      // Calcular total de itens vendidos somando quantidade de todos os produtos
+                      const totalItens =
+                        dashboardData.produtos.itensMaisPopulares.reduce(
+                          (total, produto) => total + produto.quantidadeVendida,
+                          0
+                        );
+                      return totalItens.toLocaleString();
+                    })()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Itens vendidos no período
                   </p>
                 </div>
               </CardContent>
@@ -528,7 +587,6 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-
         {/* 2. Resumo Financeiro, Entregas e Descontos */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Resumo Financeiro</h3>
@@ -608,6 +666,18 @@ export default function Dashboard() {
                       %
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">
+                      Receita Líquidas sem Taxa de Entrega:
+                    </span>
+                    <span className="text-green-500 font-semibold">
+                      R${" "}
+                      {(
+                        dashboardData.financeiro.receitaLiquida -
+                        dashboardData.financeiro.valorTotalTaxasEntrega
+                      ).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -654,7 +724,7 @@ export default function Dashboard() {
                       )}
                       %
                     </span>
-                  </div>
+                  </div>{" "}
                   <div className="flex justify-between">
                     <span>Receita de Entregas:</span>
                     <span className="font-semibold text-green-500">
@@ -663,6 +733,22 @@ export default function Dashboard() {
                         "pt-BR",
                         { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Ticket Médio Entregas:</span>
+                    <span className="font-semibold text-green-500">
+                      R${" "}
+                      {dashboardData.financeiro.numeroPedidosEntregaCobradas > 0
+                        ? (
+                            dashboardData.financeiro.valorTotalTaxasEntrega /
+                            dashboardData.financeiro
+                              .numeroPedidosEntregaCobradas
+                          ).toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : "0,00"}
                     </span>
                   </div>
                 </div>
@@ -683,11 +769,18 @@ export default function Dashboard() {
                     <span className="font-semibold">
                       {dashboardData.vendas.totalPedidos}
                     </span>
-                  </div>
+                  </div>{" "}
                   <div className="flex justify-between">
                     <span>Pedidos com Desconto:</span>
                     <span className="font-semibold">
                       {dashboardData.financeiro.numeroPedidosComDesconto}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pedidos sem Desconto:</span>
+                    <span className="font-semibold">
+                      {dashboardData.vendas.totalPedidos -
+                        dashboardData.financeiro.numeroPedidosComDesconto}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -726,7 +819,6 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-
         {/* 3. Taxa de Conversão, Pedidos em Atraso, Confirmação Automática, Movimentações Board */}
         <div>
           <h3 className="text-xl font-semibold mb-4">
@@ -832,16 +924,13 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-
         {/* Comparação de Períodos */}
         {showComparison && comparisonData && (
           <PeriodComparison data={comparisonData} />
         )}
-
         {/* 4. Gráficos Visuais */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Análise Visual</h3>
-
           {/* Primeira linha de gráficos */}
           <div className="grid gap-6 md:grid-cols-2 mb-6">
             {/* Gráfico de Tendência de Vendas */}
@@ -871,13 +960,17 @@ export default function Dashboard() {
                         }
                       >
                         <Download className="h-4 w-4" />
-                      </Button>
+                      </Button>{" "}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() =>
                           openDrilldown(
-                            generateDrilldownData("vendas", dashboardData)
+                            generateDrilldownData(
+                              "vendas",
+                              dashboardData,
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -902,13 +995,76 @@ export default function Dashboard() {
                         stroke="var(--chart-1)"
                         strokeWidth={2}
                         dot={{ fill: "var(--chart-1)" }}
-                      />
+                      />{" "}
                     </LineChart>
                   </ChartContainer>
                 </CardContent>
               </Card>
             )}
 
+            {/* Gráfico de Vendas por Dia da Semana */}
+            {isChartVisible("vendas_dia_semana") && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <CardTitle>Vendas por Dia da Semana</CardTitle>
+                      <CardDescription>
+                        Distribuição de pedidos nos dias da semana (
+                        {getPeriodLabel(filters.periodo)})
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {" "}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          exportVendasData(dashboardData, {
+                            format: "csv",
+                            title: "Vendas por Dia da Semana",
+                          })
+                        }
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          openDrilldown(
+                            generateDrilldownData(
+                              "vendas_dia_semana",
+                              dashboardData,
+                              filters.periodo
+                            )
+                          )
+                        }
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer
+                    config={chartConfigs.vendasDiaSemana}
+                    className="h-[300px]"
+                  >
+                    <BarChart data={chartData.vendasDiaSemana}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="dia" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="pedidos" fill="var(--chart-1)" />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>{" "}
+          {/* Segunda linha de gráficos */}
+          <div className="grid gap-6 md:grid-cols-2 mb-6">
             {/* Gráfico de Pizza - Status dos Pedidos */}
             {isChartVisible("status_distribution") && (
               <Card>
@@ -946,64 +1102,6 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             )}
-          </div>
-
-          {/* Segunda linha de gráficos */}
-          <div className="grid gap-6 md:grid-cols-2 mb-6">
-            {/* Gráfico de Barras - Produtos Populares */}
-            {isChartVisible("top_produtos") && (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Produtos Mais Vendidos</CardTitle>
-                      <CardDescription>
-                        Top 8 produtos por quantidade vendida
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          exportProdutosData(dashboardData, {
-                            format: "csv",
-                            title: "Produtos Mais Vendidos",
-                          })
-                        }
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          openDrilldown(
-                            generateDrilldownData("produtos", dashboardData)
-                          )
-                        }
-                      >
-                        Ver Detalhes
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer
-                    config={chartConfigs.produtos}
-                    className="h-[300px]"
-                  >
-                    <BarChart data={chartData.produtos}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="nome" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="vendas" fill="var(--chart-1)" />
-                    </BarChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Gráfico de Horários de Pico */}
             {isChartVisible("horarios_pico") && (
@@ -1034,7 +1132,11 @@ export default function Dashboard() {
                         size="sm"
                         onClick={() =>
                           openDrilldown(
-                            generateDrilldownData("horarios", dashboardData)
+                            generateDrilldownData(
+                              "horarios",
+                              dashboardData,
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1066,9 +1168,69 @@ export default function Dashboard() {
               </Card>
             )}
           </div>
-
-          {/* Terceira linha de gráficos */}
-          <div className="grid gap-6 md:grid-cols-2">
+          {/* Terceira linha - Produtos Mais Vendidos (linha inteira) */}
+          <div className="mb-6">
+            {/* Gráfico de Barras - Produtos Populares */}
+            {isChartVisible("top_produtos") && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Produtos Mais Vendidos</CardTitle>
+                      <CardDescription>
+                        Top 8 produtos por quantidade vendida
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          exportProdutosData(dashboardData, {
+                            format: "csv",
+                            title: "Produtos Mais Vendidos",
+                          })
+                        }
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          openDrilldown(
+                            generateDrilldownData(
+                              "produtos",
+                              dashboardData,
+                              filters.periodo
+                            )
+                          )
+                        }
+                      >
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </div>{" "}
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer
+                    config={chartConfigs.produtos}
+                    className="h-[400px] w-full"
+                  >
+                    <BarChart data={chartData.produtos}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="nome" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="vendas" fill="var(--chart-1)" />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+          {/* Quarta linha de gráficos */}
+          <div className="grid gap-6 md:grid-cols-2 mb-6">
             {/* Tabela de Receita por Produto */}
             {isChartVisible("receita_produto") && (
               <Card>
@@ -1079,7 +1241,7 @@ export default function Dashboard() {
                       <CardDescription>
                         Análise detalhada de receita e performance
                       </CardDescription>
-                    </div>
+                    </div>{" "}
                     <div className="flex items-center gap-2">
                       <Button
                         variant="outline"
@@ -1092,6 +1254,21 @@ export default function Dashboard() {
                         }
                       >
                         <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          openDrilldown(
+                            generateDrilldownData(
+                              "receita_produtos",
+                              dashboardData,
+                              filters.periodo
+                            )
+                          )
+                        }
+                      >
+                        Ver Detalhes
                       </Button>
                     </div>
                   </div>
@@ -1148,7 +1325,6 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             )}
-
             {/* Gráfico de Performance por Fonte */}
             {isChartVisible("performance_fonte") && (
               <Card>
@@ -1234,23 +1410,31 @@ export default function Dashboard() {
                   </ChartContainer>
                 </CardContent>
               </Card>
-            )}          </div>
+            )}{" "}
+          </div>
         </div>
-
         {/* Análise Inteligente de Produtos com Menor Performance */}
         <div>
-          <h3 className="text-xl font-semibold mb-4">Análise de Performance dos Produtos</h3>
-          
+          <h3 className="text-xl font-semibold mb-4">
+            Análise de Performance dos Produtos
+          </h3>
+
           {/* Análise dos 3 produtos menos vendidos */}
           {(() => {
             // Calcular a média de vendas de todos os produtos
-            const totalProdutos = dashboardData.produtos.itensMaisPopulares.length;
-            const mediaVendas = totalProdutos > 0 
-              ? dashboardData.produtos.itensMaisPopulares.reduce((acc, produto) => acc + produto.quantidadeVendida, 0) / totalProdutos
-              : 0;
+            const totalProdutos =
+              dashboardData.produtos.itensMaisPopulares.length;
+            const mediaVendas =
+              totalProdutos > 0
+                ? dashboardData.produtos.itensMaisPopulares.reduce(
+                    (acc, produto) => acc + produto.quantidadeVendida,
+                    0
+                  ) / totalProdutos
+                : 0;
 
             // Pegar os 3 produtos menos vendidos (assumindo que a API já retorna ordenado)
-            const produtosMenosVendidos = dashboardData.produtos.produtosBaixoDesempenho?.slice(0, 3) || [];
+            const produtosMenosVendidos =
+              dashboardData.produtos.produtosBaixoDesempenho?.slice(0, 3) || [];
 
             return (
               <Card>
@@ -1262,7 +1446,8 @@ export default function Dashboard() {
                         Produtos com Menor Performance
                       </CardTitle>
                       <CardDescription>
-                        Análise dos 3 produtos menos vendidos no período vs média geral
+                        Análise dos 3 produtos menos vendidos no período vs
+                        média geral
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -1280,23 +1465,28 @@ export default function Dashboard() {
                   ) : (
                     <div className="space-y-4">
                       {produtosMenosVendidos.map((produto) => {
-                        const diferencaPercentual = mediaVendas > 0 
-                          ? ((produto.quantidadeVendida - mediaVendas) / mediaVendas) * 100
-                          : 0;
-                        
+                        const diferencaPercentual =
+                          mediaVendas > 0
+                            ? ((produto.quantidadeVendida - mediaVendas) /
+                                mediaVendas) *
+                              100
+                            : 0;
+
                         const isProblematico = diferencaPercentual < -30; // 30% abaixo da média
-                        const isAtencao = diferencaPercentual < -15 && diferencaPercentual >= -30; // Entre 15% e 30% abaixo
+                        const isAtencao =
+                          diferencaPercentual < -15 &&
+                          diferencaPercentual >= -30; // Entre 15% e 30% abaixo
                         const isOk = diferencaPercentual >= -15; // Até 15% abaixo da média é considerado ok
 
                         return (
                           <div
                             key={produto.produtoId}
                             className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
-                              isProblematico 
-                                ? 'border-red-200 bg-red-50/50' 
-                                : isAtencao 
-                                ? 'border-yellow-200 bg-yellow-50/50'
-                                : 'border-green-200 bg-green-50/50'
+                              isProblematico
+                                ? "border-red-200 bg-red-50/50"
+                                : isAtencao
+                                ? "border-yellow-200 bg-yellow-50/50"
+                                : "border-green-200 bg-green-50/50"
                             }`}
                           >
                             <div className="flex-1">
@@ -1321,23 +1511,33 @@ export default function Dashboard() {
                                 )}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {produto.quantidadeVendida} vendidos • 
-                                <span className={
-                                  isProblematico ? 'text-red-600 font-medium' :
-                                  isAtencao ? 'text-yellow-600 font-medium' :
-                                  'text-green-600'
-                                }>
-                                  {diferencaPercentual >= 0 ? '+' : ''}{diferencaPercentual.toFixed(1)}% vs média
+                                {produto.quantidadeVendida} vendidos •
+                                <span
+                                  className={
+                                    isProblematico
+                                      ? "text-red-600 font-medium"
+                                      : isAtencao
+                                      ? "text-yellow-600 font-medium"
+                                      : "text-green-600"
+                                  }
+                                >
+                                  {diferencaPercentual >= 0 ? "+" : ""}
+                                  {diferencaPercentual.toFixed(1)}% vs média
                                 </span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className={`font-bold text-sm ${
-                                isProblematico ? 'text-red-700' :
-                                isAtencao ? 'text-yellow-700' :
-                                'text-green-700'
-                              }`}>
-                                R$ {produto.receita.toLocaleString("pt-BR", {
+                              <div
+                                className={`font-bold text-sm ${
+                                  isProblematico
+                                    ? "text-red-700"
+                                    : isAtencao
+                                    ? "text-yellow-700"
+                                    : "text-green-700"
+                                }`}
+                              >
+                                R${" "}
+                                {produto.receita.toLocaleString("pt-BR", {
                                   minimumFractionDigits: 2,
                                 })}
                               </div>
@@ -1362,11 +1562,16 @@ export default function Dashboard() {
                           </div>
                         );
                       })}
-                      
+
                       {/* Sugestões baseadas na análise */}
                       <div className="mt-6 space-y-3">
-                        {produtosMenosVendidos.some(p => {
-                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                        {produtosMenosVendidos.some((p) => {
+                          const diff =
+                            mediaVendas > 0
+                              ? ((p.quantidadeVendida - mediaVendas) /
+                                  mediaVendas) *
+                                100
+                              : 0;
                           return diff < -30;
                         }) && (
                           <div className="p-4 bg-red-50 rounded-lg border border-red-200">
@@ -1377,16 +1582,26 @@ export default function Dashboard() {
                                   🚨 Ação Urgente Recomendada
                                 </p>
                                 <p className="text-sm text-red-700">
-                                  Produtos com performance crítica detectados. Considere:
-                                  <span className="font-medium"> criar promoções, revisar preços, melhorar descrições ou destacar no cardápio.</span>
+                                  Produtos com performance crítica detectados.
+                                  Considere:
+                                  <span className="font-medium">
+                                    {" "}
+                                    criar promoções, revisar preços, melhorar
+                                    descrições ou destacar no cardápio.
+                                  </span>
                                 </p>
                               </div>
                             </div>
                           </div>
                         )}
 
-                        {produtosMenosVendidos.some(p => {
-                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                        {produtosMenosVendidos.some((p) => {
+                          const diff =
+                            mediaVendas > 0
+                              ? ((p.quantidadeVendida - mediaVendas) /
+                                  mediaVendas) *
+                                100
+                              : 0;
                           return diff < -15 && diff >= -30;
                         }) && (
                           <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
@@ -1397,33 +1612,46 @@ export default function Dashboard() {
                                   ⚠️ Monitoramento Recomendado
                                 </p>
                                 <p className="text-sm text-yellow-700">
-                                  Alguns produtos estão abaixo da média. 
-                                  <span className="font-medium"> Monitore as próximas semanas e considere ajustes se necessário.</span>
+                                  Alguns produtos estão abaixo da média.
+                                  <span className="font-medium">
+                                    {" "}
+                                    Monitore as próximas semanas e considere
+                                    ajustes se necessário.
+                                  </span>
                                 </p>
                               </div>
                             </div>
                           </div>
                         )}
 
-                        {produtosMenosVendidos.every(p => {
-                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                        {produtosMenosVendidos.every((p) => {
+                          const diff =
+                            mediaVendas > 0
+                              ? ((p.quantidadeVendida - mediaVendas) /
+                                  mediaVendas) *
+                                100
+                              : 0;
                           return diff >= -15;
-                        }) && produtosMenosVendidos.length > 0 && (
-                          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                            <div className="flex items-start gap-3">
-                              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                              <div>
-                                <p className="text-sm font-medium text-green-800 mb-1">
-                                  ✅ Performance Saudável
-                                </p>
-                                <p className="text-sm text-green-700">
-                                  Mesmo os produtos menos vendidos estão com performance dentro da normalidade. 
-                                  <span className="font-medium">Continue o excelente trabalho!</span>
-                                </p>
+                        }) &&
+                          produtosMenosVendidos.length > 0 && (
+                            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                              <div className="flex items-start gap-3">
+                                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                                <div>
+                                  <p className="text-sm font-medium text-green-800 mb-1">
+                                    ✅ Performance Saudável
+                                  </p>
+                                  <p className="text-sm text-green-700">
+                                    Mesmo os produtos menos vendidos estão com
+                                    performance dentro da normalidade.
+                                    <span className="font-medium">
+                                      Continue o excelente trabalho!
+                                    </span>
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     </div>
                   )}
@@ -1432,7 +1660,6 @@ export default function Dashboard() {
             );
           })()}
         </div>
-
         {/* 5. Status dos Pedidos e Formas de Pagamento */}
         <div>
           <h3 className="text-xl font-semibold mb-4">
@@ -1560,13 +1787,11 @@ export default function Dashboard() {
             </Card>
           </div>
         </div>
-
         {/* Modal de Configuração */}
         <DashboardConfig
           isOpen={showConfig}
           onClose={() => setShowConfig(false)}
         />
-
         {/* Modal de Configurações Avançadas */}
         <AdvancedSettings
           isOpen={showAdvancedSettings}
@@ -1577,14 +1802,12 @@ export default function Dashboard() {
             console.log("Novas configurações:", newSettings);
           }}
         />
-
         {/* Modal de Export Avançado */}
         <AdvancedExport
           isOpen={showAdvancedExport}
           onClose={() => setShowAdvancedExport(false)}
           dashboardData={dashboardData}
         />
-
         {/* Modal de Drill-down */}
         <ChartDrilldown
           isOpen={drilldownState.isOpen}
