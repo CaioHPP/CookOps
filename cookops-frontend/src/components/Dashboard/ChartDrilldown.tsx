@@ -24,6 +24,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -62,8 +63,8 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
     switch (data.chartType) {
       case "vendas":
         return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data.data}>
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart data={data.data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="periodo" />
               <YAxis />{" "}
@@ -79,6 +80,8 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                     ];
                   } else if (name === "pedidos") {
                     return [Number(value).toLocaleString("pt-BR"), "Pedidos"];
+                  } else if (name === "tendencia") {
+                    return [Number(value).toLocaleString("pt-BR"), "Tendência"];
                   } else if (name === "ticketMedio") {
                     return [
                       `R$ ${Number(value).toLocaleString("pt-BR", {
@@ -87,13 +90,32 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                       })}`,
                       "Ticket Médio",
                     ];
+                  } else if (name === "crescimentoPercentual") {
+                    return [`${Number(value).toFixed(1)}%`, "Crescimento"];
                   }
                   return [value, name];
                 }}
+              />{" "}
+              <Bar
+                dataKey="pedidos"
+                fill="hsl(var(--chart-1))"
+                name="Pedidos"
+                barSize={30}
+                fillOpacity={0.8}
+              />{" "}
+              <Line
+                type="monotone"
+                dataKey="tendencia"
+                stroke="hsl(var(--dashboard-accent))"
+                strokeWidth={3}
+                dot={{
+                  fill: "hsl(var(--dashboard-accent))",
+                  strokeWidth: 2,
+                  r: 4,
+                }}
+                name="Tendência"
               />
-              <Bar dataKey="receita" fill="#8884d8" name="Receita" />
-              <Bar dataKey="pedidos" fill="#82ca9d" name="Pedidos" />
-            </BarChart>
+            </ComposedChart>
           </ResponsiveContainer>
         );
 
@@ -123,7 +145,7 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   return [value, "Valor"];
                 }}
               />{" "}
-              <Bar dataKey="valor" fill="#8884d8" />
+              <Bar dataKey="valor" fill="hsl(var(--chart-1))" />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -152,13 +174,17 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   }
                   return [value, name];
                 }}
-              />
+              />{" "}
               <Bar
                 dataKey="quantidadeVendida"
-                fill="#8884d8"
+                fill="hsl(var(--chart-3))"
                 name="Quantidade Vendida"
               />{" "}
-              <Bar dataKey="receita" fill="#82ca9d" name="Receita" />
+              <Bar
+                dataKey="receita"
+                fill="hsl(var(--chart-2))"
+                name="Receita"
+              />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -196,11 +222,15 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   }
                   return [value, name];
                 }}
+              />{" "}
+              <Bar
+                dataKey="receita"
+                fill="hsl(var(--chart-2))"
+                name="Receita"
               />
-              <Bar dataKey="receita" fill="#22c55e" name="Receita" />
               <Bar
                 dataKey="quantidadeVendida"
-                fill="#3b82f6"
+                fill="hsl(var(--chart-3))"
                 name="Quantidade Vendida"
               />
             </BarChart>
@@ -240,13 +270,17 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   }
                   return [value, name];
                 }}
-              />
+              />{" "}
               <Bar
                 dataKey="totalPedidos"
-                fill="#3b82f6"
+                fill="hsl(var(--chart-1))"
                 name="Total de Pedidos"
               />
-              <Bar dataKey="receitaTotal" fill="#10b981" name="Receita Total" />
+              <Bar
+                dataKey="receitaTotal"
+                fill="hsl(var(--chart-2))"
+                name="Receita Total"
+              />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -276,18 +310,18 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   }
                   return [value, name];
                 }}
-              />
+              />{" "}
               <Line
                 type="monotone"
                 dataKey="totalPedidos"
-                stroke="#8884d8"
+                stroke="hsl(var(--chart-3))"
                 strokeWidth={2}
                 name="Total de Pedidos"
               />
               <Line
                 type="monotone"
                 dataKey="receitaEstimada"
-                stroke="#82ca9d"
+                stroke="hsl(var(--chart-2))"
                 strokeWidth={2}
                 name="Receita Estimada"
               />

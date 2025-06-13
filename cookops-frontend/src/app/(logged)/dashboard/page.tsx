@@ -65,8 +65,8 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Line,
-  LineChart,
   Pie,
   PieChart,
   XAxis,
@@ -157,11 +157,42 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, [settings.autoRefresh, settings.refreshInterval, loadDashboardData]);
-
   // Configurações dos gráficos
   const chartConfigs: Record<string, ChartConfig> = useMemo(
     () => ({
       vendas: {
+        vendas: {
+          label: "Pedidos",
+          color: "hsl(var(--chart-1))",
+        },
+        tendencia: {
+          label: "Tendência",
+          color: "hsl(var(--dashboard-accent))",
+        },
+      },
+      status: {
+        pendente: {
+          label: "Pendente",
+          color: "hsl(var(--dashboard-warning))", // Amarelo/laranja para pendente
+        },
+        preparando: {
+          label: "Preparando",
+          color: "hsl(var(--dashboard-info))", // Azul para preparando
+        },
+        pronto: {
+          label: "Pronto",
+          color: "hsl(var(--dashboard-success))", // Verde para pronto
+        },
+        entregue: {
+          label: "Entregue",
+          color: "hsl(var(--dashboard-accent))", // Roxo para entregue
+        },
+        cancelado: {
+          label: "Cancelado",
+          color: "hsl(var(--dashboard-error))", // Vermelho para cancelado
+        },
+      },
+      produtos: {
         vendas: {
           label: "Vendas",
           color: "hsl(var(--chart-1))",
@@ -171,34 +202,14 @@ export default function Dashboard() {
           color: "hsl(var(--chart-2))",
         },
       },
-      status: {
-        pendente: {
-          label: "Pendente",
-          color: "#f59e0b",
-        },
-        preparando: {
-          label: "Preparando",
-          color: "#3b82f6",
-        },
-        pronto: {
-          label: "Pronto",
-          color: "#10b981",
-        },
-        entregue: {
-          label: "Entregue",
-          color: "#6366f1",
-        },
-      },
-      produtos: {
-        vendas: {
-          label: "Vendas",
-          color: "hsl(var(--chart-1))",
-        },
-      },
       horarios: {
         pedidos: {
           label: "Pedidos",
-          color: "hsl(var(--chart-1))",
+          color: "hsl(var(--chart-3))",
+        },
+        percentual: {
+          label: "Percentual",
+          color: "hsl(var(--chart-5))",
         },
       },
       vendasDiaSemana: {
@@ -210,6 +221,10 @@ export default function Dashboard() {
           label: "Receita (R$)",
           color: "hsl(var(--chart-2))",
         },
+        percentual: {
+          label: "Percentual",
+          color: "hsl(var(--muted-foreground))",
+        },
       },
       receitaPorProduto: {
         receita: {
@@ -220,6 +235,10 @@ export default function Dashboard() {
           label: "Quantidade",
           color: "hsl(var(--chart-3))",
         },
+        ticketMedio: {
+          label: "Ticket Médio",
+          color: "hsl(var(--chart-5))",
+        },
       },
       performancePorFonte: {
         totalPedidos: {
@@ -228,7 +247,43 @@ export default function Dashboard() {
         },
         valorMedio: {
           label: "Valor Médio (R$)",
-          color: "hsl(var(--chart-2))",
+          color: "hsl(var(--chart-4))",
+        },
+        percentual: {
+          label: "Percentual",
+          color: "hsl(var(--chart-5))",
+        },
+      },
+      performance: {
+        critico: {
+          label: "Crítico",
+          color: "hsl(var(--dashboard-error))",
+        },
+        atencao: {
+          label: "Atenção",
+          color: "hsl(var(--dashboard-warning))",
+        },
+        ok: {
+          label: "OK",
+          color: "hsl(var(--dashboard-success))",
+        },
+      },
+      financeiro: {
+        receita: {
+          label: "Receita",
+          color: "hsl(var(--dashboard-success))",
+        },
+        desconto: {
+          label: "Desconto",
+          color: "hsl(var(--dashboard-error))",
+        },
+        taxa: {
+          label: "Taxa",
+          color: "hsl(var(--dashboard-warning))",
+        },
+        liquido: {
+          label: "Líquido",
+          color: "hsl(var(--dashboard-accent))",
         },
       },
     }),
@@ -251,7 +306,8 @@ export default function Dashboard() {
         value: status.totalPedidos,
         percentage: status.percentualTotal,
         fill:
-          chartConfigs.status[status.titulo.toLowerCase()]?.color || "#8884d8",
+          chartConfigs.status[status.titulo.toLowerCase()]?.color ||
+          "hsl(var(--muted))",
       })),
       produtos: (() => {
         // Combinar produtos mais populares com produtos de baixo desempenho para ter mais variedade
@@ -793,7 +849,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-red-500">Total de Descontos:</span>
+                    <span>Total de Descontos:</span>
                     <span className="text-red-500 font-semibold">
                       R${" "}
                       {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
@@ -803,9 +859,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-red-500">
-                      Ticket Médio de Desconto:
-                    </span>
+                    <span>Ticket Médio de Desconto:</span>
                     <span className="text-red-500 font-semibold">
                       R${" "}
                       {dashboardData.financeiro.valorMedioDesconto.toLocaleString(
@@ -938,13 +992,14 @@ export default function Dashboard() {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
+                    {" "}
                     <div className="flex-1">
                       <CardTitle>
-                        Tendência de Vendas - {getPeriodLabel(filters.periodo)}
+                        Tendência de Pedidos - {getPeriodLabel(filters.periodo)}
                       </CardTitle>
                       <CardDescription>
-                        Evolução dos pedidos por {getTimeUnit(filters.periodo)}{" "}
-                        ({getPeriodLabel(filters.periodo)})
+                        Pedidos por {getTimeUnit(filters.periodo)} com linha de
+                        tendência calculada ({getPeriodLabel(filters.periodo)})
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
@@ -954,7 +1009,7 @@ export default function Dashboard() {
                         onClick={() =>
                           exportVendasData(dashboardData, {
                             format: "csv",
-                            title: "Tendência de Vendas",
+                            title: "Tendência de Pedidos",
                             includeMetadata: true,
                           })
                         }
@@ -978,25 +1033,33 @@ export default function Dashboard() {
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
+                </CardHeader>{" "}
                 <CardContent>
                   <ChartContainer
                     config={chartConfigs.vendas}
                     className="h-[300px]"
                   >
-                    <LineChart data={chartData.crescimento}>
+                    <ComposedChart data={chartData.crescimento}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="periodo" />
                       <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar
+                        dataKey="vendas"
+                        fill="var(--chart-1)"
+                        name="Pedidos"
+                        barSize={40}
+                        fillOpacity={0.8}
+                      />
                       <Line
                         type="monotone"
-                        dataKey="vendas"
-                        stroke="var(--chart-1)"
-                        strokeWidth={2}
-                        dot={{ fill: "var(--chart-1)" }}
-                      />{" "}
-                    </LineChart>
+                        dataKey="tendencia"
+                        stroke="var(--chart-2)"
+                        strokeWidth={3}
+                        dot={{ fill: "var(--chart-2)", strokeWidth: 2, r: 4 }}
+                        name="Tendência"
+                      />
+                    </ComposedChart>
                   </ChartContainer>
                 </CardContent>
               </Card>

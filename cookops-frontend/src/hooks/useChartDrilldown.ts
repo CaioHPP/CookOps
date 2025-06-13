@@ -1,6 +1,7 @@
 // hooks/useChartDrilldown.ts
 "use client";
 
+import { calculateTrendLine } from "@/lib/dashboard-utils";
 import { DashboardData } from "@/types/dashboard.types";
 import { useCallback, useState } from "react";
 
@@ -121,11 +122,24 @@ export function useChartDrilldown() {
             }));
           })();
 
-          const dadosVendas = dadosOriginais.map((item) => ({
+          // Calcular linha de tendência para os dados
+          const dadosComTendencia = calculateTrendLine(
+            dadosOriginais.map((item) => ({
+              periodo: item.periodo,
+              vendas: item.pedidos,
+              crescimento: item.crescimento,
+            }))
+          );
+
+          const dadosVendas = dadosComTendencia.map((item, index) => ({
             periodo: item.periodo,
-            receita: Number(item.receita.toFixed(2)),
-            pedidos: item.pedidos,
-            ticketMedio: Number((item.receita / item.pedidos).toFixed(2)),
+            receita: Number(dadosOriginais[index].receita.toFixed(2)),
+            pedidos: item.vendas,
+            tendencia: item.tendencia || 0,
+            ticketMedio: Number(
+              (dadosOriginais[index].receita / item.vendas).toFixed(2)
+            ),
+            crescimentoPercentual: item.crescimento || 0,
           }));
           return {
             chartType: "vendas",
@@ -137,6 +151,14 @@ export function useChartDrilldown() {
               totalPedidos: dashboardData.vendas.totalPedidos,
               crescimento: dashboardData.vendas.crescimentoReceita,
               ticketMedioGeral: dashboardData.vendas.ticketMedio,
+              tendenciaInicial: dadosVendas[0]?.tendencia || 0,
+              tendenciaFinal:
+                dadosVendas[dadosVendas.length - 1]?.tendencia || 0,
+              variacao:
+                dadosVendas.length > 1
+                  ? (dadosVendas[dadosVendas.length - 1]?.tendencia || 0) -
+                    (dadosVendas[0]?.tendencia || 0)
+                  : 0,
             },
           };
         case "performance":
