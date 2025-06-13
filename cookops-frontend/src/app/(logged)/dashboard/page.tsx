@@ -1283,8 +1283,7 @@ export default function Dashboard() {
                     ))}
                 </div>
               </CardContent>
-            </Card>
-
+            </Card>{" "}
             {/* Formas de Pagamento */}
             <Card>
               <CardHeader>
@@ -1293,29 +1292,38 @@ export default function Dashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {dashboardData.operacional.formasPagamentoPreferidas
-                    .slice(0, 3)
-                    .map((forma) => (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {dashboardData.operacional.formasPagamentoPreferidas.map(
+                    (forma) => (
                       <div
                         key={forma.pagamentoId}
-                        className="flex items-center justify-between"
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50 transition-colors"
                       >
-                        <span className="text-sm">{forma.nome}</span>
+                        <span className="text-sm font-medium">
+                          {forma.nome}
+                        </span>
                         <div className="text-right">
-                          <div className="text-sm font-medium">
-                            {forma.totalPedidos}
+                          <div className="text-sm font-semibold">
+                            {forma.totalPedidos} pedidos
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {forma.percentualTotal.toFixed(1)}%
+                            {forma.percentualTotal.toFixed(1)}% do total
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )
+                  )}
+                  {dashboardData.operacional.formasPagamentoPreferidas
+                    .length === 0 && (
+                    <div className="text-center py-6 text-muted-foreground">
+                      <p className="text-sm">
+                        Nenhuma forma de pagamento encontrada
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
-
             {/* Detalhes Operacionais */}
             <Card>
               <CardHeader>
