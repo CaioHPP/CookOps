@@ -1234,8 +1234,203 @@ export default function Dashboard() {
                   </ChartContainer>
                 </CardContent>
               </Card>
-            )}
-          </div>
+            )}          </div>
+        </div>
+
+        {/* Análise Inteligente de Produtos com Menor Performance */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Análise de Performance dos Produtos</h3>
+          
+          {/* Análise dos 3 produtos menos vendidos */}
+          {(() => {
+            // Calcular a média de vendas de todos os produtos
+            const totalProdutos = dashboardData.produtos.itensMaisPopulares.length;
+            const mediaVendas = totalProdutos > 0 
+              ? dashboardData.produtos.itensMaisPopulares.reduce((acc, produto) => acc + produto.quantidadeVendida, 0) / totalProdutos
+              : 0;
+
+            // Pegar os 3 produtos menos vendidos (assumindo que a API já retorna ordenado)
+            const produtosMenosVendidos = dashboardData.produtos.produtosBaixoDesempenho?.slice(0, 3) || [];
+
+            return (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        Produtos com Menor Performance
+                      </CardTitle>
+                      <CardDescription>
+                        Análise dos 3 produtos menos vendidos no período vs média geral
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>Média geral: {mediaVendas.toFixed(1)} vendas</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {produtosMenosVendidos.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                      <p className="text-lg font-medium">Excelente!</p>
+                      <p>Todos os produtos estão com boa performance</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {produtosMenosVendidos.map((produto) => {
+                        const diferencaPercentual = mediaVendas > 0 
+                          ? ((produto.quantidadeVendida - mediaVendas) / mediaVendas) * 100
+                          : 0;
+                        
+                        const isProblematico = diferencaPercentual < -30; // 30% abaixo da média
+                        const isAtencao = diferencaPercentual < -15 && diferencaPercentual >= -30; // Entre 15% e 30% abaixo
+                        const isOk = diferencaPercentual >= -15; // Até 15% abaixo da média é considerado ok
+
+                        return (
+                          <div
+                            key={produto.produtoId}
+                            className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                              isProblematico 
+                                ? 'border-red-200 bg-red-50/50' 
+                                : isAtencao 
+                                ? 'border-yellow-200 bg-yellow-50/50'
+                                : 'border-green-200 bg-green-50/50'
+                            }`}
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="font-medium text-sm">
+                                  {produto.nome}
+                                </div>
+                                {isProblematico && (
+                                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
+                                    🚨 Crítico
+                                  </span>
+                                )}
+                                {isAtencao && (
+                                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
+                                    ⚠️ Atenção
+                                  </span>
+                                )}
+                                {isOk && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                                    ✅ Estável
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {produto.quantidadeVendida} vendidos • 
+                                <span className={
+                                  isProblematico ? 'text-red-600 font-medium' :
+                                  isAtencao ? 'text-yellow-600 font-medium' :
+                                  'text-green-600'
+                                }>
+                                  {diferencaPercentual >= 0 ? '+' : ''}{diferencaPercentual.toFixed(1)}% vs média
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className={`font-bold text-sm ${
+                                isProblematico ? 'text-red-700' :
+                                isAtencao ? 'text-yellow-700' :
+                                'text-green-700'
+                              }`}>
+                                R$ {produto.receita.toLocaleString("pt-BR", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </div>
+                              <div className="text-xs mt-1">
+                                {isProblematico && (
+                                  <span className="text-red-600 font-medium">
+                                    Precisa de ação
+                                  </span>
+                                )}
+                                {isAtencao && (
+                                  <span className="text-yellow-600 font-medium">
+                                    Monitorar
+                                  </span>
+                                )}
+                                {isOk && (
+                                  <span className="text-green-600">
+                                    Performance ok
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      
+                      {/* Sugestões baseadas na análise */}
+                      <div className="mt-6 space-y-3">
+                        {produtosMenosVendidos.some(p => {
+                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                          return diff < -30;
+                        }) && (
+                          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                            <div className="flex items-start gap-3">
+                              <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-red-800 mb-1">
+                                  🚨 Ação Urgente Recomendada
+                                </p>
+                                <p className="text-sm text-red-700">
+                                  Produtos com performance crítica detectados. Considere:
+                                  <span className="font-medium"> criar promoções, revisar preços, melhorar descrições ou destacar no cardápio.</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {produtosMenosVendidos.some(p => {
+                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                          return diff < -15 && diff >= -30;
+                        }) && (
+                          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div className="flex items-start gap-3">
+                              <Clock className="h-5 w-5 text-yellow-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-yellow-800 mb-1">
+                                  ⚠️ Monitoramento Recomendado
+                                </p>
+                                <p className="text-sm text-yellow-700">
+                                  Alguns produtos estão abaixo da média. 
+                                  <span className="font-medium"> Monitore as próximas semanas e considere ajustes se necessário.</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {produtosMenosVendidos.every(p => {
+                          const diff = mediaVendas > 0 ? ((p.quantidadeVendida - mediaVendas) / mediaVendas) * 100 : 0;
+                          return diff >= -15;
+                        }) && produtosMenosVendidos.length > 0 && (
+                          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-start gap-3">
+                              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-green-800 mb-1">
+                                  ✅ Performance Saudável
+                                </p>
+                                <p className="text-sm text-green-700">
+                                  Mesmo os produtos menos vendidos estão com performance dentro da normalidade. 
+                                  <span className="font-medium">Continue o excelente trabalho!</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
         </div>
 
         {/* 5. Status dos Pedidos e Formas de Pagamento */}
