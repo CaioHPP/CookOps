@@ -77,6 +77,18 @@ export interface MetricasFinanceiras {
   descontoMedio: number;
   receitaLiquida: number;
   percentualReceitaEntrega: number;
+  // Novas métricas de entrega
+  valorMedioTaxaEntrega: number;
+  numeroPedidosEntrega: number;
+  porcentagemPedidosEntrega: number;
+  numeroPedidosEntregaCobradas: number;
+  porcentagemPedidosEntregaCobradas: number;
+  valorTotalTaxasEntrega: number;
+  // Novas métricas de desconto
+  valorMedioDesconto: number;
+  numeroPedidosComDesconto: number;
+  porcentagemPedidosComDesconto: number;
+  valorTotalDescontos: number;
 }
 
 // Tipos para métricas operacionais

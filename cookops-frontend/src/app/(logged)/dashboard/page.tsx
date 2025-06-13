@@ -42,6 +42,8 @@ import {
 import { DashboardData, DashboardFilters } from "@/types/dashboard.types";
 import {
   AlertTriangle,
+  BarChartHorizontal,
+  Calendar,
   CheckCircle,
   Clock,
   DollarSign,
@@ -92,6 +94,7 @@ export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
+
   // Configurações do dashboard
   const { settings, isChartVisible } = useDashboardSettings();
 
@@ -101,7 +104,9 @@ export default function Dashboard() {
     openDrilldown,
     closeDrilldown,
     generateDrilldownData,
-  } = useChartDrilldown(); // Export functionality
+  } = useChartDrilldown();
+
+  // Export functionality
   const {
     exportVendasData,
     exportProdutosData,
@@ -113,9 +118,11 @@ export default function Dashboard() {
   useEffect(() => {
     setShowComparison(settings.showComparison);
   }, [settings.showComparison]);
+
   const loadDashboardData = useCallback(async () => {
     try {
-      setLoading(true); // Carregar dados diretamente do backend
+      setLoading(true);
+      // Carregar dados diretamente do backend
       const data = await DashboardService.getDashboardData(filters);
       setDashboardData(data);
 
@@ -215,9 +222,13 @@ export default function Dashboard() {
       },
     }),
     []
-  ); // Dados para os gráficos com otimização
+  );
+
+  // Dados para os gráficos com otimização
   const chartData = useMemo(() => {
-    if (!dashboardData) return {}; // Usar a função utilitária para gerar dados dinâmicos baseados no período
+    if (!dashboardData) return {};
+
+    // Usar a função utilitária para gerar dados dinâmicos baseados no período
     const trendData = dashboardData.crescimento?.crescimentoSemanal
       ? generateTrendChartData(dashboardData, filters.periodo)
       : [];
@@ -301,27 +312,27 @@ export default function Dashboard() {
       </div>
     );
   }
+
   return (
     <div className="p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {" "}
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Cabeçalho do Dashboard */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard CookOps</h1>
-            <p className="text-muted-foreground">
-              Análise completa das operações - {dashboardData.periodo}
-            </p>
+            <p className="text-muted-foreground">Análise das operações</p>
             {/* Indicador do período atual */}
             <div className="mt-2 flex items-center gap-2">
-              <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                📊 Período: {getPeriodLabel(filters.periodo)}
+              <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                Período: {getPeriodLabel(filters.periodo)}
               </div>
-              <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                📈 Granularidade: {getTimeUnit(filters.periodo)}
+              <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center">
+                <BarChartHorizontal className="h-4 w-4 mr-1" />
+                Granularidade: {getTimeUnit(filters.periodo)}
               </div>
             </div>
-          </div>{" "}
+          </div>
           <div className="flex items-center gap-4">
             {/* Toggle para comparação */}
             <div className="flex items-center gap-2">
@@ -334,7 +345,7 @@ export default function Dashboard() {
             </div>
             {/* Filtros */}
             <div className="flex items-center gap-2">
-              <Label htmlFor="periodo">Período:</Label>{" "}
+              <Label htmlFor="periodo">Período:</Label>
               <Select
                 value={filters.periodo}
                 onValueChange={(value) =>
@@ -346,7 +357,7 @@ export default function Dashboard() {
               >
                 <SelectTrigger className="w-32">
                   <SelectValue />
-                </SelectTrigger>{" "}
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="7">7 dias</SelectItem>
                   <SelectItem value="30">30 dias</SelectItem>
@@ -356,7 +367,7 @@ export default function Dashboard() {
                 </SelectContent>
               </Select>
             </div>
-            {/* Botões de ação */}{" "}
+            {/* Botões de ação */}
             <Button
               variant="outline"
               size="sm"
@@ -364,14 +375,6 @@ export default function Dashboard() {
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar Tudo
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAdvancedExport(true)}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Avançado
             </Button>
             <Button
               variant="outline"
@@ -384,14 +387,6 @@ export default function Dashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowAdvancedSettings(true)}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Avançado
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={loadDashboardData}
               disabled={loading}
             >
@@ -400,150 +395,458 @@ export default function Dashboard() {
               />
               Atualizar
             </Button>
-          </div>{" "}
+          </div>
         </div>
-        {/* Cards de Métricas Principais */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {/* Receita Total */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
-                Receita Total
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  R${" "}
-                  {dashboardData.vendas.receitaTotal.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
-                {dashboardData.vendas.crescimentoReceita !== undefined && (
-                  <div className="flex items-center gap-1">
-                    {dashboardData.vendas.crescimentoReceita >= 0 ? (
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-red-500" />
-                    )}
-                    <span
-                      className={
-                        dashboardData.vendas.crescimentoReceita >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {dashboardData.vendas.crescimentoReceita.toFixed(1)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          {/* Total de Pedidos */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingBag className="h-5 w-5 text-blue-600" />
-                Total de Pedidos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.vendas.totalPedidos.toLocaleString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Período de {filters.periodo} dias
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          {/* Ticket Médio */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-purple-600" />
-                Ticket Médio
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  R$ {dashboardData.vendas.ticketMedio.toFixed(2)}
-                </p>
-                {dashboardData.vendas.variacaoTicketMedio !== undefined && (
-                  <div className="flex items-center gap-1">
-                    {dashboardData.vendas.variacaoTicketMedio >= 0 ? (
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 text-red-500" />
-                    )}
-                    <span
-                      className={
-                        dashboardData.vendas.variacaoTicketMedio >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {dashboardData.vendas.variacaoTicketMedio.toFixed(1)}%
-                    </span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          {/* Tempo Médio */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <Timer className="h-5 w-5 text-orange-600" />
-                Tempo Médio
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.performance.tempoMedioFinalizacao}min
-                </p>
-                <div className="flex items-center gap-1">
-                  {dashboardData.performance.tempoMedioFinalizacao <= 30 ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <Clock className="h-4 w-4 text-orange-500" />
+
+        {/* 1. Cards de Métricas Principais */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Métricas Principais</h3>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Receita Total */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  Receita Total
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    R${" "}
+                    {dashboardData.vendas.receitaTotal.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                  {dashboardData.vendas.crescimentoReceita !== undefined && (
+                    <div className="flex items-center gap-1">
+                      {dashboardData.vendas.crescimentoReceita >= 0 ? (
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <TrendingDown className="h-4 w-4 text-red-500" />
+                      )}
+                      <span
+                        className={
+                          dashboardData.vendas.crescimentoReceita >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }
+                      >
+                        {dashboardData.vendas.crescimentoReceita.toFixed(1)}%
+                      </span>
+                    </div>
                   )}
-                  <span
-                    className={
-                      dashboardData.performance.tempoMedioFinalizacao <= 30
-                        ? "text-green-600"
-                        : "text-orange-600"
-                    }
-                  >
-                    {dashboardData.performance.tempoMedioFinalizacao <= 30
-                      ? "Ótimo"
-                      : "Atenção"}
-                  </span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>{" "}
-        </div>{" "}
+              </CardContent>
+            </Card>
+            {/* Total de Pedidos */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5 text-blue-600" />
+                  Total de Pedidos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.vendas.totalPedidos.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Período de {filters.periodo} dias
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Ticket Médio */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-purple-600" />
+                  Ticket Médio
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    R$ {dashboardData.vendas.ticketMedio.toFixed(2)}
+                  </p>
+                  {dashboardData.vendas.variacaoTicketMedio !== undefined && (
+                    <div className="flex items-center gap-1">
+                      {dashboardData.vendas.variacaoTicketMedio >= 0 ? (
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <TrendingDown className="h-4 w-4 text-red-500" />
+                      )}
+                      <span
+                        className={
+                          dashboardData.vendas.variacaoTicketMedio >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }
+                      >
+                        {dashboardData.vendas.variacaoTicketMedio.toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            {/* Tempo Médio */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Timer className="h-5 w-5 text-orange-600" />
+                  Tempo Médio
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.performance.tempoMedioFinalizacao}min
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {dashboardData.performance.tempoMedioFinalizacao <= 30 ? (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Clock className="h-4 w-4 text-orange-500" />
+                    )}
+                    <span
+                      className={
+                        dashboardData.performance.tempoMedioFinalizacao <= 30
+                          ? "text-green-600"
+                          : "text-orange-600"
+                      }
+                    >
+                      {dashboardData.performance.tempoMedioFinalizacao <= 30
+                        ? "Ótimo"
+                        : "Atenção"}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* 2. Resumo Financeiro, Entregas e Descontos */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Resumo Financeiro</h3>
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Resumo Financeiro */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Resumo Financeiro
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Receita Bruta:</span>
+                    <span className="font-bold">
+                      R${" "}
+                      {dashboardData.vendas.receitaTotal.toLocaleString(
+                        "pt-BR",
+                        {
+                          minimumFractionDigits: 2,
+                        }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Receita Líquida:</span>
+                    <span className="font-semibold text-green-500">
+                      R${" "}
+                      {dashboardData.financeiro.receitaLiquida.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Total Descontos:</span>
+                    <span className="text-red-500 font-semibold">
+                      R${" "}
+                      {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Total Taxas de Entrega:</span>
+                    <span className="text-green-500 font-semibold">
+                      R${" "}
+                      {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">
+                      % Taxas de Entrega sobre Bruto:
+                    </span>
+                    <span className="text-green-500 font-semibold">
+                      {(
+                        (dashboardData.financeiro.valorTotalTaxasEntrega /
+                          dashboardData.vendas.receitaTotal) *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">% Descontos sobre Bruto:</span>
+                    <span className="text-red-500 font-semibold">
+                      {(
+                        (dashboardData.financeiro.valorTotalDescontos /
+                          dashboardData.vendas.receitaTotal) *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Insights de Entrega */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Insights de Entrega
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Total de Pedidos:</span>
+                    <span className="font-semibold">
+                      {dashboardData.vendas.totalPedidos}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pedidos com Entrega:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.numeroPedidosEntrega}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Entregas Tarifadas:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.numeroPedidosEntregaCobradas}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Entregas Gratuitas:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.numeroPedidosEntrega -
+                        dashboardData.financeiro.numeroPedidosEntregaCobradas}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>% do Total com Entrega:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.porcentagemPedidosEntrega.toFixed(
+                        1
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Receita de Entregas:</span>
+                    <span className="font-semibold text-green-500">
+                      R${" "}
+                      {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Insights de Descontos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Insights de Descontos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Total de Pedidos:</span>
+                    <span className="font-semibold">
+                      {dashboardData.vendas.totalPedidos}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Pedidos com Desconto:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.numeroPedidosComDesconto}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>% de Pedidos com Desconto:</span>
+                    <span className="font-semibold">
+                      {dashboardData.financeiro.porcentagemPedidosComDesconto.toFixed(
+                        1
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-red-500">Total de Descontos:</span>
+                    <span className="text-red-500 font-semibold">
+                      R${" "}
+                      {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-red-500">
+                      Ticket Médio de Desconto:
+                    </span>
+                    <span className="text-red-500 font-semibold">
+                      R${" "}
+                      {dashboardData.financeiro.valorMedioDesconto.toLocaleString(
+                        "pt-BR",
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* 3. Taxa de Conversão, Pedidos em Atraso, Confirmação Automática, Movimentações Board */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">
+            Performance Operacional
+          </h3>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Taxa de Conversão */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-indigo-600" />
+                  Taxa de Conversão
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.vendas.taxaConversao.toFixed(1)}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Pedidos confirmados vs total
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pedidos em Atraso */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  Pedidos em Atraso
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.performance.pedidosEmAtraso}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {dashboardData.performance.pedidosEmAtraso === 0 ? (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span
+                      className={
+                        dashboardData.performance.pedidosEmAtraso === 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {dashboardData.performance.pedidosEmAtraso === 0
+                        ? "Tudo em dia"
+                        : "Requer atenção"}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Taxa de Confirmação Automática */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  Confirmação Auto
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
+                      1
+                    )}
+                    %
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Pedidos confirmados automaticamente
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Movimentações no Board */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <RefreshCw className="h-5 w-5 text-blue-600" />
+                  Movimentações Board
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-2xl font-bold">
+                    {dashboardData.operacional.movimentacoesBoard}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Mudanças de status no período
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
         {/* Comparação de Períodos */}
         {showComparison && comparisonData && (
           <PeriodComparison data={comparisonData} />
         )}
-        {/* Gráficos */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold">Análise Visual</h3>
+
+        {/* 4. Gráficos Visuais */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Análise Visual</h3>
 
           {/* Primeira linha de gráficos */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {" "}
+          <div className="grid gap-6 md:grid-cols-2 mb-6">
             {/* Gráfico de Tendência de Vendas */}
             {isChartVisible("vendas_trend") && (
               <Card>
-                {" "}
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -552,7 +855,7 @@ export default function Dashboard() {
                       </CardTitle>
                       <CardDescription>
                         Evolução dos pedidos por {getTimeUnit(filters.periodo)}{" "}
-                        ({getPeriodLabel(filters.periodo)}){" "}
+                        ({getPeriodLabel(filters.periodo)})
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
@@ -605,6 +908,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             )}
+
             {/* Gráfico de Pizza - Status dos Pedidos */}
             {isChartVisible("status_distribution") && (
               <Card>
@@ -645,7 +949,7 @@ export default function Dashboard() {
           </div>
 
           {/* Segunda linha de gráficos */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 mb-6">
             {/* Gráfico de Barras - Produtos Populares */}
             {isChartVisible("top_produtos") && (
               <Card>
@@ -763,7 +1067,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Terceira linha de gráficos - Novos Charts */}
+          {/* Terceira linha de gráficos */}
           <div className="grid gap-6 md:grid-cols-2">
             {/* Tabela de Receita por Produto */}
             {isChartVisible("receita_produto") && (
@@ -881,7 +1185,7 @@ export default function Dashboard() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="nome" />
                       <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />{" "}
+                      <YAxis yAxisId="right" orientation="right" />
                       <ChartTooltip
                         content={({ active, payload, label }) => {
                           if (active && payload && payload.length) {
@@ -932,305 +1236,134 @@ export default function Dashboard() {
               </Card>
             )}
           </div>
+        </div>
 
-          {/* Tabela de Produtos com Baixo Desempenho */}
-          {isChartVisible("produtos_baixo_desempenho") &&
-            dashboardData.produtos.produtosBaixoDesempenho && (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-orange-600" />
-                        Produtos com Baixo Desempenho
-                      </CardTitle>
-                      <CardDescription>
-                        Produtos que precisam de atenção para melhorar vendas
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          exportProdutosData(dashboardData, {
-                            format: "csv",
-                            title: "Produtos Baixo Desempenho",
-                          })
-                        }
+        {/* 5. Status dos Pedidos e Formas de Pagamento */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">
+            Status dos Pedidos e Formas de Pagamento
+          </h3>
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Resumo de Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Status dos Pedidos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {dashboardData.operacional.pedidosPorStatus
+                    .slice(0, 3)
+                    .map((status) => (
+                      <div
+                        key={status.statusId}
+                        className="flex items-center justify-between"
                       >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {dashboardData.produtos.produtosBaixoDesempenho.length ===
-                  0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
-                      <p className="text-lg font-medium">Excelente!</p>
-                      <p>Todos os produtos estão com boa performance</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {dashboardData.produtos.produtosBaixoDesempenho.map(
-                        (produto) => (
+                        <div className="flex items-center gap-2">
                           <div
-                            key={produto.produtoId}
-                            className="flex items-center justify-between p-4 rounded-lg border border-orange-200 bg-orange-50/50"
-                          >
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">
-                                {produto.nome}
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-1">
-                                Apenas {produto.quantidadeVendida} vendidos no
-                                período
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-bold text-sm text-orange-700">
-                                R${" "}
-                                {produto.receita.toLocaleString("pt-BR", {
-                                  minimumFractionDigits: 2,
-                                })}
-                              </div>
-                              <div className="text-xs text-orange-600 mt-1">
-                                Baixa performance
-                              </div>
-                            </div>
+                            className="h-3 w-3 rounded-full"
+                            style={{
+                              backgroundColor:
+                                chartConfigs.status[status.titulo.toLowerCase()]
+                                  ?.color || "#8884d8",
+                            }}
+                          />
+                          <span className="text-sm">{status.titulo}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">
+                            {status.totalPedidos} pedidos
                           </div>
-                        )
+                          <div className="text-xs text-muted-foreground">
+                            {status.percentualTotal.toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Formas de Pagamento */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Formas de Pagamento
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {dashboardData.operacional.formasPagamentoPreferidas
+                    .slice(0, 3)
+                    .map((forma) => (
+                      <div
+                        key={forma.pagamentoId}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="text-sm">{forma.nome}</span>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">
+                            {forma.totalPedidos}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {forma.percentualTotal.toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Detalhes Operacionais */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  Detalhes Operacionais
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Total de Movimentações:</span>
+                    <span className="font-bold">
+                      {dashboardData.operacional.movimentacoesBoard}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Tempo Médio Finalização:</span>
+                    <span className="font-semibold">
+                      {dashboardData.performance.tempoMedioFinalizacao}min
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Taxa Conversão:</span>
+                    <span className="font-semibold text-green-500">
+                      {dashboardData.vendas.taxaConversao.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Confirmação Automática:</span>
+                    <span className="font-semibold text-blue-500">
+                      {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
+                        1
                       )}
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-sm text-blue-800">
-                          💡 <strong>Sugestão:</strong> Considere revisar o
-                          preço, descrição ou promoções para estes produtos.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                      %
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-        {/* Status dos Pedidos */}
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Resumo de Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Status dos Pedidos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {dashboardData.operacional.pedidosPorStatus
-                  .slice(0, 3)
-                  .map((status) => (
-                    <div
-                      key={status.statusId}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-3 w-3 rounded-full"
-                          style={{
-                            backgroundColor:
-                              chartConfigs.status[status.titulo.toLowerCase()]
-                                ?.color || "#8884d8",
-                          }}
-                        />
-                        <span className="text-sm">{status.titulo}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {status.totalPedidos} pedidos
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {status.percentualTotal.toFixed(1)}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Formas de Pagamento */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Formas de Pagamento
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {dashboardData.operacional.formasPagamentoPreferidas
-                  .slice(0, 3)
-                  .map((forma) => (
-                    <div
-                      key={forma.pagamentoId}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="text-sm">{forma.nome}</span>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {forma.totalPedidos}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {forma.percentualTotal.toFixed(1)}%
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Informações Financeiras */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Resumo Financeiro
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm">Receita Líquida:</span>
-                  <span className="font-semibold">
-                    R${" "}
-                    {dashboardData.financeiro.receitaLiquida.toLocaleString(
-                      "pt-BR",
-                      {
-                        minimumFractionDigits: 2,
-                      }
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Taxa de Entrega:</span>
-                  <span className="font-semibold">
-                    {dashboardData.financeiro.taxaEntregaMedia.toFixed(1)}%
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Desconto Médio:</span>
-                  <span className="font-semibold">
-                    {dashboardData.financeiro.descontoMedio.toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>{" "}
-        {/* Segunda linha de métricas - Performance e Operacionais */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {/* Taxa de Conversão */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-indigo-600" />
-                Taxa de Conversão
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.vendas.taxaConversao.toFixed(1)}%
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Pedidos confirmados vs total
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pedidos em Atraso */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-                Pedidos em Atraso
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.performance.pedidosEmAtraso}
-                </p>
-                <div className="flex items-center gap-1">
-                  {dashboardData.performance.pedidosEmAtraso === 0 ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                  )}
-                  <span
-                    className={
-                      dashboardData.performance.pedidosEmAtraso === 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
-                  >
-                    {dashboardData.performance.pedidosEmAtraso === 0
-                      ? "Tudo em dia"
-                      : "Requer atenção"}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Taxa de Confirmação Automática */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                Confirmação Auto
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                    1
-                  )}
-                  %
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Pedidos confirmados automaticamente
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Movimentações no Board */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2">
-                <RefreshCw className="h-5 w-5 text-blue-600" />
-                Movimentações Board
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold">
-                  {dashboardData.operacional.movimentacoesBoard}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Mudanças de status no período
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
         {/* Modal de Configuração */}
         <DashboardConfig
           isOpen={showConfig}
           onClose={() => setShowConfig(false)}
-        />{" "}
+        />
+
         {/* Modal de Configurações Avançadas */}
         <AdvancedSettings
           isOpen={showAdvancedSettings}
@@ -1241,12 +1374,14 @@ export default function Dashboard() {
             console.log("Novas configurações:", newSettings);
           }}
         />
+
         {/* Modal de Export Avançado */}
         <AdvancedExport
           isOpen={showAdvancedExport}
           onClose={() => setShowAdvancedExport(false)}
           dashboardData={dashboardData}
         />
+
         {/* Modal de Drill-down */}
         <ChartDrilldown
           isOpen={drilldownState.isOpen}
