@@ -252,4 +252,34 @@ export class PedidoStatusService {
     }
     return status;
   }
+
+  async reorderStatus(
+    updates: Array<{ id: number; ordem: number }>,
+    empresaId: string,
+  ): Promise<void> {
+    // Verify that all status belong to boards of the company
+    const statusIds = updates.map((u) => u.id);
+    const statusList = await this.prisma.pedidoStatus.findMany({
+      where: {
+        id: { in: statusIds },
+        board: { empresaId },
+      },
+    });
+
+    if (statusList.length !== statusIds.length) {
+      throw new NotFoundException(
+        'Alguns status não foram encontrados ou não pertencem à empresa',
+      );
+    }
+
+    // Update all status orders in a transaction
+    await this.prisma.$transaction(
+      updates.map((update) =>
+        this.prisma.pedidoStatus.update({
+          where: { id: update.id },
+          data: { ordem: update.ordem },
+        }),
+      ),
+    );
+  }
 }

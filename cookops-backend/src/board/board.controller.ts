@@ -82,6 +82,28 @@ export class BoardController {
     return this.boardService.update(id, data, empresaId);
   }
 
+  @Put(':id/set-default')
+  @ApiOperation({ summary: 'Definir um board como padrão para a empresa' })
+  @ApiParam({ name: 'id', description: 'ID do board' })
+  setDefault(
+    @Request() req: { user: { empresaId: string } },
+    @Param('id') id: string,
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.boardService.setDefault(id, empresaId);
+  }
+
+  @Put(':id/toggle-active')
+  @ApiOperation({ summary: 'Ativar/Inativar um board' })
+  @ApiParam({ name: 'id', description: 'ID do board' })
+  toggleActive(
+    @Request() req: { user: { empresaId: string } },
+    @Param('id') id: string,
+  ) {
+    const empresaId = req.user.empresaId;
+    return this.boardService.toggleActive(id, empresaId);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um board pelo ID' })
   @ApiParam({ name: 'id', description: 'ID do board' })

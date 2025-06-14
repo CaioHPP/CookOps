@@ -39,7 +39,32 @@ export class BoardService {
     });
   }
 
-  remove(id: string): Promise<Board> {
+  async remove(id: string): Promise<Board> {
+    // First, check if there are any PedidoStatus related to this board
+    const statusCount = await this.prisma.pedidoStatus.count({
+      where: { boardId: id },
+    });
+
+    if (statusCount > 0) {
+      // If there are related status, we can't delete the board
+      // Instead, we'll mark it as inactive by adding a prefix to the title
+      const board = await this.prisma.board.findUnique({ where: { id } });
+      if (!board) {
+        throw new NotFoundException('Board não encontrado');
+      }
+
+      // Mark as inactive by adding [INATIVO] prefix if not already present
+      const newTitle = board.titulo.startsWith('[INATIVO]')
+        ? board.titulo
+        : `[INATIVO] ${board.titulo}`;
+
+      return this.prisma.board.update({
+        where: { id },
+        data: { titulo: newTitle },
+      });
+    }
+
+    // If no related status, we can safely delete the board
     return this.prisma.board.delete({
       where: { id },
     });
@@ -52,5 +77,56 @@ export class BoardService {
     return this.prisma.board.findMany({
       where: { empresaId },
     });
+  }
+
+  async setDefault(id: string, empresaId: string): Promise<Board> {
+    // Verify that the board exists and belongs to the company
+    const board = await this.prisma.board.findFirst({
+      where: { id, empresaId },
+    });
+
+    if (!board) {
+      throw new NotFoundException(
+        'Board não encontrado ou não pertence à empresa',
+      );
+    }
+
+    // For now, we'll just return the board since we don't have a defaultBoardId field
+    // In a future migration, you could add a defaultBoardId field to ConfiguracaoEmpresa
+    // and update the configuration here
+
+    return board;
+  }
+
+  async toggleActive(id: string, empresaId: string): Promise<Board> {
+    const board = await this.prisma.board.findFirst({
+      where: { id, empresaId },
+    });
+
+    if (!board) {
+      throw new NotFoundException(
+        'Board não encontrado ou não pertence à empresa',
+      );
+    }
+
+    const isInactive = board.titulo.startsWith('[INATIVO]');
+    let newTitle: string;
+
+    if (isInactive) {
+      // Reactivate: remove [INATIVO] prefix
+      newTitle = board.titulo.replace('[INATIVO] ', '');
+    } else {
+      // Deactivate: add [INATIVO] prefix
+      newTitle = `[INATIVO] ${board.titulo}`;
+    }
+
+    return this.prisma.board.update({
+      where: { id },
+      data: { titulo: newTitle },
+    });
+  }
+
+  isInactive(board: Board): boolean {
+    return board.titulo.startsWith('[INATIVO]');
   }
 }

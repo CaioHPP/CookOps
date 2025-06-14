@@ -12,6 +12,7 @@ import { BoardSelector } from "./BoardSelector";
 import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
 import { NovoBoardDialog } from "./NovoBoardDialog";
+import { BoardConfigDialog } from "./BoardConfigDialog";
 import { Button } from "../ui/button";
 import { PlusCircle } from "lucide-react";
 
@@ -28,6 +29,9 @@ export default function ProductionKanban() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
+  const [isBoardConfigDialogOpen, setIsBoardConfigDialogOpen] = useState(false);
+  const [selectedBoardForConfig, setSelectedBoardForConfig] =
+    useState<BoardResponseDto | null>(null);
 
   // Hook para gerenciar pedidos
   const { concluirPedido } = usePedidos(); // Hook para gerenciar status dos pedidos
@@ -174,6 +178,17 @@ export default function ProductionKanban() {
     }
   };
 
+  const handleConfigureBoard = (board: BoardResponseDto) => {
+    setSelectedBoardForConfig(board);
+    setIsBoardConfigDialogOpen(true);
+  };
+
+  const handleBoardConfigSuccess = async () => {
+    // Refresh boards list and status
+    await handleBoardCreated();
+    atualizarAposMudanca(true);
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header com informações e controles */}
@@ -223,6 +238,8 @@ export default function ProductionKanban() {
               selectedBoard={selectedBoard}
               onBoardChange={handleBoardChange}
               loading={loading}
+              onCreateBoard={() => setIsNewBoardDialogOpen(true)}
+              onConfigureBoard={handleConfigureBoard}
             />
           </div>
         </div>{" "}
@@ -272,7 +289,7 @@ export default function ProductionKanban() {
           <KanbanBoard
             statusColumns={statusColumns}
             loading={statusLoading}
-            lastStatusId={ultimoStatus?.statusId}
+            lastStatusId={ultimoStatus?.id}
             onMoveOrder={(orderId, fromStatusId, toStatusId) => {
               moverPedidoOtimista(orderId, fromStatusId, toStatusId);
             }}
@@ -292,6 +309,13 @@ export default function ProductionKanban() {
         open={isNewBoardDialogOpen}
         onOpenChange={setIsNewBoardDialogOpen}
         onSuccess={handleBoardCreated}
+      />
+
+      <BoardConfigDialog
+        open={isBoardConfigDialogOpen}
+        onOpenChange={setIsBoardConfigDialogOpen}
+        board={selectedBoardForConfig}
+        onSuccess={handleBoardConfigSuccess}
       />
     </div>
   );

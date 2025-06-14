@@ -48,4 +48,16 @@ export class BoardService {
     const url = `${API_ROUTES.BOARD.DELETE_BOARD}/${id}`;
     await api.delete(url);
   }
+
+  static async setDefaultBoard(id: string): Promise<BoardResponseDto> {
+    const url = API_ROUTES.BOARD.SET_DEFAULT_BOARD.replace(":id", id);
+    const response = await api.put<BoardResponseDto>(url);
+    return response.data;
+  }
+
+  static async toggleActiveBoard(id: string): Promise<BoardResponseDto> {
+    const url = API_ROUTES.BOARD.TOGGLE_ACTIVE_BOARD.replace(":id", id);
+    const response = await api.put<BoardResponseDto>(url);
+    return response.data;
+  }
 }

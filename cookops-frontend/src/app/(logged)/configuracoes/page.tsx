@@ -3,13 +3,20 @@
 import CompanyDataConfig from "@/components/CompanyDataConfig/CompanyDataConfig";
 import OrdersConfig from "@/components/OrdersConfig/OrdersConfig";
 import PaymentMethodsConfig from "@/components/PaymentMethodsConfig/PaymentMethodsConfig";
+import QuadrosConfig from "@/components/BoardConfig/QuadrosConfig";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, ChevronRight, CreditCard, ShoppingBag } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  CreditCard,
+  ShoppingBag,
+  Layout,
+} from "lucide-react";
 import { useState } from "react";
 
 const configuracaoItems = [
@@ -28,6 +35,14 @@ const configuracaoItems = [
     icon: ShoppingBag,
     color: "bg-green-50 hover:bg-green-100 dark:bg-green-900/60",
     iconColor: "text-green-600",
+  },
+  {
+    id: "boards",
+    title: "Boards de Produção",
+    description: "Configure boards e status de produção",
+    icon: Layout,
+    color: "bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/60",
+    iconColor: "text-orange-600",
   },
   {
     id: "dados-empresa",
@@ -177,6 +192,19 @@ export default function Configuracoes() {
                     </p>
 
                     <OrdersConfig />
+                  </div>
+                )}{" "}
+                {selectedItem === "boards" && (
+                  <div>
+                    <h2 className="text-3xl font-bold text-foreground mb-2">
+                      Boards de Produção
+                    </h2>
+                    <p className="text-muted-foreground mb-6">
+                      Configure e gerencie os boards de produção do seu
+                      restaurante
+                    </p>
+
+                    <QuadrosConfig />
                   </div>
                 )}{" "}
                 {selectedItem === "dados-empresa" && (
