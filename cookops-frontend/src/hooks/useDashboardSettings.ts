@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartTheme } from "@/lib/chart-themes";
 import { useCallback, useEffect, useState } from "react";
 
 export interface DashboardChart {
@@ -18,7 +19,7 @@ export interface DashboardSettings {
   defaultPeriod: string;
   showComparison: boolean;
   alertsEnabled: boolean;
-  theme: "light" | "dark" | "system";
+  chartTheme: ChartTheme; // Novo: tema de cores dos gráficos
   // Configurações avançadas
   enableNotifications: boolean;
   enableAlerts: boolean;
@@ -114,7 +115,7 @@ const DEFAULT_SETTINGS: DashboardSettings = {
   defaultPeriod: "30",
   showComparison: false,
   alertsEnabled: true,
-  theme: "system",
+  chartTheme: "purple", // Tema padrão: Roxo & Dourado
   // Configurações avançadas
   enableNotifications: true,
   enableAlerts: true,
@@ -145,9 +146,7 @@ export function useDashboardSettings() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  // Salvar configurações no localStorage
+  }, []); // Salvar configurações no localStorage
   const saveSettings = useCallback(
     (newSettings: Partial<DashboardSettings>) => {
       const updatedSettings = { ...settings, ...newSettings };
@@ -209,10 +208,9 @@ export function useDashboardSettings() {
     },
     [saveSettings]
   );
-
-  const setTheme = useCallback(
-    (theme: "light" | "dark" | "system") => {
-      saveSettings({ theme });
+  const setChartTheme = useCallback(
+    (chartTheme: ChartTheme) => {
+      saveSettings({ chartTheme });
     },
     [saveSettings]
   );
@@ -360,9 +358,7 @@ export function useDashboardSettings() {
     settings,
     isLoading,
     visibleCharts,
-    availableCharts: DEFAULT_CHARTS,
-
-    // Funções de atualização
+    availableCharts: DEFAULT_CHARTS, // Funções de atualização
     saveSettings,
     toggleChart,
     setAutoRefresh,
@@ -370,7 +366,7 @@ export function useDashboardSettings() {
     setDefaultPeriod,
     setShowComparison,
     setAlertsEnabled,
-    setTheme,
+    setChartTheme,
     setEnableNotifications,
     setEnableAlerts,
     setEnableMetricUpdates,

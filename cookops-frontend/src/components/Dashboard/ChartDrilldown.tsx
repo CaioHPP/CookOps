@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DrilldownData } from "@/hooks/useChartDrilldown";
+import { useDashboardSettings } from "@/hooks/useDashboardSettings";
+import { getChartColor } from "@/lib/chart-themes";
 import { Download, Eye, TrendingDown, TrendingUp } from "lucide-react";
 import {
   Bar,
@@ -40,6 +42,8 @@ interface ChartDrilldownProps {
 }
 
 export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
+  const { settings } = useDashboardSettings();
+
   if (!data) return null;
 
   const exportData = () => {
@@ -98,18 +102,18 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               />{" "}
               <Bar
                 dataKey="pedidos"
-                fill="hsl(var(--chart-1))"
+                fill={getChartColor(settings.chartTheme, 0)}
                 name="Pedidos"
                 barSize={30}
                 fillOpacity={0.8}
-              />{" "}
+              />
               <Line
                 type="monotone"
                 dataKey="tendencia"
-                stroke="hsl(var(--dashboard-accent))"
+                stroke={getChartColor(settings.chartTheme, 1)}
                 strokeWidth={3}
                 dot={{
-                  fill: "hsl(var(--dashboard-accent))",
+                  fill: getChartColor(settings.chartTheme, 1),
                   strokeWidth: 2,
                   r: 4,
                 }}
@@ -145,7 +149,10 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                   return [value, "Valor"];
                 }}
               />{" "}
-              <Bar dataKey="valor" fill="hsl(var(--chart-1))" />
+              <Bar
+                dataKey="valor"
+                fill={getChartColor(settings.chartTheme, 0)}
+              />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -177,12 +184,12 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               />{" "}
               <Bar
                 dataKey="quantidadeVendida"
-                fill="hsl(var(--chart-3))"
+                fill={getChartColor(settings.chartTheme, 0)}
                 name="Quantidade Vendida"
-              />{" "}
+              />
               <Bar
                 dataKey="receita"
-                fill="hsl(var(--chart-2))"
+                fill={getChartColor(settings.chartTheme, 1)}
                 name="Receita"
               />
             </BarChart>
@@ -225,12 +232,12 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               />{" "}
               <Bar
                 dataKey="receita"
-                fill="hsl(var(--chart-2))"
+                fill={getChartColor(settings.chartTheme, 0)}
                 name="Receita"
               />
               <Bar
                 dataKey="quantidadeVendida"
-                fill="hsl(var(--chart-3))"
+                fill={getChartColor(settings.chartTheme, 1)}
                 name="Quantidade Vendida"
               />
             </BarChart>
@@ -273,12 +280,12 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               />{" "}
               <Bar
                 dataKey="totalPedidos"
-                fill="hsl(var(--chart-1))"
+                fill={getChartColor(settings.chartTheme, 0)}
                 name="Total de Pedidos"
               />
               <Bar
                 dataKey="receitaTotal"
-                fill="hsl(var(--chart-2))"
+                fill={getChartColor(settings.chartTheme, 1)}
                 name="Receita Total"
               />
             </BarChart>
@@ -314,14 +321,14 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               <Line
                 type="monotone"
                 dataKey="totalPedidos"
-                stroke="hsl(var(--chart-3))"
+                stroke={getChartColor(settings.chartTheme, 0)}
                 strokeWidth={2}
                 name="Total de Pedidos"
               />
               <Line
                 type="monotone"
                 dataKey="receitaEstimada"
-                stroke="hsl(var(--chart-2))"
+                stroke={getChartColor(settings.chartTheme, 1)}
                 strokeWidth={2}
                 name="Receita Estimada"
               />

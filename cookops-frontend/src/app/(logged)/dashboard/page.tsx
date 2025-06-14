@@ -11,14 +11,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -34,6 +33,7 @@ import { Switch } from "@/components/ui/switch";
 import { useChartDrilldown } from "@/hooks/useChartDrilldown";
 import { useChartExport } from "@/hooks/useChartExport";
 import { useDashboardSettings } from "@/hooks/useDashboardSettings";
+import { getChartColor } from "@/lib/chart-themes";
 import {
   generateTrendChartData,
   getPeriodLabel,
@@ -64,11 +64,11 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
+  LabelList,
   Line,
-  Pie,
-  PieChart,
+  RadialBar,
+  RadialBarChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -95,7 +95,7 @@ export default function Dashboard() {
   const [showConfig, setShowConfig] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [showAdvancedExport, setShowAdvancedExport] = useState(false);
-
+  const [forceUpdate, setForceUpdate] = useState({}); // Para forçar rerenderização
   // Configurações do dashboard
   const { settings, isChartVisible } = useDashboardSettings();
 
@@ -157,49 +157,49 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, [settings.autoRefresh, settings.refreshInterval, loadDashboardData]);
-  // Configurações dos gráficos
+  // Configurações dos gráficos usando o tema selecionado
   const chartConfigs: Record<string, ChartConfig> = useMemo(
     () => ({
       vendas: {
         vendas: {
           label: "Pedidos",
-          color: "hsl(var(--chart-1))",
+          color: getChartColor(settings.chartTheme, 0),
         },
         tendencia: {
           label: "Tendência",
-          color: "hsl(var(--dashboard-accent))",
+          color: getChartColor(settings.chartTheme, 1),
         },
       },
       status: {
         pendente: {
           label: "Pendente",
-          color: "hsl(var(--dashboard-warning))", // Amarelo/laranja para pendente
+          color: getChartColor(settings.chartTheme, 0),
         },
         preparando: {
           label: "Preparando",
-          color: "hsl(var(--dashboard-info))", // Azul para preparando
+          color: getChartColor(settings.chartTheme, 1),
         },
         pronto: {
           label: "Pronto",
-          color: "hsl(var(--dashboard-success))", // Verde para pronto
+          color: getChartColor(settings.chartTheme, 2),
         },
         entregue: {
           label: "Entregue",
-          color: "hsl(var(--dashboard-accent))", // Roxo para entregue
+          color: getChartColor(settings.chartTheme, 3),
         },
         cancelado: {
           label: "Cancelado",
-          color: "hsl(var(--dashboard-error))", // Vermelho para cancelado
+          color: getChartColor(settings.chartTheme, 4),
         },
       },
       produtos: {
         vendas: {
           label: "Vendas",
-          color: "hsl(var(--chart-1))",
+          color: getChartColor(settings.chartTheme, 0),
         },
         receita: {
           label: "Receita",
-          color: "hsl(var(--chart-2))",
+          color: getChartColor(settings.chartTheme, 1),
         },
       },
       horarios: {
@@ -215,11 +215,11 @@ export default function Dashboard() {
       vendasDiaSemana: {
         pedidos: {
           label: "Pedidos",
-          color: "hsl(var(--chart-1))",
+          color: "var(--chart-1))",
         },
         receita: {
           label: "Receita (R$)",
-          color: "hsl(var(--chart-2))",
+          color: "var(--chart-2))",
         },
         percentual: {
           label: "Percentual",
@@ -287,7 +287,7 @@ export default function Dashboard() {
         },
       },
     }),
-    []
+    [settings.chartTheme]
   );
 
   // Dados para os gráficos com otimização
@@ -301,14 +301,14 @@ export default function Dashboard() {
 
     return {
       crescimento: trendData,
-      status: dashboardData.operacional.pedidosPorStatus.map((status) => ({
-        name: status.titulo,
-        value: status.totalPedidos,
-        percentage: status.percentualTotal,
-        fill:
-          chartConfigs.status[status.titulo.toLowerCase()]?.color ||
-          "hsl(var(--muted))",
-      })),
+      status: dashboardData.operacional.pedidosPorStatus.map(
+        (status, index) => ({
+          name: status.titulo,
+          value: status.totalPedidos,
+          percentage: status.percentualTotal,
+          fill: getChartColor(settings.chartTheme, index),
+        })
+      ),
       produtos: (() => {
         // Combinar produtos mais populares com produtos de baixo desempenho para ter mais variedade
         const todosProdutos = [
@@ -365,7 +365,7 @@ export default function Dashboard() {
           percentual: fonte.percentualTotal,
         })) || [],
     };
-  }, [dashboardData, chartConfigs, filters.periodo]);
+  }, [dashboardData, filters.periodo, settings.chartTheme]);
 
   if (loading) {
     return (
@@ -401,9 +401,8 @@ export default function Dashboard() {
       </div>
     );
   }
-
   return (
-    <div className="p-6">
+    <div key={JSON.stringify(forceUpdate)} className="p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Cabeçalho do Dashboard */}
         <div className="flex items-center justify-between">
@@ -1043,10 +1042,10 @@ export default function Dashboard() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="periodo" />
                       <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartTooltip content={<ChartTooltipContent />} />{" "}
                       <Bar
                         dataKey="vendas"
-                        fill="var(--chart-1)"
+                        fill={getChartColor(settings.chartTheme, 0)}
                         name="Pedidos"
                         barSize={40}
                         fillOpacity={0.8}
@@ -1054,9 +1053,13 @@ export default function Dashboard() {
                       <Line
                         type="monotone"
                         dataKey="tendencia"
-                        stroke="var(--chart-2)"
+                        stroke={getChartColor(settings.chartTheme, 1)}
                         strokeWidth={3}
-                        dot={{ fill: "var(--chart-2)", strokeWidth: 2, r: 4 }}
+                        dot={{
+                          fill: getChartColor(settings.chartTheme, 1),
+                          strokeWidth: 2,
+                          r: 4,
+                        }}
                         name="Tendência"
                       />
                     </ComposedChart>
@@ -1119,7 +1122,10 @@ export default function Dashboard() {
                       <XAxis dataKey="dia" />
                       <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="pedidos" fill="var(--chart-1)" />
+                      <Bar
+                        dataKey="pedidos"
+                        fill={getChartColor(settings.chartTheme, 0)}
+                      />
                     </BarChart>
                   </ChartContainer>
                 </CardContent>
@@ -1128,44 +1134,64 @@ export default function Dashboard() {
           </div>{" "}
           {/* Segunda linha de gráficos */}
           <div className="grid gap-6 md:grid-cols-2 mb-6">
-            {/* Gráfico de Pizza - Status dos Pedidos */}
+            {/* Gráfico de Pizza - Status dos Pedidos */}{" "}
             {isChartVisible("status_distribution") && (
-              <Card>
-                <CardHeader>
+              <Card className="flex flex-col">
+                <CardHeader className="items-center pb-0">
                   <CardTitle>Distribuição por Status</CardTitle>
                   <CardDescription>
                     Proporção de pedidos por status atual
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1 pb-0">
                   <ChartContainer
                     config={chartConfigs.status}
-                    className="h-[300px]"
+                    className="mx-auto aspect-square max-h-[300px]"
                   >
-                    <PieChart>
-                      <Pie
-                        data={chartData.status}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        label={({ name, percentage }) =>
-                          `${name}: ${percentage.toFixed(1)}%`
+                    <RadialBarChart
+                      data={chartData.status}
+                      startAngle={-90}
+                      endAngle={380}
+                      innerRadius={30}
+                      outerRadius={110}
+                    >
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent hideLabel nameKey="name" />
                         }
-                      >
-                        {chartData.status?.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <ChartLegend content={<ChartLegendContent />} />
-                    </PieChart>
+                      />
+                      <RadialBar dataKey="value" background>
+                        <LabelList
+                          position="insideStart"
+                          dataKey="name"
+                          className="fill-white capitalize mix-blend-luminosity"
+                          fontSize={11}
+                        />
+                      </RadialBar>
+                    </RadialBarChart>
                   </ChartContainer>
                 </CardContent>
+                <CardFooter className="flex-col gap-2 text-sm">
+                  <div className="flex items-center gap-2 leading-none font-medium">
+                    {dashboardData?.operacional?.pedidosPorStatus?.length >
+                      0 && (
+                      <>
+                        Status principal:{" "}
+                        {dashboardData.operacional.pedidosPorStatus[0].titulo} ({" "}
+                        {dashboardData.operacional.pedidosPorStatus[0].percentualTotal.toFixed(
+                          1
+                        )}
+                        %)
+                      </>
+                    )}
+                  </div>
+                  <div className="text-muted-foreground leading-none">
+                    Distribuição atual de todos os pedidos por status
+                  </div>
+                </CardFooter>
               </Card>
             )}
-
             {/* Gráfico de Horários de Pico */}
             {isChartVisible("horarios_pico") && (
               <Card>
@@ -1217,12 +1243,12 @@ export default function Dashboard() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="hora" />
                       <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartTooltip content={<ChartTooltipContent />} />{" "}
                       <Area
                         type="monotone"
                         dataKey="pedidos"
-                        stroke="var(--chart-1)"
-                        fill="var(--chart-1)"
+                        stroke={getChartColor(settings.chartTheme, 0)}
+                        fill={getChartColor(settings.chartTheme, 0)}
                         fillOpacity={0.3}
                       />
                     </AreaChart>
@@ -1285,7 +1311,10 @@ export default function Dashboard() {
                       <XAxis dataKey="nome" />
                       <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="vendas" fill="var(--chart-1)" />
+                      <Bar
+                        dataKey="vendas"
+                        fill={getChartColor(settings.chartTheme, 0)}
+                      />
                     </BarChart>
                   </ChartContainer>
                 </CardContent>
@@ -1363,10 +1392,10 @@ export default function Dashboard() {
                               {produto.receita.toLocaleString("pt-BR", {
                                 minimumFractionDigits: 2,
                               })}
-                            </div>
+                            </div>{" "}
                             <div className="w-20 bg-secondary rounded-full h-2 mt-1">
                               <div
-                                className="bg-primary h-2 rounded-full transition-all"
+                                className="h-2 rounded-full transition-all"
                                 style={{
                                   width: `${Math.min(
                                     100,
@@ -1378,6 +1407,10 @@ export default function Dashboard() {
                                       )) *
                                       100
                                   )}%`,
+                                  backgroundColor: getChartColor(
+                                    settings.chartTheme,
+                                    0
+                                  ),
                                 }}
                               />
                             </div>
@@ -1456,17 +1489,17 @@ export default function Dashboard() {
                           }
                           return null;
                         }}
-                      />
+                      />{" "}
                       <Bar
                         yAxisId="left"
                         dataKey="totalPedidos"
-                        fill="var(--chart-1)"
+                        fill={getChartColor(settings.chartTheme, 0)}
                         name="Total de Pedidos"
                       />
                       <Bar
                         yAxisId="right"
                         dataKey="valorMedio"
-                        fill="var(--chart-2)"
+                        fill={getChartColor(settings.chartTheme, 1)}
                         name="Valor Médio (R$)"
                       />
                     </BarChart>
@@ -1738,34 +1771,35 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {dashboardData.operacional.pedidosPorStatus
-                    .slice(0, 3)
-                    .map((status) => (
-                      <div
-                        key={status.statusId}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-3 w-3 rounded-full"
-                            style={{
-                              backgroundColor:
-                                chartConfigs.status[status.titulo.toLowerCase()]
-                                  ?.color || "#8884d8",
-                            }}
-                          />
-                          <span className="text-sm">{status.titulo}</span>
+                  {dashboardData.operacional.pedidosPorStatus.map((status) => (
+                    <div
+                      key={status.statusId}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-3 w-3 rounded-full"
+                          style={{
+                            backgroundColor: getChartColor(
+                              settings.chartTheme,
+                              dashboardData.operacional.pedidosPorStatus.findIndex(
+                                (s) => s.statusId === status.statusId
+                              )
+                            ),
+                          }}
+                        />
+                        <span className="text-sm">{status.titulo}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">
+                          {status.totalPedidos} pedidos
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium">
-                            {status.totalPedidos} pedidos
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {status.percentualTotal.toFixed(1)}%
-                          </div>
+                        <div className="text-xs text-muted-foreground">
+                          {status.percentualTotal.toFixed(1)}%
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>{" "}
@@ -1849,11 +1883,16 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-        </div>
+        </div>{" "}
         {/* Modal de Configuração */}
         <DashboardConfig
           isOpen={showConfig}
           onClose={() => setShowConfig(false)}
+          onSettingsChange={() => {
+            // Fecha o modal e recarrega a página para aplicar as mudanças
+            setShowConfig(false);
+            window.location.reload();
+          }}
         />
         {/* Modal de Configurações Avançadas */}
         <AdvancedSettings

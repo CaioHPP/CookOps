@@ -16,37 +16,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DashboardChart,
   useDashboardSettings,
 } from "@/hooks/useDashboardSettings";
+import { CHART_THEMES, ChartTheme } from "@/lib/chart-themes";
 import {
   BarChart3,
-  Download,
   Eye,
   EyeOff,
-  Monitor,
-  Moon,
+  Palette,
   RefreshCw,
   Settings,
-  Sun,
-  Upload,
 } from "lucide-react";
-import { useRef, useState } from "react";
 
 interface DashboardConfigProps {
   isOpen: boolean;
   onClose: () => void;
+  onSettingsChange?: () => void; // Callback para forçar re-render
 }
 
 const categoryNames = {
@@ -58,56 +47,23 @@ const categoryNames = {
 
 const categoryIcons = {
   vendas: BarChart3,
-  operacional: Monitor,
+  operacional: Settings,
   produtos: Eye,
   performance: RefreshCw,
 };
 
-const themeIcons = {
-  light: Sun,
-  dark: Moon,
-  system: Monitor,
-};
-
-export function DashboardConfig({ isOpen, onClose }: DashboardConfigProps) {
+export function DashboardConfig({
+  isOpen,
+  onClose,
+  onSettingsChange,
+}: DashboardConfigProps) {
   const {
     settings,
     toggleChart,
-    setAutoRefresh,
-    setRefreshInterval,
-    setDefaultPeriod,
-    setShowComparison,
-    setAlertsEnabled,
-    setTheme,
-    resetToDefaults,
-    exportSettings,
-    importSettings,
+    setChartTheme,
     getChartsByCategory,
     isChartVisible,
   } = useDashboardSettings();
-
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileImport = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setImporting(true);
-    try {
-      await importSettings(file);
-    } catch (error) {
-      console.error("Erro ao importar configurações:", error);
-      alert("Erro ao importar configurações. Verifique o formato do arquivo.");
-    } finally {
-      setImporting(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
 
   const renderChartsByCategory = (category: DashboardChart["category"]) => {
     const charts = getChartsByCategory(category);
@@ -145,10 +101,14 @@ export function DashboardConfig({ isOpen, onClose }: DashboardConfigProps) {
                   <p className="text-xs text-muted-foreground mt-1">
                     {chart.description}
                   </p>
-                </div>
+                </div>{" "}
                 <Switch
                   checked={isVisible}
-                  onCheckedChange={() => toggleChart(chart.id)}
+                  onCheckedChange={() => {
+                    toggleChart(chart.id);
+                    // Força uma atualização do dashboard
+                    onSettingsChange?.();
+                  }}
                 />
               </div>
             );
@@ -170,16 +130,12 @@ export function DashboardConfig({ isOpen, onClose }: DashboardConfigProps) {
             <DialogDescription>
               Personalize a exibição e comportamento do seu dashboard
             </DialogDescription>
-          </DialogHeader>
-
+          </DialogHeader>{" "}
           <Tabs defaultValue="charts" className="mt-4">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="charts">Gráficos</TabsTrigger>
-              <TabsTrigger value="behavior">Comportamento</TabsTrigger>
               <TabsTrigger value="appearance">Aparência</TabsTrigger>
-              <TabsTrigger value="backup">Backup</TabsTrigger>
             </TabsList>
-
             <TabsContent value="charts" className="mt-4">
               <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
@@ -192,224 +148,151 @@ export function DashboardConfig({ isOpen, onClose }: DashboardConfigProps) {
                     Object.keys(categoryNames) as Array<
                       keyof typeof categoryNames
                     >
-                  ).map(renderChartsByCategory)}
+                  ).map(renderChartsByCategory)}{" "}
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="behavior" className="mt-4">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Atualização Automática
-                    </CardTitle>
-                    <CardDescription>
-                      Configure se o dashboard deve se atualizar automaticamente
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="auto-refresh" className="text-sm">
-                        Ativar atualização automática
-                      </Label>
-                      <Switch
-                        id="auto-refresh"
-                        checked={settings.autoRefresh}
-                        onCheckedChange={setAutoRefresh}
-                      />
-                    </div>
-
-                    {settings.autoRefresh && (
-                      <div className="space-y-2">
-                        <Label htmlFor="refresh-interval" className="text-sm">
-                          Intervalo de atualização
-                        </Label>
-                        <Select
-                          value={settings.refreshInterval.toString()}
-                          onValueChange={(value) =>
-                            setRefreshInterval(Number(value))
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="60000">1 minuto</SelectItem>
-                            <SelectItem value="300000">5 minutos</SelectItem>
-                            <SelectItem value="600000">10 minutos</SelectItem>
-                            <SelectItem value="1800000">30 minutos</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Configurações Padrão
-                    </CardTitle>
-                    <CardDescription>
-                      Defina valores padrão para filtros e funcionalidades
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="default-period" className="text-sm">
-                        Período padrão
-                      </Label>
-                      <Select
-                        value={settings.defaultPeriod}
-                        onValueChange={setDefaultPeriod}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="7">7 dias</SelectItem>
-                          <SelectItem value="30">30 dias</SelectItem>
-                          <SelectItem value="90">90 dias</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="show-comparison" className="text-sm">
-                        Mostrar comparação por padrão
-                      </Label>
-                      <Switch
-                        id="show-comparison"
-                        checked={settings.showComparison}
-                        onCheckedChange={setShowComparison}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="alerts-enabled" className="text-sm">
-                        Ativar sistema de alertas
-                      </Label>
-                      <Switch
-                        id="alerts-enabled"
-                        checked={settings.alertsEnabled}
-                        onCheckedChange={setAlertsEnabled}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </TabsContent>
 
             <TabsContent value="appearance" className="mt-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Tema</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Tema de Cores dos Gráficos
+                  </CardTitle>
                   <CardDescription>
-                    Escolha a aparência do dashboard
+                    Escolha a paleta de cores para os gráficos do dashboard
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-3">
-                    {(["light", "dark", "system"] as const).map((theme) => {
-                      const Icon = themeIcons[theme];
-                      const isSelected = settings.theme === theme;
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {(Object.keys(CHART_THEMES) as ChartTheme[]).map(
+                      (themeKey) => {
+                        const theme = CHART_THEMES[themeKey];
+                        const isSelected = settings.chartTheme === themeKey;
 
-                      return (
-                        <Button
-                          key={theme}
-                          variant={isSelected ? "default" : "outline"}
-                          className="h-20 flex-col gap-2"
-                          onClick={() => setTheme(theme)}
-                        >
-                          <Icon className="h-6 w-6" />
-                          <span className="text-sm capitalize">
-                            {theme === "system"
-                              ? "Sistema"
-                              : theme === "light"
-                              ? "Claro"
-                              : "Escuro"}
-                          </span>
-                        </Button>
-                      );
-                    })}
+                        return (
+                          <div
+                            key={themeKey}
+                            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary/50"
+                            }`}
+                            onClick={() => {
+                              setChartTheme(themeKey);
+                              // Força uma atualização do dashboard
+                              onSettingsChange?.();
+                            }}
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">
+                                  {theme.name}
+                                </span>
+                                {isSelected && (
+                                  <div className="w-2 h-2 bg-primary rounded-full" />
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {theme.description}
+                              </p>{" "}
+                              <div className="flex gap-1">
+                                {themeKey === "purple" && (
+                                  <>
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#9333ea" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#f59e0b" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#3b82f6" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#f97316" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#8b5cf6" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#10b981" }}
+                                    />
+                                  </>
+                                )}
+                                {themeKey === "ocean" && (
+                                  <>
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#3b82f6" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#06b6d4" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#10b981" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#9333ea" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#f59e0b" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#8b5cf6" }}
+                                    />
+                                  </>
+                                )}
+                                {themeKey === "sunset" && (
+                                  <>
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#f97316" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#ef4444" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#f59e0b" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#fb923c" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#eab308" }}
+                                    />
+                                    <div
+                                      className="w-6 h-6 rounded border"
+                                      style={{ backgroundColor: "#9333ea" }}
+                                    />
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
                   </div>
-                </CardContent>
+                </CardContent>{" "}
               </Card>
             </TabsContent>
-
-            <TabsContent value="backup" className="mt-4">
-              <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Exportar Configurações
-                    </CardTitle>
-                    <CardDescription>
-                      Faça backup das suas configurações personalizadas
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button onClick={exportSettings} className="w-full">
-                      <Download className="h-4 w-4 mr-2" />
-                      Exportar Configurações
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Importar Configurações
-                    </CardTitle>
-                    <CardDescription>
-                      Restaure configurações de um arquivo de backup
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".json"
-                      onChange={handleFileImport}
-                      className="hidden"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={importing}
-                      className="w-full"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {importing ? "Importando..." : "Importar Configurações"}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Resetar Configurações
-                    </CardTitle>
-                    <CardDescription>
-                      Volte às configurações padrão do sistema
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      variant="destructive"
-                      onClick={resetToDefaults}
-                      className="w-full"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Resetar para Padrão
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
           </Tabs>
-
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
               Fechar
