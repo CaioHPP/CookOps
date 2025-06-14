@@ -41,8 +41,8 @@ export function usePedidos() {
       // Atualizar o pedido na lista local
       setPedidos((prev) =>
         prev.map((pedido) =>
-          pedido.id === pedidoId ? pedidoAtualizado : pedido
-        )
+          pedido.id === pedidoId ? pedidoAtualizado : pedido,
+        ),
       );
 
       toast.success("Pedido concluído com sucesso!");
@@ -73,10 +73,10 @@ export function usePedidos() {
       return verificarPedidoAtrasado(
         pedido.criadoEm,
         pedido.concluidoEm,
-        tempoPreparoMedio
+        tempoPreparoMedio,
       );
     },
-    []
+    [],
   );
 
   // Calcular tempo restante para conclusão
@@ -85,7 +85,7 @@ export function usePedidos() {
       if (isPedidoConcluido(pedido)) return null;
       return calcularTempoRestante(pedido.criadoEm, tempoPreparoMedio);
     },
-    [isPedidoConcluido]
+    [isPedidoConcluido],
   );
 
   // Carregar pedidos na inicialização

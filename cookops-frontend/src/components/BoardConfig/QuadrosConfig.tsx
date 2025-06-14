@@ -53,11 +53,11 @@ export default function QuadrosConfig() {
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(
-    null
+    null,
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -109,8 +109,10 @@ export default function QuadrosConfig() {
       await BoardService.toggleActiveBoard(board.id);
       // Reload boards to get the updated state
       await loadBoards();
-      const isCurrentlyInactive = board.titulo.startsWith('[INATIVO]');
-      toast.success(`Board ${isCurrentlyInactive ? 'ativado' : 'inativado'} com sucesso!`);
+      const isCurrentlyInactive = board.titulo.startsWith("[INATIVO]");
+      toast.success(
+        `Board ${isCurrentlyInactive ? "ativado" : "inativado"} com sucesso!`,
+      );
     } catch (error) {
       console.error("Erro ao alterar status do board:", error);
       toast.error("Erro ao alterar status do board");
@@ -118,11 +120,11 @@ export default function QuadrosConfig() {
   };
 
   const isInactive = (board: BoardResponseDto): boolean => {
-    return board.titulo.startsWith('[INATIVO]');
+    return board.titulo.startsWith("[INATIVO]");
   };
 
   const getBoardDisplayName = (board: BoardResponseDto): string => {
-    return board.titulo.replace('[INATIVO] ', '');
+    return board.titulo.replace("[INATIVO] ", "");
   };
 
   const handleSetDefault = async (board: BoardResponseDto) => {
@@ -138,7 +140,7 @@ export default function QuadrosConfig() {
   };
 
   const filteredBoards = boards.filter((board) =>
-    board.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+    board.titulo.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -252,7 +254,9 @@ export default function QuadrosConfig() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Kanban className="h-4 w-4 text-muted-foreground" />
-                        <span className={`font-medium ${isInactive(board) ? 'text-muted-foreground' : ''}`}>
+                        <span
+                          className={`font-medium ${isInactive(board) ? "text-muted-foreground" : ""}`}
+                        >
                           {getBoardDisplayName(board)}
                         </span>
                         {isInactive(board) && (
@@ -274,7 +278,7 @@ export default function QuadrosConfig() {
                             : "bg-green-50 text-green-700 border-green-200"
                         }
                       >
-                        {isInactive(board) ? 'Inativo' : 'Ativo'}
+                        {isInactive(board) ? "Inativo" : "Ativo"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

@@ -134,7 +134,7 @@ export default function ProductionKanban() {
   const getEstatisticas = () => {
     const totalPedidos = statusColumns.reduce(
       (total, column) => total + column.pedidos.length,
-      0
+      0,
     );
 
     const pedidosAtrasados = statusColumns.reduce((total, column) => {
@@ -296,7 +296,7 @@ export default function ProductionKanban() {
             onMoveError={(
               orderId: string,
               fromStatusId: number,
-              toStatusId: number
+              toStatusId: number,
             ) => {
               reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}

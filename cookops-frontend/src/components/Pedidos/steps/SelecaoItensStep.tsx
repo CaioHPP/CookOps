@@ -75,7 +75,7 @@ export function SelecaoItensStep({
     if (formasPagamento.length > 0 && !formData.pagamentoId) {
       console.log(
         "✅ Definindo pagamento automaticamente:",
-        formasPagamento[0]
+        formasPagamento[0],
       );
       updateFormData({ pagamentoId: formasPagamento[0].id });
     }
@@ -90,7 +90,7 @@ export function SelecaoItensStep({
         .filter(
           (produto) =>
             produto.nome.toLowerCase().includes(busca.toLowerCase()) ||
-            produto.codigoBarras?.toLowerCase().includes(busca.toLowerCase())
+            produto.codigoBarras?.toLowerCase().includes(busca.toLowerCase()),
         )
         .slice(0, 3); // Máximo 3 resultados
       setProdutosFiltrados(filtered);
@@ -116,20 +116,20 @@ export function SelecaoItensStep({
       const item = formData.itens.find((item) => item.produto.id === produtoId);
       return item?.quantidade || 0;
     },
-    [formData.itens]
+    [formData.itens],
   );
 
   const adicionarItem = useCallback(
     (produto: ProdutoResponseDto) => {
       const itemExistente = formData.itens.find(
-        (item) => item.produto.id === produto.id
+        (item) => item.produto.id === produto.id,
       );
 
       if (itemExistente) {
         const novosItens = formData.itens.map((item) =>
           item.produto.id === produto.id
             ? { ...item, quantidade: item.quantidade + 1 }
-            : item
+            : item,
         );
         updateFormData({ itens: novosItens });
       } else {
@@ -141,14 +141,14 @@ export function SelecaoItensStep({
         updateFormData({ itens: [...formData.itens, novoItem] });
       }
     },
-    [formData.itens, updateFormData]
+    [formData.itens, updateFormData],
   );
 
   const atualizarQuantidade = useCallback(
     (produtoId: string, novaQuantidade: number) => {
       if (novaQuantidade <= 0) {
         const novosItens = formData.itens.filter(
-          (item) => item.produto.id !== produtoId
+          (item) => item.produto.id !== produtoId,
         );
         updateFormData({ itens: novosItens });
         return;
@@ -157,37 +157,37 @@ export function SelecaoItensStep({
       const novosItens = formData.itens.map((item) =>
         item.produto.id === produtoId
           ? { ...item, quantidade: novaQuantidade }
-          : item
+          : item,
       );
       updateFormData({ itens: novosItens });
     },
-    [formData.itens, updateFormData]
+    [formData.itens, updateFormData],
   );
 
   const removerItem = useCallback(
     (produtoId: string) => {
       const novosItens = formData.itens.filter(
-        (item) => item.produto.id !== produtoId
+        (item) => item.produto.id !== produtoId,
       );
       updateFormData({ itens: novosItens });
     },
-    [formData.itens, updateFormData]
+    [formData.itens, updateFormData],
   );
 
   const atualizarObservacao = useCallback(
     (produtoId: string, observacao: string) => {
       const novosItens = formData.itens.map((item) =>
-        item.produto.id === produtoId ? { ...item, observacao } : item
+        item.produto.id === produtoId ? { ...item, observacao } : item,
       );
       updateFormData({ itens: novosItens });
     },
-    [formData.itens, updateFormData]
+    [formData.itens, updateFormData],
   );
 
   const calcularSubtotal = () => {
     return formData.itens.reduce(
       (acc, item) => acc + item.produto.precoBase * item.quantidade,
-      0
+      0,
     );
   };
 
@@ -247,7 +247,7 @@ export function SelecaoItensStep({
                   <Button variant="outline" className="w-full justify-between">
                     {formData.pagamentoId
                       ? formasPagamento.find(
-                          (f) => f.id === formData.pagamentoId
+                          (f) => f.id === formData.pagamentoId,
                         )?.nome || "Selecione o pagamento"
                       : "Selecione o pagamento"}
                     <ChevronDown className="h-4 w-4 ml-2" />
@@ -323,7 +323,7 @@ export function SelecaoItensStep({
             <div className="mt-4 space-y-2">
               {produtosFiltrados.map((produto) => {
                 const quantidadeNoCarrinho = getQuantidadeNoCarrinho(
-                  produto.id
+                  produto.id,
                 );
                 return (
                   <div
@@ -391,7 +391,7 @@ export function SelecaoItensStep({
                         onClick={() =>
                           atualizarQuantidade(
                             item.produto.id,
-                            item.quantidade - 1
+                            item.quantidade - 1,
                           )
                         }
                       >
@@ -404,7 +404,7 @@ export function SelecaoItensStep({
                         onClick={() =>
                           atualizarQuantidade(
                             item.produto.id,
-                            item.quantidade + 1
+                            item.quantidade + 1,
                           )
                         }
                       >

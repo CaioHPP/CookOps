@@ -15,7 +15,7 @@ export function useEstatisticasProdutos() {
     const precos = produtos
       .map((p) => p.precoBase)
       .filter(
-        (preco): preco is number => typeof preco === "number" && preco > 0
+        (preco): preco is number => typeof preco === "number" && preco > 0,
       );
 
     const precoMedio =
@@ -25,13 +25,16 @@ export function useEstatisticasProdutos() {
 
     const precoMinimo = precos.length > 0 ? Math.min(...precos) : 0;
     const precoMaximo = precos.length > 0 ? Math.max(...precos) : 0; // Produtos por descrição (simulando categorias)
-    const categorias = produtos.reduce((acc, produto) => {
-      // Como não temos categoria, vamos agrupar por primeira palavra da descrição
-      const primeiraDescricao =
-        produto.descricao?.split(" ")[0] || "Sem categoria";
-      acc[primeiraDescricao] = (acc[primeiraDescricao] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const categorias = produtos.reduce(
+      (acc, produto) => {
+        // Como não temos categoria, vamos agrupar por primeira palavra da descrição
+        const primeiraDescricao =
+          produto.descricao?.split(" ")[0] || "Sem categoria";
+        acc[primeiraDescricao] = (acc[primeiraDescricao] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     // Produtos mais caros (top 5)
     const produtosMaisCaros = produtos
@@ -73,7 +76,7 @@ export function useEstatisticasProdutos() {
       temProdutos: total > 0,
       temProdutosAtivos: ativos > 0,
       temProdutosSemPreco: produtos.some(
-        (p) => !p.precoBase || p.precoBase <= 0
+        (p) => !p.precoBase || p.precoBase <= 0,
       ),
     };
   }, [produtos]);
@@ -88,7 +91,7 @@ export function useEstatisticasProdutos() {
   // Função para obter produtos por categoria
   const getProdutosPorCategoria = (categoria: string) => {
     return produtos.filter((produto) =>
-      produto.descricao?.toLowerCase().includes(categoria.toLowerCase())
+      produto.descricao?.toLowerCase().includes(categoria.toLowerCase()),
     );
   };
 
@@ -103,7 +106,7 @@ export function useEstatisticasProdutos() {
         .toFixed(2)
         .replace(".", ",")}`,
       resumoStatus: `${porcentagemAtivos.toFixed(
-        1
+        1,
       )}% dos produtos estão ativos`,
     };
   };

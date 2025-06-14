@@ -35,7 +35,7 @@ export function calcularTempoDecorrido(criadoEm: string): string {
 export function verificarPedidoAtrasado(
   criadoEm: string,
   concluidoEm?: string,
-  tempoPreparoMedio?: number
+  tempoPreparoMedio?: number,
 ): boolean {
   if (concluidoEm || !tempoPreparoMedio) return false;
 
@@ -52,7 +52,7 @@ export function verificarPedidoAtrasado(
  */
 export function calcularTempoRestante(
   criadoEm: string,
-  tempoPreparoMedio: number
+  tempoPreparoMedio: number,
 ): { restante: number; status: "ok" | "atencao" | "atrasado" } {
   const agora = new Date();
   const criacao = new Date(criadoEm);
@@ -123,7 +123,7 @@ export function obterTempoPreparoMedio(): number {
  */
 export function calcularTempoDecorridoComTempo(
   criadoEm: string,
-  agora: Date
+  agora: Date,
 ): string {
   const criacao = new Date(criadoEm);
   const diffMs = agora.getTime() - criacao.getTime();
@@ -153,7 +153,7 @@ export function calcularTempoDecorridoComTempo(
 export function calcularTempoRestanteComTempo(
   criadoEm: string,
   tempoPreparoMedio: number,
-  agora: Date
+  agora: Date,
 ): { restante: number; status: "ok" | "atencao" | "atrasado" } {
   const criacao = new Date(criadoEm);
   const diffMs = agora.getTime() - criacao.getTime();

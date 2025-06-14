@@ -159,7 +159,7 @@ export const PedidoFormValidationSchema = z
     {
       message: "Endereço é obrigatório para pedidos de entrega",
       path: ["endereco"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -172,7 +172,7 @@ export const PedidoFormValidationSchema = z
     {
       message: "Taxa de entrega deve ser zero para pedidos de balcão",
       path: ["taxaEntrega"],
-    }
+    },
   );
 
 // Funções auxiliares de validação por step

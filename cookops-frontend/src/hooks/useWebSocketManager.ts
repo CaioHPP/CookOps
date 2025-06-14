@@ -60,7 +60,7 @@ export interface WebSocketCallbacks {
   onProdutoAtualizado?: (data: WebSocketEventData["produtoAtualizado"]) => void;
   onProdutoRemovido?: (data: WebSocketEventData["produtoRemovido"]) => void;
   onProdutoStatusAlterado?: (
-    data: WebSocketEventData["produtoStatusAlterado"]
+    data: WebSocketEventData["produtoStatusAlterado"],
   ) => void;
 }
 
@@ -201,7 +201,7 @@ class WebSocketManager {
         if (process.env.NODE_ENV === "development") {
           console.log("WebSocket Manager - Conexão confirmada:", data);
         }
-      }
+      },
     );
 
     // Confirmação de entrada na empresa
@@ -211,10 +211,10 @@ class WebSocketManager {
         if (process.env.NODE_ENV === "development") {
           console.log(
             `WebSocket Manager - Confirmação de entrada na empresa: ${data.empresaId}`,
-            data.success
+            data.success,
           );
         }
-      }
+      },
     );
   }
   private setupPedidosListeners() {
@@ -229,7 +229,7 @@ class WebSocketManager {
       "pedidoAtualizado",
       (data: WebSocketEventData["pedidoAtualizado"]) => {
         this.notifyCallbacks("onPedidoAtualizado", data);
-      }
+      },
     );
 
     this.socket.on(
@@ -239,7 +239,7 @@ class WebSocketManager {
         if (data?.acao === "concluido") {
           toast.success("Pedido concluído!");
         }
-      }
+      },
     );
   }
   private setupProdutosListeners() {
@@ -251,7 +251,7 @@ class WebSocketManager {
       (data: WebSocketEventData["produtoCriado"]) => {
         this.notifyCallbacks("onProdutoCriado", data);
         toast.success(`Novo produto foi adicionado`);
-      }
+      },
     );
 
     this.socket.on(
@@ -259,7 +259,7 @@ class WebSocketManager {
       (data: WebSocketEventData["produtoAtualizado"]) => {
         this.notifyCallbacks("onProdutoAtualizado", data);
         toast.info(`Produto foi atualizado`);
-      }
+      },
     );
 
     this.socket.on(
@@ -267,7 +267,7 @@ class WebSocketManager {
       (data: WebSocketEventData["produtoRemovido"]) => {
         this.notifyCallbacks("onProdutoRemovido", data);
         toast.warning("Um produto foi removido");
-      }
+      },
     );
 
     this.socket.on(
@@ -275,7 +275,7 @@ class WebSocketManager {
       (data: WebSocketEventData["produtoStatusAlterado"]) => {
         this.notifyCallbacks("onProdutoStatusAlterado", data);
         toast.info(`Status do produto foi alterado`);
-      }
+      },
     );
   }
   private notifyCallbacks(event: keyof WebSocketCallbacks, data: unknown) {
@@ -290,7 +290,7 @@ class WebSocketManager {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       if (process.env.NODE_ENV === "development") {
         console.log(
-          "WebSocket Manager - Máximo de tentativas de reconexão atingido"
+          "WebSocket Manager - Máximo de tentativas de reconexão atingido",
         );
       }
       toast.error("Não foi possível conectar ao servidor de atualizações");
@@ -316,7 +316,7 @@ class WebSocketManager {
 
     if (process.env.NODE_ENV === "development") {
       console.log(
-        `WebSocket Manager - Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts} em ${delay}ms`
+        `WebSocket Manager - Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts} em ${delay}ms`,
       );
     }
 
@@ -328,7 +328,7 @@ class WebSocketManager {
           if (process.env.NODE_ENV === "development") {
             console.log(
               "WebSocket Manager - Erro na tentativa de reconexão:",
-              error
+              error,
             );
           }
         }
@@ -362,7 +362,7 @@ class WebSocketManager {
   forceDisconnect() {
     if (process.env.NODE_ENV === "development") {
       console.log(
-        "WebSocket Manager - Forçando desconexão completa para logout"
+        "WebSocket Manager - Forçando desconexão completa para logout",
       );
     }
 
@@ -420,7 +420,7 @@ export function useWebSocketManager({
       if (!success) {
         if (process.env.NODE_ENV === "development") {
           console.log(
-            "WebSocket Manager - Primeira tentativa falhou, tentando novamente..."
+            "WebSocket Manager - Primeira tentativa falhou, tentando novamente...",
           );
         }
 

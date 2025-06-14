@@ -21,10 +21,10 @@ export function usePedidosPage() {
 
   // Estados de loading para ações específicas
   const [confirmarLoading, setConfirmarLoading] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [cancelarLoading, setCancelarLoading] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const info = useAuth();
@@ -58,8 +58,8 @@ export function usePedidosPage() {
                   confirmado: true,
                   dataConfirmacao: new Date().toISOString(),
                 }
-              : pedido
-          )
+              : pedido,
+          ),
         );
 
         // 2. Mostrar feedback de sucesso imediatamente
@@ -80,8 +80,8 @@ export function usePedidosPage() {
                   confirmado: false,
                   dataConfirmacao: undefined,
                 }
-              : pedido
-          )
+              : pedido,
+          ),
         );
 
         const errorMessage =
@@ -96,7 +96,7 @@ export function usePedidosPage() {
         });
       }
     },
-    [carregarPedidosStatusItens]
+    [carregarPedidosStatusItens],
   ); // Cancelar pedido com atualização otimista
   const cancelarPedido = useCallback(
     async (pedidoId: string) => {
@@ -106,7 +106,7 @@ export function usePedidosPage() {
       try {
         // 1. Atualização otimista - remover pedido da UI imediatamente
         setpedidosData((prevPedidos) =>
-          prevPedidos.filter((pedido) => pedido.id !== pedidoId)
+          prevPedidos.filter((pedido) => pedido.id !== pedidoId),
         );
 
         // 2. Mostrar feedback de sucesso imediatamente
@@ -132,7 +132,7 @@ export function usePedidosPage() {
         });
       }
     },
-    [carregarPedidosStatusItens]
+    [carregarPedidosStatusItens],
   );
 
   // Calcular tempo restante para confirmação
@@ -148,7 +148,7 @@ export function usePedidosPage() {
 
       return Math.max(0, Math.floor(tempoRestanteMs / (60 * 1000))); // retornar em minutos
     },
-    []
+    [],
   );
 
   // Formattar tempo restante para exibição
@@ -236,7 +236,7 @@ export function usePedidosPage() {
 
       return order;
     },
-    [calcularTempoRestanteConfirmacao, formatarTempoRestante]
+    [calcularTempoRestanteConfirmacao, formatarTempoRestante],
   );
 
   // Filtrar pedidos para cada aba
@@ -289,14 +289,14 @@ export function usePedidosPage() {
 
     // Ordenar pedidos de app por tempo restante (mais urgentes primeiro)
     app.sort(
-      (a, b) => (a.tempoRestanteMinutos || 0) - (b.tempoRestanteMinutos || 0)
+      (a, b) => (a.tempoRestanteMinutos || 0) - (b.tempoRestanteMinutos || 0),
     );
 
     // Ordenar pedidos de balcão por horário (mais recentes primeiro)
     balcao.sort(
       (a, b) =>
         new Date(b.orderTime || 0).getTime() -
-        new Date(a.orderTime || 0).getTime()
+        new Date(a.orderTime || 0).getTime(),
     );
 
     return { todos, balcao, app };

@@ -50,11 +50,11 @@ export default function QuadrosPage() {
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(
-    null
+    null,
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export default function QuadrosPage() {
   };
 
   const filteredBoards = boards.filter((board) =>
-    board.titulo.toLowerCase().includes(searchTerm.toLowerCase())
+    board.titulo.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const formatDate = (date: string) => {

@@ -28,14 +28,14 @@ export function useBuscaProdutos() {
   // Buscar por categoria específica (se o produto tiver categoria no futuro)
   const buscarPorCategoria = (categoria: string): ProdutoResponseDto[] => {
     return produtos.filter((produto) =>
-      produto.descricao?.toLowerCase().includes(categoria.toLowerCase())
+      produto.descricao?.toLowerCase().includes(categoria.toLowerCase()),
     );
   };
 
   // Buscar por faixa de preço
   const buscarPorPreco = (
     precoMin: number,
-    precoMax: number
+    precoMax: number,
   ): ProdutoResponseDto[] => {
     return produtos.filter((produto) => {
       const preco = produto.precoBase || 0;

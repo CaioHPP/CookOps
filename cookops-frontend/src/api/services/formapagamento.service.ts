@@ -9,18 +9,18 @@ import api from "../axios";
 
 export class FormaPagamentoService {
   static async addFormaPagamento(
-    data: FormaPagamentoRequestAddDto
+    data: FormaPagamentoRequestAddDto,
   ): Promise<FormaPagamentoResponseDto> {
     const response = await api.post<FormaPagamentoResponseDto>(
       API_ROUTES.FORMA_PAGAMENTO.ADD_FORMA_PAGAMENTO,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getFormasPagamento(): Promise<FormaPagamentoResponseDto[]> {
     const response = await api.get<FormaPagamentoResponseDto[]>(
-      API_ROUTES.FORMA_PAGAMENTO.GET_FORMAS_PAGAMENTO
+      API_ROUTES.FORMA_PAGAMENTO.GET_FORMAS_PAGAMENTO,
     );
     return response.data;
   }
@@ -29,13 +29,13 @@ export class FormaPagamentoService {
     FormaPagamentoResponseDto[]
   > {
     const response = await api.get<FormaPagamentoResponseDto[]>(
-      API_ROUTES.FORMA_PAGAMENTO.GET_FORMAS_PAGAMENTO_BY_EMPRESA
+      API_ROUTES.FORMA_PAGAMENTO.GET_FORMAS_PAGAMENTO_BY_EMPRESA,
     );
     return response.data;
   }
 
   static async getFormaPagamentoById(
-    id: number
+    id: number,
   ): Promise<FormaPagamentoResponseDto> {
     const url = `${API_ROUTES.FORMA_PAGAMENTO.GET_FORMA_PAGAMENTO_BY_ID}/${id}`;
     const response = await api.get<FormaPagamentoResponseDto>(url);
@@ -44,7 +44,7 @@ export class FormaPagamentoService {
 
   static async updateFormaPagamento(
     id: number,
-    data: FormaPagamentoRequestUpdateDto
+    data: FormaPagamentoRequestUpdateDto,
   ): Promise<FormaPagamentoResponseDto> {
     const url = `${API_ROUTES.FORMA_PAGAMENTO.UPDATE_FORMA_PAGAMENTO}/${id}`;
     const response = await api.put<FormaPagamentoResponseDto>(url, data);
@@ -58,7 +58,7 @@ export class FormaPagamentoService {
 
   static async toggleStatusFormaPagamento(
     id: number,
-    data: ToggleStatusFormaPagamentoRequestDto
+    data: ToggleStatusFormaPagamentoRequestDto,
   ): Promise<FormaPagamentoResponseDto> {
     const url = `${API_ROUTES.FORMA_PAGAMENTO.TOGGLE_STATUS_FORMA_PAGAMENTO}/${id}/toggle-status`;
     const response = await api.patch<FormaPagamentoResponseDto>(url, data);

@@ -67,7 +67,7 @@ export default function OrdersConfig() {
   const showAlert = (
     type: "success" | "error",
     title: string,
-    message: string
+    message: string,
   ) => {
     setAlertState({ show: true, type, title, message });
   };
@@ -84,13 +84,13 @@ export default function OrdersConfig() {
       showAlert(
         "success",
         "Sucesso",
-        "Configurações de pedidos salvas com sucesso!"
+        "Configurações de pedidos salvas com sucesso!",
       );
     } catch (error) {
       showAlert(
         "error",
         "Erro",
-        "Erro ao salvar as configurações. Tente novamente."
+        "Erro ao salvar as configurações. Tente novamente.",
       );
       console.error("Erro ao salvar configurações:", error);
     } finally {
@@ -100,7 +100,7 @@ export default function OrdersConfig() {
 
   const updateSetting = <K extends keyof OrderSettings>(
     key: K,
-    value: OrderSettings[K]
+    value: OrderSettings[K],
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
@@ -211,7 +211,7 @@ export default function OrdersConfig() {
               onChange={(e) =>
                 updateSetting(
                   "maxOrdersPerHour",
-                  parseInt(e.target.value) || 50
+                  parseInt(e.target.value) || 50,
                 )
               }
               className="max-w-32"

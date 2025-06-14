@@ -18,7 +18,7 @@ interface WebSocketContextType {
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface WebSocketProviderProps {
@@ -46,7 +46,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       console.log(
         `WebSocket Provider - Status: ${
           isConnected ? "Conectado" : "Desconectado"
-        }`
+        }`,
       );
       if (error) {
         console.error("WebSocket Provider - Erro:", error);
@@ -90,7 +90,7 @@ export function useWebSocketContext(): WebSocketContextType {
   const context = useContext(WebSocketContext);
   if (context === undefined) {
     throw new Error(
-      "useWebSocketContext deve ser usado dentro de um WebSocketProvider"
+      "useWebSocketContext deve ser usado dentro de um WebSocketProvider",
     );
   }
   return context;

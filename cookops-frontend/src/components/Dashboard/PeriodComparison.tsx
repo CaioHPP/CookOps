@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardData } from "@/types/dashboard.types";
 import { Minus, TrendingDown, TrendingUp } from "lucide-react";
@@ -89,31 +88,53 @@ export function PeriodComparison({ data, className }: PeriodComparisonProps) {
     if (previous === 0) return current > 0 ? 100 : 0;
     return ((current - previous) / previous) * 100;
   };
-
   const getChangeIcon = (percentage: number) => {
     if (percentage > 0) return <TrendingUp className="h-4 w-4" />;
     if (percentage < 0) return <TrendingDown className="h-4 w-4" />;
     return <Minus className="h-4 w-4" />;
   };
 
-  const getChangeColor = (percentage: number, isNegativeGood = false) => {
+  const getBadgeStyle = (percentage: number, isNegativeGood = false) => {
     if (percentage > 0) {
-      return isNegativeGood ? "text-red-600" : "text-green-600";
+      if (isNegativeGood) {
+        // Aumento negativo: fundo vermelho claro, texto vermelho escuro
+        return {
+          backgroundColor: "rgb(254 226 226)", // bg-red-100
+          color: "rgb(220 38 38)", // text-red-600
+          border: "1px solid rgb(248 113 113)", // border-red-400
+        };
+      } else {
+        // Aumento positivo: fundo verde claro, texto verde escuro
+        return {
+          backgroundColor: "rgb(220 252 231)", // bg-green-100
+          color: "rgb(22 163 74)", // text-green-600
+          border: "1px solid rgb(74 222 128)", // border-green-400
+        };
+      }
     }
     if (percentage < 0) {
-      return isNegativeGood ? "text-green-600" : "text-red-600";
+      if (isNegativeGood) {
+        // Redução positiva: fundo verde claro, texto verde escuro
+        return {
+          backgroundColor: "rgb(220 252 231)", // bg-green-100
+          color: "rgb(22 163 74)", // text-green-600
+          border: "1px solid rgb(74 222 128)", // border-green-400
+        };
+      } else {
+        // Redução negativa: fundo vermelho claro, texto vermelho escuro
+        return {
+          backgroundColor: "rgb(254 226 226)", // bg-red-100
+          color: "rgb(220 38 38)", // text-red-600
+          border: "1px solid rgb(248 113 113)", // border-red-400
+        };
+      }
     }
-    return "text-gray-600";
-  };
-
-  const getBadgeVariant = (percentage: number, isNegativeGood = false) => {
-    if (percentage > 0) {
-      return isNegativeGood ? "destructive" : "default";
-    }
-    if (percentage < 0) {
-      return isNegativeGood ? "default" : "destructive";
-    }
-    return "secondary";
+    // Sem mudança: neutro
+    return {
+      backgroundColor: "rgb(243 244 246)", // bg-gray-100
+      color: "rgb(75 85 99)", // text-gray-600
+      border: "1px solid rgb(209 213 219)", // border-gray-300
+    };
   };
 
   return (
@@ -141,7 +162,6 @@ export function PeriodComparison({ data, className }: PeriodComparisonProps) {
                 <h4 className="text-sm font-medium text-gray-700">
                   {metric.name}
                 </h4>
-
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-gray-500">Atual</span>
@@ -158,23 +178,15 @@ export function PeriodComparison({ data, className }: PeriodComparisonProps) {
                       {metric.unit && ` ${metric.unit}`}
                     </span>
                   </div>
-                </div>
-
+                </div>{" "}
                 <div className="flex items-center justify-between pt-2 border-t">
-                  <Badge
-                    variant={getBadgeVariant(changePercentage, isNegativeGood)}
-                    className="text-xs"
+                  <div
+                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                    style={getBadgeStyle(changePercentage, isNegativeGood)}
                   >
-                    <span
-                      className={getChangeColor(
-                        changePercentage,
-                        isNegativeGood
-                      )}
-                    >
-                      {getChangeIcon(changePercentage)}
-                      {Math.abs(changePercentage).toFixed(1)}%
-                    </span>
-                  </Badge>
+                    {getChangeIcon(changePercentage)}
+                    {Math.abs(changePercentage).toFixed(1)}%
+                  </div>
 
                   <span className="text-xs text-gray-500">
                     {changePercentage > 0 ? "+" : ""}

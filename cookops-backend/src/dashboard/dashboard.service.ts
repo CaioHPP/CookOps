@@ -292,16 +292,78 @@ export class DashboardService {
     };
   }
 
+  /**
+   * Versão específica para calcular métricas de vendas do período anterior
+   */
+  private async getMetricasVendasPeriodoAnterior(
+    empresaId: string,
+    dataInicio: Date,
+    diasPeriodo: number,
+  ): Promise<MetricasVendasDto> {
+    // Calcular data de fim baseada na data de início
+    const dataFim = new Date(dataInicio);
+    dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
+    dataFim.setUTCHours(23, 59, 59, 999);
+
+    // Buscar pedidos confirmados no período específico
+    const pedidosConfirmados = await this.prisma.pedido.findMany({
+      where: {
+        empresaId,
+        confirmado: true,
+        criadoEm: { gte: dataInicio, lte: dataFim },
+      },
+      select: { valorTotal: true },
+    });
+
+    const totalPedidos = pedidosConfirmados.length;
+    const receitaTotal = pedidosConfirmados.reduce(
+      (sum, p) => sum + p.valorTotal,
+      0,
+    );
+    const ticketMedio = totalPedidos > 0 ? receitaTotal / totalPedidos : 0;
+
+    // Buscar todos os pedidos (incluindo não confirmados) para taxa de conversão
+    const todosPedidos = await this.prisma.pedido.count({
+      where: {
+        empresaId,
+        criadoEm: { gte: dataInicio, lte: dataFim },
+      },
+    });
+
+    const taxaConversao =
+      todosPedidos > 0 ? (totalPedidos / todosPedidos) * 100 : 0;
+
+    return {
+      totalPedidos,
+      receitaTotal,
+      ticketMedio,
+      taxaConversao,
+      crescimentoReceita: 0, // Não aplicável para período anterior
+      variacaoTicketMedio: 0, // Não aplicável para período anterior
+    };
+  }
+
   private async getMetricasPerformance(
     empresaId: string,
     dataInicio: Date,
+    diasPeriodo?: number,
   ): Promise<MetricasPerformanceDto> {
+    // Calcular data de fim se dias for fornecido
+    let dataFim: Date | undefined;
+    if (diasPeriodo) {
+      dataFim = new Date(dataInicio);
+      dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
+      dataFim.setUTCHours(23, 59, 59, 999);
+    }
+
     // Tempo médio de finalização
     const pedidosConcluidos = await this.prisma.pedido.findMany({
       where: {
         empresaId,
         concluidoEm: { not: null },
-        criadoEm: { gte: dataInicio },
+        criadoEm: dataFim
+          ? { gte: dataInicio, lte: dataFim }
+          : { gte: dataInicio },
       },
       select: { criadoEm: true, concluidoEm: true },
     });
@@ -325,12 +387,13 @@ export class DashboardService {
     const tempoPreparoMedio = configuracao?.tempoPreparoMedio || 30;
 
     // ✅ CORREÇÃO: Pedidos em atraso - considerando apenas pedidos ativos não concluídos
-    // ✅ REMOVIDO: Referência ao campo canceladoEm que não existe no schema
     const pedidosAtivos = await this.prisma.pedido.findMany({
       where: {
         empresaId,
         concluidoEm: null, // Apenas pedidos não concluídos
-        criadoEm: { gte: dataInicio },
+        criadoEm: dataFim
+          ? { gte: dataInicio, lte: dataFim }
+          : { gte: dataInicio },
       },
       select: { criadoEm: true },
     });
@@ -386,14 +449,25 @@ export class DashboardService {
   private async getMetricasProdutos(
     empresaId: string,
     dataInicio: Date,
+    diasPeriodo?: number,
   ): Promise<MetricasProdutosDto> {
+    // Calcular data de fim se dias for fornecido
+    let dataFim: Date | undefined;
+    if (diasPeriodo) {
+      dataFim = new Date(dataInicio);
+      dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
+      dataFim.setUTCHours(23, 59, 59, 999);
+    }
+
     // ✅ CORREÇÃO: Buscar todos os itens vendidos para cálculos precisos de receita
     const itensVendidos = await this.prisma.pedidoItem.findMany({
       where: {
         pedido: {
           empresaId,
           confirmado: true,
-          criadoEm: { gte: dataInicio },
+          criadoEm: dataFim
+            ? { gte: dataInicio, lte: dataFim }
+            : { gte: dataInicio },
         },
       },
       select: {
@@ -808,13 +882,24 @@ export class DashboardService {
   private async getMetricasFinanceiras(
     empresaId: string,
     dataInicio: Date,
+    diasPeriodo?: number,
   ): Promise<MetricasFinanceirasDto> {
+    // Calcular data de fim se dias for fornecido
+    let dataFim: Date | undefined;
+    if (diasPeriodo) {
+      dataFim = new Date(dataInicio);
+      dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
+      dataFim.setUTCHours(23, 59, 59, 999);
+    }
+
     // ✅ BUSCAR PEDIDOS COM INFORMAÇÕES DE ENDEREÇO PARA ANÁLISE DE ENTREGA
     const pedidos = await this.prisma.pedido.findMany({
       where: {
         empresaId,
         confirmado: true,
-        criadoEm: { gte: dataInicio },
+        criadoEm: dataFim
+          ? { gte: dataInicio, lte: dataFim }
+          : { gte: dataInicio },
       },
       select: {
         valorTotal: true,
@@ -932,13 +1017,24 @@ export class DashboardService {
   private async getMetricasOperacionais(
     empresaId: string,
     dataInicio: Date,
+    diasPeriodo?: number,
   ): Promise<MetricasOperacionaisDto> {
+    // Calcular data de fim se dias for fornecido
+    let dataFim: Date | undefined;
+    if (diasPeriodo) {
+      dataFim = new Date(dataInicio);
+      dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
+      dataFim.setUTCHours(23, 59, 59, 999);
+    }
+
     // Pedidos por status
     const statusPedidos = await this.prisma.pedido.groupBy({
       by: ['statusId'],
       where: {
         empresaId,
-        criadoEm: { gte: dataInicio },
+        criadoEm: dataFim
+          ? { gte: dataInicio, lte: dataFim }
+          : { gte: dataInicio },
       },
       _count: true,
     });
@@ -972,7 +1068,9 @@ export class DashboardService {
       by: ['pagamentoId'],
       where: {
         empresaId,
-        criadoEm: { gte: dataInicio },
+        criadoEm: dataFim
+          ? { gte: dataInicio, lte: dataFim }
+          : { gte: dataInicio },
       },
       _count: true,
     });
@@ -1064,7 +1162,6 @@ export class DashboardService {
 
     return labels[periodo] || `Últimos ${periodo} dias`;
   }
-
   /**
    * ✅ CORREÇÃO: Método para dados comparativos com cálculo correto do período anterior
    */
@@ -1077,20 +1174,150 @@ export class DashboardService {
     // ✅ CORREÇÃO: Calcular período anterior corretamente
     const diasPeriodo = parseInt(filters.periodo);
 
-    // Período anterior: mesmo número de dias, mas deslocado para trás
-    const filtersAnterior = {
-      ...filters,
-      periodo: (diasPeriodo * 2).toString(), // Dobrar o período para pegar o anterior
-    };
-
-    const dashboardAnterior = await this.getDashboardDataWithFilters(
+    // Calcular período anterior equivalente
+    const anterior = await this.getDashboardPeriodoAnterior(
       empresaId,
-      filtersAnterior,
+      filters,
+      diasPeriodo,
     );
 
-    // Simular dados do período anterior (seria necessário implementar lógica específica)
-    const anterior = dashboardAnterior; // Por enquanto, usar os mesmos dados
-
     return { atual, anterior };
+  }
+
+  /**
+   * Calcula dados do dashboard para o período anterior equivalente
+   */
+  private async getDashboardPeriodoAnterior(
+    empresaId: string,
+    filters: DashboardFilters,
+    diasPeriodo: number,
+  ): Promise<DashboardResponseDto> {
+    // Calcular as datas do período anterior
+    const { dataInicioAnterior, dataFimAnterior } =
+      this.calcularPeriodoAnterior(diasPeriodo);
+
+    // Buscar dados usando as métricas específicas para período anterior
+    const vendas = await this.getMetricasVendasPeriodoAnterior(
+      empresaId,
+      dataInicioAnterior,
+      diasPeriodo,
+    );
+    const performance = await this.getMetricasPerformance(
+      empresaId,
+      dataInicioAnterior,
+      diasPeriodo,
+    );
+    const operacional = await this.getMetricasOperacionais(
+      empresaId,
+      dataInicioAnterior,
+      diasPeriodo,
+    );
+    const produtos = await this.getMetricasProdutos(
+      empresaId,
+      dataInicioAnterior,
+      diasPeriodo,
+    );
+    const financeiro = await this.getMetricasFinanceiras(
+      empresaId,
+      dataInicioAnterior,
+      diasPeriodo,
+    );
+    const crescimento = await this.getMetricasCrescimento(
+      empresaId,
+      dataInicioAnterior,
+      filters.periodo,
+    );
+    return {
+      vendas,
+      performance,
+      operacional,
+      produtos,
+      financeiro,
+      crescimento,
+      periodo: filters.periodo,
+      ultimaAtualizacao: new Date(),
+    };
+  }
+
+  /**
+   * Calcula as datas do período anterior equivalente
+   * Para 7 dias: se hoje é 14/06, período atual é 08/06 00:00 a 14/06 23:59
+   * e período anterior é 01/06 00:00 a 07/06 23:59
+   */
+  private calcularPeriodoAnterior(diasPeriodo: number): {
+    dataInicioAnterior: Date;
+    dataFimAnterior: Date;
+  } {
+    const agora = new Date();
+
+    if (diasPeriodo === 7) {
+      // Para 7 dias: se hoje é 14/06, anterior vai de 01/06 00:00 a 07/06 23:59
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 7); // 7 dias atrás (07/06)
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(dataInicioAnterior.getUTCDate() - 6); // 6 dias antes (01/06)
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    } else if (diasPeriodo === 30) {
+      // Para 30 dias: comparar com os 30 dias anteriores
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 30); // 30 dias atrás
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(dataInicioAnterior.getUTCDate() - 29); // 29 dias antes
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    } else if (diasPeriodo === 90) {
+      // Para 90 dias: comparar com os 90 dias anteriores
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 90); // 90 dias atrás
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(dataInicioAnterior.getUTCDate() - 89); // 89 dias antes
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    } else if (diasPeriodo === 180) {
+      // Para 6 meses: comparar com os 6 meses anteriores
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 180); // 6 meses atrás (aproximado)
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(dataInicioAnterior.getUTCDate() - 179); // 179 dias antes
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    } else if (diasPeriodo === 365) {
+      // Para 1 ano: comparar com o ano anterior
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 365); // 1 ano atrás (aproximado)
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(dataInicioAnterior.getUTCDate() - 364); // 364 dias antes
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    } else {
+      // Fallback para outros períodos: usar o mesmo número de dias
+      const dataFimAnterior = new Date(agora);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - diasPeriodo);
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(
+        dataInicioAnterior.getUTCDate() - (diasPeriodo - 1),
+      );
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    }
   }
 }

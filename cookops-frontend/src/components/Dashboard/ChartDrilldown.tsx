@@ -134,7 +134,7 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
                 formatter={(
                   value: number | string,
                   name: string,
-                  props: { payload?: { unidade?: string } }
+                  props: { payload?: { unidade?: string } },
                 ) => {
                   const unit = props.payload?.unidade || "";
                   if (typeof value === "number") {
@@ -392,8 +392,8 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
               (value as string) === "crítico"
                 ? "destructive"
                 : (value as string) === "atenção"
-                ? "default"
-                : "secondary"
+                  ? "default"
+                  : "secondary"
             }
           >
             {value as string}
@@ -413,7 +413,7 @@ export function ChartDrilldown({ isOpen, onClose, data }: ChartDrilldownProps) {
     const columns = allColumns.filter(
       (column) =>
         !column.toLowerCase().includes("id") &&
-        !column.toLowerCase().endsWith("id")
+        !column.toLowerCase().endsWith("id"),
     );
 
     return (

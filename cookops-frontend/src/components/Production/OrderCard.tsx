@@ -71,7 +71,7 @@ export function OrderCard({
   // Usar currentTime para cálculos dinâmicos dos tempos
   const tempoDecorrido = calcularTempoDecorridoComTempo(
     order.criadoEm,
-    currentTime
+    currentTime,
   );
   const isCompleto = isPedidoConcluido(order);
 
@@ -81,7 +81,7 @@ export function OrderCard({
       ? calcularTempoRestanteComTempo(
           order.criadoEm,
           tempoPreparoMedio,
-          currentTime
+          currentTime,
         )
       : null;
 
@@ -115,7 +115,7 @@ export function OrderCard({
         isAtrasado && "border-l-4 border-l-red-500",
         isAtencao && "border-l-4 border-l-yellow-500",
         isCompleto && "border-l-4 border-l-green-500 opacity-75",
-        "hover:shadow-md"
+        "hover:shadow-md",
       )}
       {...listeners}
       {...attributes}
@@ -223,7 +223,7 @@ export function OrderCard({
                 className={cn(
                   "ml-2 font-medium",
                   isAtrasado && "text-red-600",
-                  isAtencao && "text-yellow-600"
+                  isAtencao && "text-yellow-600",
                 )}
               >
                 (

@@ -88,7 +88,7 @@ function Tab({ label, isActive, onClick }: TabProps) {
         <span
           className={clsx(
             "font-['Roboto:Medium',_sans-serif] font-medium text-[14px] text-center whitespace-nowrap tracking-[0.1px] transition-colors",
-            isActive ? "text-primary" : "text-muted-foreground"
+            isActive ? "text-primary" : "text-muted-foreground",
           )}
         >
           {label}

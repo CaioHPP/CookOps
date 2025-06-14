@@ -84,7 +84,7 @@ export function NovoPedidoModal({
   const [boards, setBoards] = useState<BoardResponseDto[]>([]);
   const [selectedBoard, setSelectedBoard] = useState<string>("");
   const [fontesPedido, setFontesPedido] = useState<FontePedidoResponseDto[]>(
-    []
+    [],
   );
   const [formasPagamento, setFormasPagamento] = useState<
     FormaPagamentoResponseDto[]
@@ -212,7 +212,7 @@ export function NovoPedidoModal({
         formData.itens.length === 0
       ) {
         toast.error(
-          "Por favor, selecione a fonte, forma de pagamento e adicione pelo menos um item."
+          "Por favor, selecione a fonte, forma de pagamento e adicione pelo menos um item.",
         );
         return;
       }
@@ -258,7 +258,7 @@ export function NovoPedidoModal({
   const calculateTotal = () => {
     const subtotal = formData.itens.reduce(
       (acc, item) => acc + item.produto.precoBase * item.quantidade,
-      0
+      0,
     );
     return subtotal + formData.taxaEntrega - formData.desconto;
   };
@@ -286,7 +286,7 @@ export function NovoPedidoModal({
         !formData.endereco?.bairro)
     ) {
       toast.error(
-        "Por favor, preencha todos os campos obrigatórios do endereço"
+        "Por favor, preencha todos os campos obrigatórios do endereço",
       );
       return;
     }
@@ -313,7 +313,7 @@ export function NovoPedidoModal({
 
       // O backend irá adicionar o pedidoId nos itens automaticamente
       await PedidoService.addPedido(
-        pedidoData as unknown as PedidoRequestAddDto
+        pedidoData as unknown as PedidoRequestAddDto,
       );
       toast.success("Pedido criado com sucesso!");
       onPedidoCriado();
@@ -359,8 +359,8 @@ export function NovoPedidoModal({
                     isCompleted
                       ? "bg-green-500 border-green-500 text-white"
                       : isActive
-                      ? "bg-primary border-primary text-white"
-                      : "border-gray-300 text-gray-400"
+                        ? "bg-primary border-primary text-white"
+                        : "border-gray-300 text-gray-400"
                   }`}
                 >
                   {isCompleted ? (

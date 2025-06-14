@@ -91,7 +91,7 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
+    null,
   );
   const [filters, setFilters] = useState<DashboardFilters>({
     periodo: "30",
@@ -100,7 +100,7 @@ function DashboardContent() {
   });
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonData, setComparisonData] = useState<ComparisonData | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
@@ -108,21 +108,8 @@ function DashboardContent() {
   const [showAdvancedExport, setShowAdvancedExport] = useState(false); // Configurações do dashboard via Context (sempre atualizadas)
   const { settings, isChartVisible } = useDashboardSettingsContext();
   // Debug: Log das configurações com ID único
-  const dashboardId = useMemo(
-    () => Math.random().toString(36).substr(2, 9),
-    []
-  );
-  console.log(`⚙️ [${dashboardId}] Settings atuais:`, {
-    chartTheme: settings.chartTheme,
-    visibleChartsCount: settings.visibleCharts.length,
-    visibleCharts: settings.visibleCharts,
-  });
+
   // Effect para detectar mudanças nas configurações sem reload da página
-  useEffect(() => {
-    console.log(
-      `🔄 [${dashboardId}] Configurações detectadas, aplicando mudanças...`
-    );
-  }, [settings.chartTheme, settings.visibleCharts, dashboardId]);
 
   // Drill-down functionality
   const {
@@ -157,7 +144,7 @@ function DashboardContent() {
         const comparativeData = await DashboardService.getDashboardComparativo(
           filters.periodo,
           filters.status,
-          filters.fonte
+          filters.fonte,
         );
         setComparisonData(comparativeData);
       }
@@ -312,20 +299,8 @@ function DashboardContent() {
         },
       },
     }), // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings.chartTheme, JSON.stringify(settings)]
-  ); // Effect para detectar mudanças nas configurações e forçar atualização
-  // Temporariamente desabilitado para testar rerenderização manual
-  /*
-  useEffect(() => {
-    console.log("🔄 Configurações mudaram, atualizando dashboard...", {
-      theme: settings.chartTheme,
-      visibleCharts: settings.visibleCharts.length,
-    });
-    // Incrementa a key para forçar rerenderização quando configurações mudam
-    setConfigKey((prev) => prev + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(settings)]);
-  */
+    [settings.chartTheme, JSON.stringify(settings)],
+  );
 
   // Dados para os gráficos com otimização
   const chartData = useMemo(() => {
@@ -344,7 +319,7 @@ function DashboardContent() {
           value: status.totalPedidos,
           percentage: status.percentualTotal,
           fill: getChartColor(settings.chartTheme, index),
-        })
+        }),
       ),
       produtos: (() => {
         // Combinar produtos mais populares com produtos de baixo desempenho para ter mais variedade
@@ -604,7 +579,7 @@ function DashboardContent() {
                       const totalItens =
                         dashboardData.produtos.itensMaisPopulares.reduce(
                           (total, produto) => total + produto.quantidadeVendida,
-                          0
+                          0,
                         );
                       return totalItens.toLocaleString();
                     })()}
@@ -706,7 +681,7 @@ function DashboardContent() {
                         "pt-BR",
                         {
                           minimumFractionDigits: 2,
-                        }
+                        },
                       )}
                     </span>
                   </div>
@@ -716,7 +691,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.receitaLiquida.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 }
+                        { minimumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -726,7 +701,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 }
+                        { minimumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -736,7 +711,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 }
+                        { minimumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -818,7 +793,7 @@ function DashboardContent() {
                     <span>% do Total com Entrega:</span>
                     <span className="font-semibold">
                       {dashboardData.financeiro.porcentagemPedidosEntrega.toFixed(
-                        1
+                        1,
                       )}
                       %
                     </span>
@@ -829,7 +804,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -885,7 +860,7 @@ function DashboardContent() {
                     <span>% de Pedidos com Desconto:</span>
                     <span className="font-semibold">
                       {dashboardData.financeiro.porcentagemPedidosComDesconto.toFixed(
-                        1
+                        1,
                       )}
                       %
                     </span>
@@ -896,7 +871,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -906,7 +881,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorMedioDesconto.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                       )}
                     </span>
                   </div>
@@ -988,7 +963,7 @@ function DashboardContent() {
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">
                     {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                      1
+                      1,
                     )}
                     %
                   </p>
@@ -1066,8 +1041,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "vendas",
                               dashboardData,
-                              filters.periodo
-                            )
+                              filters.periodo,
+                            ),
                           )
                         }
                       >
@@ -1145,8 +1120,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "vendas_dia_semana",
                               dashboardData,
-                              filters.periodo
-                            )
+                              filters.periodo,
+                            ),
                           )
                         }
                       >
@@ -1239,7 +1214,7 @@ function DashboardContent() {
                         Status principal:{" "}
                         {dashboardData.operacional.pedidosPorStatus[0].titulo} ({" "}
                         {dashboardData.operacional.pedidosPorStatus[0].percentualTotal.toFixed(
-                          1
+                          1,
                         )}
                         %)
                       </>
@@ -1283,8 +1258,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "horarios",
                               dashboardData,
-                              filters.periodo
-                            )
+                              filters.periodo,
+                            ),
                           )
                         }
                       >
@@ -1350,8 +1325,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "produtos",
                               dashboardData,
-                              filters.periodo
-                            )
+                              filters.periodo,
+                            ),
                           )
                         }
                       >
@@ -1414,8 +1389,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "receita_produtos",
                               dashboardData,
-                              filters.periodo
-                            )
+                              filters.periodo,
+                            ),
                           )
                         }
                       >
@@ -1461,14 +1436,14 @@ function DashboardContent() {
                                     (produto.receita /
                                       Math.max(
                                         ...(chartData.receitaPorProduto?.map(
-                                          (p) => p.receita
-                                        ) || [1])
+                                          (p) => p.receita,
+                                        ) || [1]),
                                       )) *
-                                      100
+                                      100,
                                   )}%`,
                                   backgroundColor: getChartColor(
                                     settings.chartTheme,
-                                    0
+                                    0,
                                   ),
                                 }}
                               />
@@ -1583,7 +1558,7 @@ function DashboardContent() {
               totalProdutos > 0
                 ? dashboardData.produtos.itensMaisPopulares.reduce(
                     (acc, produto) => acc + produto.quantidadeVendida,
-                    0
+                    0,
                   ) / totalProdutos
                 : 0;
 
@@ -1640,8 +1615,8 @@ function DashboardContent() {
                               isProblematico
                                 ? "border-red-200 bg-red-50/50"
                                 : isAtencao
-                                ? "border-yellow-200 bg-yellow-50/50"
-                                : "border-green-200 bg-green-50/50"
+                                  ? "border-yellow-200 bg-yellow-50/50"
+                                  : "border-green-200 bg-green-50/50"
                             }`}
                           >
                             <div className="flex-1">
@@ -1672,8 +1647,8 @@ function DashboardContent() {
                                     isProblematico
                                       ? "text-red-600 font-medium"
                                       : isAtencao
-                                      ? "text-yellow-600 font-medium"
-                                      : "text-green-600"
+                                        ? "text-yellow-600 font-medium"
+                                        : "text-green-600"
                                   }
                                 >
                                   {diferencaPercentual >= 0 ? "+" : ""}
@@ -1687,8 +1662,8 @@ function DashboardContent() {
                                   isProblematico
                                     ? "text-red-700"
                                     : isAtencao
-                                    ? "text-yellow-700"
-                                    : "text-green-700"
+                                      ? "text-yellow-700"
+                                      : "text-green-700"
                                 }`}
                               >
                                 R${" "}
@@ -1842,8 +1817,8 @@ function DashboardContent() {
                             backgroundColor: getChartColor(
                               settings.chartTheme,
                               dashboardData.operacional.pedidosPorStatus.findIndex(
-                                (s) => s.statusId === status.statusId
-                              )
+                                (s) => s.statusId === status.statusId,
+                              ),
                             ),
                           }}
                         />
@@ -1889,7 +1864,7 @@ function DashboardContent() {
                           </div>
                         </div>
                       </div>
-                    )
+                    ),
                   )}
                   {dashboardData.operacional.formasPagamentoPreferidas
                     .length === 0 && (
@@ -1933,7 +1908,7 @@ function DashboardContent() {
                     <span className="text-sm">Confirmação Automática:</span>
                     <span className="font-semibold text-blue-500">
                       {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                        1
+                        1,
                       )}
                       %
                     </span>
@@ -1948,8 +1923,6 @@ function DashboardContent() {
           isOpen={showConfig}
           onClose={() => setShowConfig(false)}
           onSettingsChange={() => {
-            console.log(`🔧 [${dashboardId}] onSettingsChange chamado!`);
-            // Com Context API, não precisamos forçar remount - as mudanças são reativas
             setTimeout(() => {
               setShowConfig(false);
             }, 200);
@@ -1960,10 +1933,6 @@ function DashboardContent() {
           isOpen={showAdvancedSettings}
           onClose={() => setShowAdvancedSettings(false)}
           settings={settings}
-          onSettingsChange={(newSettings) => {
-            // Aqui você integraria com o hook de configurações
-            console.log("Novas configurações:", newSettings);
-          }}
         />
         {/* Modal de Export Avançado */}
         <AdvancedExport

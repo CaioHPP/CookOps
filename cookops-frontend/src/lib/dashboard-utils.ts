@@ -16,7 +16,7 @@ export interface ChartDataPoint {
  */
 export function generateTrendChartData(
   dashboardData: DashboardData,
-  periodo: string
+  periodo: string,
 ): ChartDataPoint[] {
   if (!dashboardData) return [];
 

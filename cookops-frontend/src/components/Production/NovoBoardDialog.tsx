@@ -204,7 +204,7 @@ export function NovoBoardDialog({
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -249,8 +249,8 @@ export function NovoBoardDialog({
       prev.map((status) =>
         status.id === editingStatus.id
           ? { ...status, titulo: editingStatus.title }
-          : status
-      )
+          : status,
+      ),
     );
     setEditingStatus(null);
   };
@@ -305,8 +305,8 @@ export function NovoBoardDialog({
               titulo: status.titulo,
               ordem: status.ordem,
               boardId: newBoard.id,
-            })
-          )
+            }),
+          ),
         );
       }
 

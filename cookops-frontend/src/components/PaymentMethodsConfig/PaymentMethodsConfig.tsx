@@ -88,7 +88,7 @@ export default function PaymentMethodsConfig() {
         };
         await FormaPagamentoService.updateFormaPagamento(
           editingMethod.id,
-          updateData
+          updateData,
         );
         toast.success("Método de pagamento atualizado com sucesso");
       } else {
@@ -108,7 +108,7 @@ export default function PaymentMethodsConfig() {
       toast.error(
         editingMethod
           ? "Erro ao atualizar método de pagamento"
-          : "Erro ao adicionar método de pagamento"
+          : "Erro ao adicionar método de pagamento",
       );
       console.error("Erro ao salvar método de pagamento:", error);
     } finally {
@@ -127,13 +127,13 @@ export default function PaymentMethodsConfig() {
   };
   const handleToggleStatus = async (
     method: FormaPagamentoResponseDto,
-    newStatus: boolean
+    newStatus: boolean,
   ) => {
     // Optimistic update - update UI first
     setPaymentMethods((prevMethods) =>
       prevMethods.map((m) =>
-        m.id === method.id ? { ...m, ativo: newStatus } : m
-      )
+        m.id === method.id ? { ...m, ativo: newStatus } : m,
+      ),
     );
 
     try {
@@ -144,14 +144,14 @@ export default function PaymentMethodsConfig() {
       toast.success(
         `Método de pagamento ${
           newStatus ? "ativado" : "desativado"
-        } com sucesso`
+        } com sucesso`,
       );
     } catch (error) {
       // Revert the optimistic update on error
       setPaymentMethods((prevMethods) =>
         prevMethods.map((m) =>
-          m.id === method.id ? { ...m, ativo: !newStatus } : m
-        )
+          m.id === method.id ? { ...m, ativo: !newStatus } : m,
+        ),
       );
 
       toast.error("Erro ao alterar status do método de pagamento");

@@ -42,7 +42,7 @@ export function LoginCard({
 
         if (errorObj.code === "ERR_NETWORK") {
           setError(
-            "Erro de conexão com o servidor. Verifique se o backend está rodando."
+            "Erro de conexão com o servidor. Verifique se o backend está rodando.",
           );
         } else if (errorObj.response?.status === 401) {
           setError("Email ou senha inválidos");

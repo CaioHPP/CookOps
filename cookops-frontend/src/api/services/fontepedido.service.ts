@@ -8,18 +8,18 @@ import api from "../axios";
 
 export class FontePedidoService {
   static async addFontePedido(
-    data: FontePedidoRequestAddDto
+    data: FontePedidoRequestAddDto,
   ): Promise<FontePedidoResponseDto> {
     const response = await api.post<FontePedidoResponseDto>(
       API_ROUTES.FONTE_PEDIDO.ADD_FONTE_PEDIDO,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getFontesPagamento(): Promise<FontePedidoResponseDto[]> {
     const response = await api.get<FontePedidoResponseDto[]>(
-      API_ROUTES.FONTE_PEDIDO.GET_FONTES_PEDIDO
+      API_ROUTES.FONTE_PEDIDO.GET_FONTES_PEDIDO,
     );
     return response.data;
   }
@@ -32,7 +32,7 @@ export class FontePedidoService {
 
   static async updateFontePedido(
     id: number,
-    data: FontePedidoRequestUpdateDto
+    data: FontePedidoRequestUpdateDto,
   ): Promise<FontePedidoResponseDto> {
     const url = `${API_ROUTES.FONTE_PEDIDO.UPDATE_FONTE_PEDIDO}/${id}`;
     const response = await api.put<FontePedidoResponseDto>(url, data);

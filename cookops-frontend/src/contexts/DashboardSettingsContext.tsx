@@ -26,7 +26,7 @@ export function useDashboardSettingsContext() {
   const context = useContext(DashboardSettingsContext);
   if (!context) {
     throw new Error(
-      "useDashboardSettingsContext deve ser usado dentro de DashboardSettingsProvider"
+      "useDashboardSettingsContext deve ser usado dentro de DashboardSettingsProvider",
     );
   }
   return context;

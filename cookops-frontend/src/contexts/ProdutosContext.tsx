@@ -22,7 +22,7 @@ interface ProdutosContextType {
 }
 
 const ProdutosContext = createContext<ProdutosContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface ProdutosProviderProps {
@@ -57,7 +57,7 @@ export function useProdutosContext(): ProdutosContextType {
   const context = useContext(ProdutosContext);
   if (context === undefined) {
     throw new Error(
-      "useProdutosContext deve ser usado dentro de um ProdutosProvider"
+      "useProdutosContext deve ser usado dentro de um ProdutosProvider",
     );
   }
   return context;

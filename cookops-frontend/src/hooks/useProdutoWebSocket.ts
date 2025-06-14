@@ -27,7 +27,7 @@ export function useProdutoWebSocket({
     const id = idRef.current;
     const callbacks = {
       onProdutoCriado: (
-        data: { type: "PRODUTO_CRIADO"; produto: unknown } | undefined
+        data: { type: "PRODUTO_CRIADO"; produto: unknown } | undefined,
       ) => {
         console.log("useProdutoWebSocket - Produto criado:", data);
         if (data?.produto && onProdutoCriado) {
@@ -35,7 +35,7 @@ export function useProdutoWebSocket({
         }
       },
       onProdutoAtualizado: (
-        data: { type: "PRODUTO_ATUALIZADO"; produto: unknown } | undefined
+        data: { type: "PRODUTO_ATUALIZADO"; produto: unknown } | undefined,
       ) => {
         console.log("useProdutoWebSocket - Produto atualizado:", data);
         if (data?.produto && onProdutoAtualizado) {
@@ -43,7 +43,7 @@ export function useProdutoWebSocket({
         }
       },
       onProdutoRemovido: (
-        data: { type: "PRODUTO_REMOVIDO"; produtoId: string } | undefined
+        data: { type: "PRODUTO_REMOVIDO"; produtoId: string } | undefined,
       ) => {
         console.log("useProdutoWebSocket - Produto removido:", data);
         if (data?.produtoId && onProdutoRemovido) {
@@ -51,7 +51,7 @@ export function useProdutoWebSocket({
         }
       },
       onProdutoStatusAlterado: (
-        data: { type: "PRODUTO_STATUS_ALTERADO"; produto: unknown } | undefined
+        data: { type: "PRODUTO_STATUS_ALTERADO"; produto: unknown } | undefined,
       ) => {
         console.log("useProdutoWebSocket - Status do produto alterado:", data);
         if (data?.produto && onProdutoStatusAlterado) {

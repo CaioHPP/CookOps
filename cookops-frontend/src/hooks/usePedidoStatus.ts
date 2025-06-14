@@ -204,10 +204,10 @@ export function usePedidoStatus(boardId?: string) {
         // Encontrar o pedido no status de origem
         let pedidoMovido: PedidoResponseDto | null = null;
         const fromIndex = novaLista.findIndex(
-          (status) => status.statusId === fromStatusId
+          (status) => status.id === fromStatusId
         );
         const toIndex = novaLista.findIndex(
-          (status) => status.statusId === toStatusId
+          (status) => status.id === toStatusId
         );
 
         if (fromIndex === -1 || toIndex === -1) {
@@ -300,7 +300,7 @@ export function usePedidoStatus(boardId?: string) {
   // Obter pedidos por status (usa dados filtrados)
   const getPedidosPorStatus = useCallback(
     (statusId: number) => {
-      const status = statusList.find((s) => s.statusId === statusId);
+      const status = statusList.find((s) => s.id === statusId);
       return status?.pedidos || [];
     },
     [statusList]

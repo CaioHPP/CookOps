@@ -10,21 +10,21 @@ export class BoardService {
   static async addBoard(data: BoardRequestAddDto): Promise<BoardResponseDto> {
     const response = await api.post<BoardResponseDto>(
       API_ROUTES.BOARD.ADD_BOARD,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getBoards(): Promise<BoardResponseDto[]> {
     const response = await api.get<BoardResponseDto[]>(
-      API_ROUTES.BOARD.GET_BOARDS
+      API_ROUTES.BOARD.GET_BOARDS,
     );
     return response.data;
   }
 
   static async getBoardsByEmpresa(): Promise<BoardResponseDto[]> {
     const response = await api.get<BoardResponseDto[]>(
-      API_ROUTES.BOARD.GET_BOARDS_BY_EMPRESA
+      API_ROUTES.BOARD.GET_BOARDS_BY_EMPRESA,
     );
     return response.data;
   }
@@ -37,7 +37,7 @@ export class BoardService {
 
   static async updateBoard(
     id: string,
-    data: BoardRequestUpdateDto
+    data: BoardRequestUpdateDto,
   ): Promise<BoardResponseDto> {
     const url = `${API_ROUTES.BOARD.UPDATE_BOARD}/${id}`;
     const response = await api.put<BoardResponseDto>(url, data);

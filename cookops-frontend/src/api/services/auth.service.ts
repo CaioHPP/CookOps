@@ -10,7 +10,7 @@ export class AuthService {
     try {
       const response = await api.post<{ access_token: string }>(
         API_ROUTES.AUTH.LOGIN,
-        data
+        data,
       );
 
       const accessToken = response.data.access_token;
@@ -25,7 +25,7 @@ export class AuthService {
       sessionStorage.setItem("nomeEmpresa", decoded.nomeEmpresa);
       sessionStorage.setItem(
         "tempoPreparoMedio",
-        decoded.tempoPreparoMedio?.toString() || "30"
+        decoded.tempoPreparoMedio?.toString() || "30",
       );
 
       // Também salva como cookie para o middleware

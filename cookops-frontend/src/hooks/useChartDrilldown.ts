@@ -42,7 +42,7 @@ export function useChartDrilldown() {
     (
       chartType: string,
       dashboardData: DashboardData,
-      periodo?: string
+      periodo?: string,
     ): DrilldownData => {
       const periodoDias = periodo ? parseInt(periodo) : 30;
 
@@ -85,7 +85,7 @@ export function useChartDrilldown() {
                   pedidos: item.totalPedidos,
                   receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
                   crescimento: item.crescimentoPercentual,
-                })
+                }),
               );
             }
 
@@ -97,7 +97,7 @@ export function useChartDrilldown() {
                   pedidos: item.totalPedidos,
                   receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
                   crescimento: item.crescimentoPercentual,
-                })
+                }),
               );
             }
 
@@ -128,7 +128,7 @@ export function useChartDrilldown() {
               periodo: item.periodo,
               vendas: item.pedidos,
               crescimento: item.crescimento,
-            }))
+            })),
           );
 
           const dadosVendas = dadosComTendencia.map((item, index) => ({
@@ -137,7 +137,7 @@ export function useChartDrilldown() {
             pedidos: item.vendas,
             tendencia: item.tendencia || 0,
             ticketMedio: Number(
-              (dadosOriginais[index].receita / item.vendas).toFixed(2)
+              (dadosOriginais[index].receita / item.vendas).toFixed(2),
             ),
             crescimentoPercentual: item.crescimento || 0,
           }));
@@ -175,36 +175,38 @@ export function useChartDrilldown() {
                   dashboardData.performance.pedidosEmAtraso > 5
                     ? "crítico"
                     : dashboardData.performance.pedidosEmAtraso > 2
-                    ? "atenção"
-                    : "ok",
+                      ? "atenção"
+                      : "ok",
                 unidade: "pedidos",
               },
               {
                 metrica: "Tempo Médio de Finalização",
                 valor: Number(
-                  dashboardData.performance.tempoMedioFinalizacao.toFixed(1)
+                  dashboardData.performance.tempoMedioFinalizacao.toFixed(1),
                 ),
                 limite: 30,
                 status:
                   dashboardData.performance.tempoMedioFinalizacao > 45
                     ? "crítico"
                     : dashboardData.performance.tempoMedioFinalizacao > 30
-                    ? "atenção"
-                    : "ok",
+                      ? "atenção"
+                      : "ok",
                 unidade: "min",
               },
               {
                 metrica: "Taxa de Confirmação Automática",
                 valor: Number(
-                  dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(2)
+                  dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
+                    2,
+                  ),
                 ),
                 limite: 80,
                 status:
                   dashboardData.performance.taxaConfirmacaoAutomatica < 70
                     ? "crítico"
                     : dashboardData.performance.taxaConfirmacaoAutomatica < 80
-                    ? "atenção"
-                    : "ok",
+                      ? "atenção"
+                      : "ok",
                 unidade: "%",
               },
               {
@@ -215,8 +217,8 @@ export function useChartDrilldown() {
                   dashboardData.vendas.taxaConversao < 60
                     ? "crítico"
                     : dashboardData.vendas.taxaConversao < 70
-                    ? "atenção"
-                    : "ok",
+                      ? "atenção"
+                      : "ok",
                 unidade: "%",
               },
             ],
@@ -248,15 +250,15 @@ export function useChartDrilldown() {
                       p.produtoId === produto.produtoId) ||
                     (!p.produtoId &&
                       !produto.produtoId &&
-                      p.nome === produto.nome)
+                      p.nome === produto.nome),
                 ) === index
               );
-            }
+            },
           );
 
           // Ordenar por quantidade vendida (maior para menor)
           const produtosOrdenados = produtosUnicos.sort(
-            (a, b) => b.quantidadeVendida - a.quantidadeVendida
+            (a, b) => b.quantidadeVendida - a.quantidadeVendida,
           );
 
           return {
@@ -272,25 +274,25 @@ export function useChartDrilldown() {
                   (produto.quantidadeVendida /
                     produtosOrdenados.reduce(
                       (sum, p) => sum + p.quantidadeVendida,
-                      0
+                      0,
                     )) *
                   100
-                ).toFixed(2)
+                ).toFixed(2),
               ),
               receita: produto.receita,
               ticketMedio: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2)
+                (produto.receita / produto.quantidadeVendida).toFixed(2),
               ),
             })),
             metadata: {
               totalProdutos: produtosOrdenados.length,
               totalVendas: produtosOrdenados.reduce(
                 (sum, p) => sum + p.quantidadeVendida,
-                0
+                0,
               ),
               receitaTotal: produtosOrdenados.reduce(
                 (sum, p) => sum + p.receita,
-                0
+                0,
               ),
               produtosMaisPopulares:
                 dashboardData.produtos.itensMaisPopulares.length,
@@ -317,15 +319,15 @@ export function useChartDrilldown() {
                       p.produtoId === produto.produtoId) ||
                     (!p.produtoId &&
                       !produto.produtoId &&
-                      p.nome === produto.nome)
+                      p.nome === produto.nome),
                 ) === index
               );
-            }
+            },
           );
 
           // Ordenar por receita (maior para menor)
           const produtosPorReceita = produtosUnicosReceita.sort(
-            (a, b) => b.receita - a.receita
+            (a, b) => b.receita - a.receita,
           );
 
           return {
@@ -338,37 +340,37 @@ export function useChartDrilldown() {
               receita: produto.receita,
               quantidadeVendida: produto.quantidadeVendida,
               ticketMedio: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2)
+                (produto.receita / produto.quantidadeVendida).toFixed(2),
               ),
               participacaoReceita: Number(
                 (
                   (produto.receita /
                     produtosPorReceita.reduce((sum, p) => sum + p.receita, 0)) *
                   100
-                ).toFixed(2)
+                ).toFixed(2),
               ),
               receitaPorUnidade: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2)
+                (produto.receita / produto.quantidadeVendida).toFixed(2),
               ),
             })),
             metadata: {
               totalProdutos: produtosPorReceita.length,
               receitaTotal: produtosPorReceita.reduce(
                 (sum, p) => sum + p.receita,
-                0
+                0,
               ),
               totalVendas: produtosPorReceita.reduce(
                 (sum, p) => sum + p.quantidadeVendida,
-                0
+                0,
               ),
               ticketMedioGeral: Number(
                 (
                   produtosPorReceita.reduce((sum, p) => sum + p.receita, 0) /
                   produtosPorReceita.reduce(
                     (sum, p) => sum + p.quantidadeVendida,
-                    0
+                    0,
                   )
-                ).toFixed(2)
+                ).toFixed(2),
               ),
               maiorReceita: produtosPorReceita[0]?.receita || 0,
               menorReceita:
@@ -387,36 +389,36 @@ export function useChartDrilldown() {
                 receitaTotal: dia.receitaTotal,
                 percentualTotal: Number(dia.percentualTotal.toFixed(2)),
                 ticketMedio: Number(
-                  (dia.receitaTotal / dia.totalPedidos).toFixed(2)
+                  (dia.receitaTotal / dia.totalPedidos).toFixed(2),
                 ),
               })) || [],
             metadata: {
               diaMaisMovimentado:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (prev, current) =>
-                    prev.totalPedidos > current.totalPedidos ? prev : current
+                    prev.totalPedidos > current.totalPedidos ? prev : current,
                 )?.diaSemana || "N/A",
               totalPedidosSemana:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (sum, dia) => sum + dia.totalPedidos,
-                  0
+                  0,
                 ) || 0,
               receitaTotalSemana:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (sum, dia) => sum + dia.receitaTotal,
-                  0
+                  0,
                 ) || 0,
               ticketMedioSemana: Number(
                 (
                   (dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                     (sum, dia) => sum + dia.receitaTotal,
-                    0
+                    0,
                   ) || 0) /
                   (dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                     (sum, dia) => sum + dia.totalPedidos,
-                    0
+                    0,
                   ) || 1)
-                ).toFixed(2)
+                ).toFixed(2),
               ),
             },
           };
@@ -432,37 +434,37 @@ export function useChartDrilldown() {
               receitaEstimada: Number(
                 (
                   horario.totalPedidos * dashboardData.vendas.ticketMedio
-                ).toFixed(2)
+                ).toFixed(2),
               ),
             })),
             metadata: {
               horarioPicoHora: `${dashboardData.crescimento.horariosPico
                 .reduce((prev, current) =>
-                  prev.totalPedidos > current.totalPedidos ? prev : current
+                  prev.totalPedidos > current.totalPedidos ? prev : current,
                 )
                 .hora.toString()
                 .padStart(2, "0")}:00h`,
               horarioPicoPedidos: dashboardData.crescimento.horariosPico.reduce(
                 (prev, current) =>
-                  prev.totalPedidos > current.totalPedidos ? prev : current
+                  prev.totalPedidos > current.totalPedidos ? prev : current,
               ).totalPedidos,
               totalReceita: Number(
                 dashboardData.crescimento.horariosPico
                   .reduce(
                     (sum, h) =>
                       sum + h.totalPedidos * dashboardData.vendas.ticketMedio,
-                    0
+                    0,
                   )
-                  .toFixed(2)
+                  .toFixed(2),
               ),
               totalPedidosHorarios:
                 dashboardData.crescimento.horariosPico.reduce(
                   (sum, h) => sum + h.totalPedidos,
-                  0
+                  0,
                 ),
               totalHorarios: 24,
               horariosComPedidos: dashboardData.crescimento.horariosPico.filter(
-                (h) => h.totalPedidos > 0
+                (h) => h.totalPedidos > 0,
               ).length,
             },
           };
@@ -476,7 +478,7 @@ export function useChartDrilldown() {
           };
       }
     },
-    []
+    [],
   );
 
   return {

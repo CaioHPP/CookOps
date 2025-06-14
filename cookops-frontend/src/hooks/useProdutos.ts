@@ -49,8 +49,8 @@ export function useProdutos() {
         // 1. Atualização otimista - atualizar UI primeiro
         setProdutos((prev) =>
           prev.map((produto) =>
-            produto.id === id ? { ...produto, ativo } : produto
-          )
+            produto.id === id ? { ...produto, ativo } : produto,
+          ),
         );
 
         // 2. Fazer chamada API em background (silenciosa)
@@ -58,15 +58,15 @@ export function useProdutos() {
 
         // 3. Toast de sucesso apenas (sem recarregar)
         toast.success(
-          `Produto ${ativo ? "ativado" : "desativado"} com sucesso.`
+          `Produto ${ativo ? "ativado" : "desativado"} com sucesso.`,
         );
         return true;
       } catch (err) {
         // 4. Em caso de erro, reverter a mudança otimista
         setProdutos((prev) =>
           prev.map((produto) =>
-            produto.id === id ? { ...produto, ativo: !ativo } : produto
-          )
+            produto.id === id ? { ...produto, ativo: !ativo } : produto,
+          ),
         );
 
         const errorMessage =
@@ -78,7 +78,7 @@ export function useProdutos() {
         throw err;
       }
     },
-    [produtos]
+    [produtos],
   );
 
   // Excluir produto
@@ -113,7 +113,7 @@ export function useProdutos() {
       // Se a última atualização foi há menos de 500ms, ignorar (evitar duplicatas)
       if (lastUpdate && now - lastUpdate < 500) {
         console.log(
-          `Ignorando atualização duplicada para produto ${produtoAtualizado.id}`
+          `Ignorando atualização duplicada para produto ${produtoAtualizado.id}`,
         );
         return;
       }
@@ -133,11 +133,11 @@ export function useProdutos() {
 
       setProdutos((prev) =>
         prev.map((produto) =>
-          produto.id === produtoAtualizado.id ? produtoAtualizado : produto
-        )
+          produto.id === produtoAtualizado.id ? produtoAtualizado : produto,
+        ),
       );
     },
-    []
+    [],
   );
 
   // Adicionar novo produto (para websockets)
@@ -147,7 +147,7 @@ export function useProdutos() {
       const existe = prev.some((produto) => produto.id === novoProduto.id);
       if (existe) {
         return prev.map((produto) =>
-          produto.id === novoProduto.id ? novoProduto : produto
+          produto.id === novoProduto.id ? novoProduto : produto,
         );
       }
       return [...prev, novoProduto];
@@ -164,7 +164,7 @@ export function useProdutos() {
     (id: string) => {
       return produtos.find((produto) => produto.id === id);
     },
-    [produtos]
+    [produtos],
   );
 
   // Buscar produtos por filtro de texto
@@ -177,10 +177,10 @@ export function useProdutos() {
         (produto) =>
           produto.nome.toLowerCase().includes(termoLower) ||
           produto.codigoBarras?.toLowerCase().includes(termoLower) ||
-          produto.descricao?.toLowerCase().includes(termoLower)
+          produto.descricao?.toLowerCase().includes(termoLower),
       );
     },
-    [produtos]
+    [produtos],
   );
 
   // Formatar preço
@@ -189,7 +189,7 @@ export function useProdutos() {
       if (typeof price !== "number") return "R$ 0,00";
       return `R$ ${price.toFixed(2).replace(".", ",")}`;
     },
-    []
+    [],
   );
 
   return {

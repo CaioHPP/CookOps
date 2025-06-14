@@ -9,25 +9,25 @@ import api from "../axios";
 
 export class PedidoService {
   static async addPedido(
-    data: PedidoRequestAddDto
+    data: PedidoRequestAddDto,
   ): Promise<PedidoResponseDto> {
     const response = await api.post<PedidoResponseDto>(
       API_ROUTES.PEDIDO.ADD_PEDIDO,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getPedidos(): Promise<PedidoResponseDto[]> {
     const response = await api.get<PedidoResponseDto[]>(
-      API_ROUTES.PEDIDO.GET_PEDIDOS
+      API_ROUTES.PEDIDO.GET_PEDIDOS,
     );
     return response.data;
   }
 
   static async getPedidosByEmpresa(): Promise<PedidoResponseDto[]> {
     const response = await api.get<PedidoResponseDto[]>(
-      API_ROUTES.PEDIDO.GET_PEDIDOS_BY_EMPRESA
+      API_ROUTES.PEDIDO.GET_PEDIDOS_BY_EMPRESA,
     );
     return response.data;
   }
@@ -40,7 +40,7 @@ export class PedidoService {
 
   static async updatePedido(
     id: string,
-    data: PedidoRequestUpdateDto
+    data: PedidoRequestUpdateDto,
   ): Promise<PedidoResponseDto> {
     const url = `${API_ROUTES.PEDIDO.UPDATE_PEDIDO}/${id}`;
     const response = await api.put<PedidoResponseDto>(url, data);
@@ -53,7 +53,7 @@ export class PedidoService {
   }
   static async moverPedido(
     id: string,
-    data: MoverPedidoRequestDto
+    data: MoverPedidoRequestDto,
   ): Promise<PedidoResponseDto> {
     const url = `${API_ROUTES.PEDIDO.MOVER_PEDIDO}/${id}`;
     const response = await api.put<PedidoResponseDto>(url, data);
@@ -68,14 +68,14 @@ export class PedidoService {
 
   static async getPedidosPendentesConfirmacao(): Promise<PedidoResponseDto[]> {
     const response = await api.get<PedidoResponseDto[]>(
-      API_ROUTES.PEDIDO.GET_PEDIDOS_PENDENTES_CONFIRMACAO
+      API_ROUTES.PEDIDO.GET_PEDIDOS_PENDENTES_CONFIRMACAO,
     );
     return response.data;
   }
 
   static async getPedidosUltimas12Horas(): Promise<PedidoResponseDto[]> {
     const response = await api.get<PedidoResponseDto[]>(
-      API_ROUTES.PEDIDO.GET_PEDIDOS_ULTIMAS_12_HORAS
+      API_ROUTES.PEDIDO.GET_PEDIDOS_ULTIMAS_12_HORAS,
     );
     return response.data;
   }
@@ -84,14 +84,14 @@ export class PedidoService {
     PedidoResponseDto[]
   > {
     const response = await api.get<PedidoResponseDto[]>(
-      API_ROUTES.PEDIDO.GET_PEDIDOS_BY_EMPRESA_WITH_TIME_LIMIT
+      API_ROUTES.PEDIDO.GET_PEDIDOS_BY_EMPRESA_WITH_TIME_LIMIT,
     );
     return response.data;
   }
 
   static async confirmarPedido(
     id: string,
-    data?: { usuarioConfirmou?: string }
+    data?: { usuarioConfirmou?: string },
   ): Promise<PedidoResponseDto> {
     const url = `${API_ROUTES.PEDIDO.CONFIRMAR_PEDIDO}/${id}`;
     const response = await api.put<PedidoResponseDto>(url, data || {});

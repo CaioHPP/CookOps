@@ -79,7 +79,7 @@ export function AdvancedExport({
     (key: keyof ExportOptions, value: string | boolean | undefined) => {
       setExportOptions((prev) => ({ ...prev, [key]: value }));
     },
-    []
+    [],
   );
 
   const simulateExport = useCallback(async () => {

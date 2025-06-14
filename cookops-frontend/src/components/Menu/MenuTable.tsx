@@ -55,11 +55,11 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
     // Filtrar por status se especificado
     if (filter === "ativos") {
       produtosFiltrados = produtosFiltrados.filter(
-        (produto: ProdutoResponseDto) => produto.ativo
+        (produto: ProdutoResponseDto) => produto.ativo,
       );
     } else if (filter === "inativos") {
       produtosFiltrados = produtosFiltrados.filter(
-        (produto: ProdutoResponseDto) => !produto.ativo
+        (produto: ProdutoResponseDto) => !produto.ativo,
       );
     } // Aplicar filtro de busca se fornecido
     if (searchTerm?.trim()) {
@@ -68,7 +68,7 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
         (produto: ProdutoResponseDto) =>
           produto.nome.toLowerCase().includes(termLower) ||
           produto.codigoBarras?.toLowerCase().includes(termLower) ||
-          produto.descricao?.toLowerCase().includes(termLower)
+          produto.descricao?.toLowerCase().includes(termLower),
       );
     }
 
@@ -82,7 +82,7 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
         console.error("Erro ao alterar status do produto:", error);
       }
     },
-    [toggleStatusProduto]
+    [toggleStatusProduto],
   );
 
   const handleEdit = useCallback((produto: ProdutoResponseDto) => {
@@ -97,7 +97,7 @@ export function MenuTable({ filter, searchTerm }: MenuTableProps) {
         console.error("Erro ao excluir produto:", error);
       }
     },
-    [excluirProduto]
+    [excluirProduto],
   );
 
   const handleEditSuccess = useCallback(() => {

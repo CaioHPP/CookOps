@@ -22,7 +22,7 @@ export function FinalizarPedidoStep({
 }: FinalizarPedidoStepProps) {
   const subtotal = formData.itens.reduce(
     (acc, item) => acc + item.produto.precoBase * item.quantidade,
-    0
+    0,
   );
 
   // Zerar taxa de entrega quando não for pedido de entrega

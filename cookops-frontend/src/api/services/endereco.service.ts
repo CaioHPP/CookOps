@@ -8,18 +8,18 @@ import { EnderecoResponseDto } from "@/types/dto/endereco/response/endereco-resp
 
 export class EnderecoService {
   static async createEndereco(
-    data: EnderecoRequestAddDto
+    data: EnderecoRequestAddDto,
   ): Promise<EnderecoResponseDto> {
     const response = await api.post<EnderecoResponseDto>(
       API_ROUTES.ENDERECO.ADD_ENDERECO,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getEnderecos(): Promise<EnderecoResponseDto[]> {
     const response = await api.get<EnderecoResponseDto[]>(
-      API_ROUTES.ENDERECO.GET_ENDERECOS
+      API_ROUTES.ENDERECO.GET_ENDERECOS,
     );
     return response.data;
   }
@@ -32,7 +32,7 @@ export class EnderecoService {
 
   static async updateEndereco(
     id: string,
-    data: EnderecoRequestUpdateDto
+    data: EnderecoRequestUpdateDto,
   ): Promise<EnderecoResponseDto> {
     const url = `${API_ROUTES.ENDERECO.UPDATE_ENDERECO}/${id}`;
     const response = await api.put<EnderecoResponseDto>(url, data);

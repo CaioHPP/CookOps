@@ -8,35 +8,35 @@ import api from "../axios";
 
 export class ProdutoService {
   static async addProduto(
-    data: ProdutoRequestAddDto
+    data: ProdutoRequestAddDto,
   ): Promise<ProdutoResponseDto> {
     const response = await api.post<ProdutoResponseDto>(
       API_ROUTES.PRODUTO.ADD_PRODUTO,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getProdutos(): Promise<ProdutoResponseDto[]> {
     const response = await api.get<ProdutoResponseDto[]>(
-      API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA_AUTH
+      API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA_AUTH,
     );
     return response.data;
   }
 
   static async getProdutosByEmpresaAuth(): Promise<ProdutoResponseDto[]> {
     const response = await api.get<ProdutoResponseDto[]>(
-      API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA_AUTH
+      API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA_AUTH,
     );
     return response.data;
   }
 
   static async getProdutosByEmpresa(
-    empresaId: string
+    empresaId: string,
   ): Promise<ProdutoResponseDto[]> {
     const url = API_ROUTES.PRODUTO.GET_PRODUTOS_BY_EMPRESA.replace(
       ":empresaId",
-      empresaId
+      empresaId,
     );
     const response = await api.get<ProdutoResponseDto[]>(url);
     return response.data;
@@ -50,7 +50,7 @@ export class ProdutoService {
 
   static async updateProduto(
     id: string,
-    data: ProdutoRequestUpdateDto
+    data: ProdutoRequestUpdateDto,
   ): Promise<ProdutoResponseDto> {
     const url = `${API_ROUTES.PRODUTO.UPDATE_PRODUTO}/${id}`;
     const response = await api.put<ProdutoResponseDto>(url, data);

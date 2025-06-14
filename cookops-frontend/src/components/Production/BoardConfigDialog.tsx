@@ -257,7 +257,7 @@ export function BoardConfigDialog({
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   const loadStatusColumns = useCallback(async () => {
@@ -265,7 +265,7 @@ export function BoardConfigDialog({
 
     try {
       const statusList = await PedidoStatusService.getPedidoStatusByBoard(
-        board.id
+        board.id,
       );
       const formattedStatus = statusList.map((status) => ({
         id: status.id,
@@ -351,8 +351,8 @@ export function BoardConfigDialog({
                   isNew: false,
                   isEditing: false,
                 }
-              : s
-          )
+              : s,
+          ),
         );
       } else {
         // Update existing status
@@ -362,8 +362,8 @@ export function BoardConfigDialog({
 
         setStatusColumns((prev) =>
           prev.map((s) =>
-            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s
-          )
+            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s,
+          ),
         );
       }
 
@@ -386,7 +386,7 @@ export function BoardConfigDialog({
     } else {
       // Cancel edit of existing status
       setStatusColumns((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s))
+        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s)),
       );
     }
 

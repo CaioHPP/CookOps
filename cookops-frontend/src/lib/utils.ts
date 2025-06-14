@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 // Função para criar debounce de funções
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | undefined;
 

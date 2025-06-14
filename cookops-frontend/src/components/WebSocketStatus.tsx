@@ -31,8 +31,8 @@ export function WebSocketStatus() {
           isConnected
             ? "bg-green-100 text-green-800 border border-green-200"
             : error
-            ? "bg-red-100 text-red-800 border border-red-200"
-            : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+              ? "bg-red-100 text-red-800 border border-red-200"
+              : "bg-yellow-100 text-yellow-800 border border-yellow-200"
         }`}
       >
         <div className="flex items-center gap-2">

@@ -12,24 +12,24 @@ import api from "../axios";
 
 export class PedidoStatusService {
   static async addPedidoStatus(
-    data: PedidoStatusRequestAddDto
+    data: PedidoStatusRequestAddDto,
   ): Promise<PedidoStatusResponseDto> {
     const response = await api.post<PedidoStatusResponseDto>(
       API_ROUTES.PEDIDO_STATUS.ADD_PEDIDO_STATUS,
-      data
+      data,
     );
     return response.data;
   }
 
   static async getPedidoStatus(): Promise<PedidoStatusResponseDto[]> {
     const response = await api.get<PedidoStatusResponseDto[]>(
-      API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS
+      API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS,
     );
     return response.data;
   }
 
   static async getPedidoStatusById(
-    id: number
+    id: number,
   ): Promise<PedidoStatusResponseDto> {
     const url = `${API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS_BY_ID}/${id}`;
     const response = await api.get<PedidoStatusResponseDto>(url);
@@ -38,7 +38,7 @@ export class PedidoStatusService {
 
   static async updatePedidoStatus(
     id: number,
-    data: PedidoStatusRequestUpdateDto
+    data: PedidoStatusRequestUpdateDto,
   ): Promise<PedidoStatusResponseDto> {
     const url = `${API_ROUTES.PEDIDO_STATUS.UPDATE_PEDIDO_STATUS}/${id}`;
     const response = await api.put<PedidoStatusResponseDto>(url, data);
@@ -51,7 +51,7 @@ export class PedidoStatusService {
   }
 
   static async getPedidoStatusByBoard(
-    boardId: string
+    boardId: string,
   ): Promise<PedidoStatusResponseDto[]> {
     const url = `${API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS_BY_BOARD}/${boardId}`;
     const response = await api.get<PedidoStatusResponseDto[]>(url);
@@ -59,32 +59,31 @@ export class PedidoStatusService {
   }
 
   static async getPedidoStatusWithPedidos(
-    boardId: string
+    boardId: string,
   ): Promise<PedidoStatusResponseWithPedidosDto[]> {
     const url = API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS_WITH_PEDIDOS.replace(
       ":boardId",
-      boardId
+      boardId,
     );
     const response = await api.get<PedidoStatusResponseWithPedidosDto[]>(url);
     return response.data;
   }
 
   static async getPedidoStatusWithPedidosAndItens(
-    boardId: string
+    boardId: string,
   ): Promise<PedidoStatusResponseWithPedidosAndItensDto[]> {
     const url =
       API_ROUTES.PEDIDO_STATUS.GET_PEDIDO_STATUS_WITH_PEDIDOS_AND_ITENS.replace(
         ":boardId",
-        boardId
+        boardId,
       );
-    const response = await api.get<
-      PedidoStatusResponseWithPedidosAndItensDto[]
-    >(url);
+    const response =
+      await api.get<PedidoStatusResponseWithPedidosAndItensDto[]>(url);
     return response.data;
   }
 
   static async reorderStatus(
-    statusUpdates: Array<{ id: number; ordem: number }>
+    statusUpdates: Array<{ id: number; ordem: number }>,
   ): Promise<void> {
     const response = await api.put(API_ROUTES.PEDIDO_STATUS.REORDER_STATUS, {
       updates: statusUpdates,

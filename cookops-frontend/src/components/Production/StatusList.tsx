@@ -247,7 +247,7 @@ export function StatusList({
       activationConstraint: {
         distance: 8,
       },
-    })
+    }),
   );
 
   useEffect(() => {
@@ -308,8 +308,8 @@ export function StatusList({
                   isNew: false,
                   isEditing: false,
                 }
-              : s
-          )
+              : s,
+          ),
         );
       } else {
         // Update existing status
@@ -319,8 +319,8 @@ export function StatusList({
 
         setStatusItems((prev) =>
           prev.map((s) =>
-            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s
-          )
+            s.id === id ? { ...s, titulo: editedTitle, isEditing: false } : s,
+          ),
         );
       }
 
@@ -344,7 +344,7 @@ export function StatusList({
     } else {
       // Cancel edit of existing status
       setStatusItems((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s))
+        prev.map((s) => (s.id === id ? { ...s, isEditing: false } : s)),
       );
     }
 

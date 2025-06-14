@@ -74,7 +74,7 @@ export function useBoards(): UseBoardsReturn {
         titulo: title,
       });
       setBoards((prev) =>
-        prev.map((board) => (board.id === id ? updatedBoard : board))
+        prev.map((board) => (board.id === id ? updatedBoard : board)),
       );
       toast.success("Board atualizado com sucesso!");
     } catch (error) {
@@ -93,7 +93,7 @@ export function useBoards(): UseBoardsReturn {
       if (selectedBoard === id) {
         const remainingBoards = boards.filter((b) => b.id !== id);
         setSelectedBoard(
-          remainingBoards.length > 0 ? remainingBoards[0].id : ""
+          remainingBoards.length > 0 ? remainingBoards[0].id : "",
         );
       }
 
@@ -143,7 +143,7 @@ export interface UseBoardStatusReturn {
   createStatus: (
     title: string,
     order: number,
-    boardId: string
+    boardId: string,
   ) => Promise<void>;
   updateStatus: (id: number, title: string) => Promise<void>;
   deleteStatus: (id: number) => Promise<void>;
@@ -182,7 +182,7 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
   const createStatus = async (
     title: string,
     order: number,
-    boardId: string
+    boardId: string,
   ) => {
     try {
       const newStatus = await PedidoStatusService.addPedidoStatus({
@@ -191,7 +191,7 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
         boardId: boardId,
       });
       setStatusList((prev) =>
-        [...prev, newStatus].sort((a, b) => a.ordem - b.ordem)
+        [...prev, newStatus].sort((a, b) => a.ordem - b.ordem),
       );
       toast.success("Status criado com sucesso!");
     } catch (error) {
@@ -207,7 +207,7 @@ export function useBoardStatus(boardId: string): UseBoardStatusReturn {
         titulo: title,
       });
       setStatusList((prev) =>
-        prev.map((status) => (status.id === id ? updatedStatus : status))
+        prev.map((status) => (status.id === id ? updatedStatus : status)),
       );
       toast.success("Status atualizado com sucesso!");
     } catch (error) {

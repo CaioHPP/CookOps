@@ -25,7 +25,7 @@ export function useChartExport() {
               ? `"${value}"`
               : value;
           })
-          .join(",")
+          .join(","),
       ),
     ].join("\\n");
 
@@ -47,7 +47,7 @@ export function useChartExport() {
       console.log("Exportação PNG não implementada ainda:", filename);
       // TODO: Implementar exportação PNG quando necessário
     },
-    []
+    [],
   );
 
   const exportVendasData = useCallback(
@@ -88,10 +88,10 @@ export function useChartExport() {
 
       exportToCSV(
         vendasData,
-        `vendas_${options.title.toLowerCase().replace(/\\s+/g, "_")}`
+        `vendas_${options.title.toLowerCase().replace(/\\s+/g, "_")}`,
       );
     },
-    [exportToCSV]
+    [exportToCSV],
   );
   const exportProdutosData = useCallback(
     (dashboardData: DashboardData, options: ExportOptions) => {
@@ -106,15 +106,15 @@ export function useChartExport() {
             (produto.quantidadeVendida / dashboardData.vendas.totalPedidos) *
             100
           ).toFixed(1)}%`,
-        })
+        }),
       );
 
       exportToCSV(
         produtosData,
-        `produtos_${options.title.toLowerCase().replace(/\\s+/g, "_")}`
+        `produtos_${options.title.toLowerCase().replace(/\\s+/g, "_")}`,
       );
     },
-    [exportToCSV]
+    [exportToCSV],
   );
   const exportHorariosData = useCallback(
     (dashboardData: DashboardData, options: ExportOptions) => {
@@ -127,15 +127,15 @@ export function useChartExport() {
             horario.totalPedidos * dashboardData.vendas.ticketMedio
           ).toLocaleString()}`,
           ticketMedio: `R$ ${dashboardData.vendas.ticketMedio.toFixed(2)}`,
-        })
+        }),
       );
 
       exportToCSV(
         horariosData,
-        `horarios_${options.title.toLowerCase().replace(/\\s+/g, "_")}`
+        `horarios_${options.title.toLowerCase().replace(/\\s+/g, "_")}`,
       );
     },
-    [exportToCSV]
+    [exportToCSV],
   );
 
   const exportPerformanceData = useCallback(
@@ -160,7 +160,7 @@ export function useChartExport() {
         {
           metrica: "Taxa de Confirmação Automática",
           valor: `${dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-            1
+            1,
           )}%`,
           status:
             dashboardData.performance.taxaConfirmacaoAutomatica < 80
@@ -172,10 +172,10 @@ export function useChartExport() {
 
       exportToCSV(
         performanceData,
-        `performance_${options.title.toLowerCase().replace(/\\s+/g, "_")}`
+        `performance_${options.title.toLowerCase().replace(/\\s+/g, "_")}`,
       );
     },
-    [exportToCSV]
+    [exportToCSV],
   );
   const exportAllData = useCallback(
     (dashboardData: DashboardData) => {
@@ -202,10 +202,10 @@ export function useChartExport() {
 
       exportToCSV(
         summaryData,
-        `dashboard_completo_${new Date().toISOString().split("T")[0]}`
+        `dashboard_completo_${new Date().toISOString().split("T")[0]}`,
       );
     },
-    [exportToCSV]
+    [exportToCSV],
   );
 
   return {

@@ -8,7 +8,7 @@ import { ConfiguracaoEmpresaResponseDto } from "@/types/dto/configuracao-empresa
 
 export class ConfiguracaoEmpresaService {
   static async getConfiguracaoByEmpresa(
-    empresaId?: string
+    empresaId?: string,
   ): Promise<ConfiguracaoEmpresaResponseDto | null> {
     try {
       const url = empresaId
@@ -24,12 +24,12 @@ export class ConfiguracaoEmpresaService {
   }
 
   static async createConfiguracao(
-    data: CreateConfiguracaoEmpresaDto
+    data: CreateConfiguracaoEmpresaDto,
   ): Promise<ConfiguracaoEmpresaResponseDto | null> {
     try {
       const response = await api.post<ConfiguracaoEmpresaResponseDto>(
         API_ROUTES.CONFIGURACAO_EMPRESA.CREATE_CONFIGURACAO,
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -40,12 +40,12 @@ export class ConfiguracaoEmpresaService {
 
   static async updateConfiguracao(
     empresaId: string,
-    data: UpdateConfiguracaoEmpresaDto
+    data: UpdateConfiguracaoEmpresaDto,
   ): Promise<ConfiguracaoEmpresaResponseDto | null> {
     try {
       const response = await api.patch<ConfiguracaoEmpresaResponseDto>(
         `${API_ROUTES.CONFIGURACAO_EMPRESA.UPDATE_CONFIGURACAO}/${empresaId}`,
-        data
+        data,
       );
       return response.data;
     } catch (error) {
@@ -57,7 +57,7 @@ export class ConfiguracaoEmpresaService {
   static async deleteConfiguracao(empresaId: string): Promise<boolean> {
     try {
       await api.delete(
-        `${API_ROUTES.CONFIGURACAO_EMPRESA.DELETE_CONFIGURACAO}/${empresaId}`
+        `${API_ROUTES.CONFIGURACAO_EMPRESA.DELETE_CONFIGURACAO}/${empresaId}`,
       );
       return true;
     } catch (error) {

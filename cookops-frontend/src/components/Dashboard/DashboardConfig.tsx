@@ -103,10 +103,7 @@ export function DashboardConfig({
                 <Switch
                   checked={isVisible}
                   onCheckedChange={() => {
-                    console.log("🔀 Toggle chart:", chart.id);
                     toggleChart(chart.id);
-                    console.log("📞 Chamando onSettingsChange...");
-                    // Força uma atualização do dashboard
                     onSettingsChange?.();
                   }}
                 />
@@ -180,10 +177,7 @@ export function DashboardConfig({
                                 : "border-border hover:border-primary/50"
                             }`}
                             onClick={() => {
-                              console.log("🎨 Mudando tema para:", themeKey);
                               setChartTheme(themeKey);
-                              console.log("📞 Chamando onSettingsChange...");
-                              // Força uma atualização do dashboard
                               onSettingsChange?.();
                             }}
                           >
@@ -288,7 +282,7 @@ export function DashboardConfig({
                             </div>
                           </div>
                         );
-                      }
+                      },
                     )}
                   </div>
                 </CardContent>{" "}

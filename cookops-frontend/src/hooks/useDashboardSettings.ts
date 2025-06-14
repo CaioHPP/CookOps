@@ -108,7 +108,7 @@ const DEFAULT_CHARTS: DashboardChart[] = [
 
 const DEFAULT_SETTINGS: DashboardSettings = {
   visibleCharts: DEFAULT_CHARTS.filter((chart) => chart.defaultVisible).map(
-    (chart) => chart.id
+    (chart) => chart.id,
   ),
   autoRefresh: false,
   refreshInterval: 30, // 30 segundos
@@ -133,11 +133,6 @@ export function useDashboardSettings() {
   const [settings, setSettings] = useState<DashboardSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Debug: Monitora mudanças no estado settings
-  useEffect(() => {
-    console.log("🔄 Estado settings mudou:", settings);
-  }, [settings]);
-
   // Carregar configurações do localStorage
   useEffect(() => {
     try {
@@ -155,134 +150,127 @@ export function useDashboardSettings() {
   // Salvar configurações no localStorage
   const saveSettings = useCallback(
     (newSettings: Partial<DashboardSettings>) => {
-      console.log("💾 saveSettings chamado:", newSettings);
       const updatedSettings = { ...settings, ...newSettings };
-      console.log("🔄 Settings atualizados:", updatedSettings);
-      console.log("📝 Chamando setSettings...");
+
       setSettings(updatedSettings);
-      console.log("✅ setSettings chamado com:", updatedSettings);
 
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSettings));
-        console.log("✅ Salvo no localStorage");
       } catch (error) {
         console.error("Erro ao salvar configurações do dashboard:", error);
       }
     },
-    [settings]
+    [settings],
   );
 
   // Funções específicas para atualizar configurações
   const toggleChart = useCallback(
     (chartId: string) => {
-      console.log("🔀 toggleChart chamado:", chartId);
       const isVisible = settings.visibleCharts.includes(chartId);
       const newVisibleCharts = isVisible
         ? settings.visibleCharts.filter((id) => id !== chartId)
         : [...settings.visibleCharts, chartId];
 
-      console.log("📊 Novos charts visíveis:", newVisibleCharts);
       saveSettings({ visibleCharts: newVisibleCharts });
     },
-    [settings.visibleCharts, saveSettings]
+    [settings.visibleCharts, saveSettings],
   );
 
   const setAutoRefresh = useCallback(
     (enabled: boolean) => {
       saveSettings({ autoRefresh: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setRefreshInterval = useCallback(
     (interval: number) => {
       saveSettings({ refreshInterval: interval });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setDefaultPeriod = useCallback(
     (period: string) => {
       saveSettings({ defaultPeriod: period });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setShowComparison = useCallback(
     (show: boolean) => {
       saveSettings({ showComparison: show });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setAlertsEnabled = useCallback(
     (enabled: boolean) => {
       saveSettings({ alertsEnabled: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
   const setChartTheme = useCallback(
     (chartTheme: ChartTheme) => {
-      console.log("🎨 setChartTheme chamado:", chartTheme);
       saveSettings({ chartTheme });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setEnableNotifications = useCallback(
     (enabled: boolean) => {
       saveSettings({ enableNotifications: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setEnableAlerts = useCallback(
     (enabled: boolean) => {
       saveSettings({ enableAlerts: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setEnableMetricUpdates = useCallback(
     (enabled: boolean) => {
       saveSettings({ enableMetricUpdates: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setEnableOrderStatus = useCallback(
     (enabled: boolean) => {
       saveSettings({ enableOrderStatus: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setChartAnimations = useCallback(
     (enabled: boolean) => {
       saveSettings({ chartAnimations: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setDarkMode = useCallback(
     (enabled: boolean) => {
       saveSettings({ darkMode: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setCacheEnabled = useCallback(
     (enabled: boolean) => {
       saveSettings({ cacheEnabled: enabled });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const setCacheTTL = useCallback(
     (ttl: number) => {
       saveSettings({ cacheTTL: ttl });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   const resetToDefaults = useCallback(() => {
@@ -296,7 +284,7 @@ export function useDashboardSettings() {
 
   // Obter gráficos visíveis
   const visibleCharts = DEFAULT_CHARTS.filter((chart) =>
-    settings.visibleCharts.includes(chart.id)
+    settings.visibleCharts.includes(chart.id),
   );
 
   // Obter gráficos por categoria
@@ -304,7 +292,7 @@ export function useDashboardSettings() {
     (category: DashboardChart["category"]) => {
       return DEFAULT_CHARTS.filter((chart) => chart.category === category);
     },
-    []
+    [],
   );
 
   // Verificar se um gráfico está visível
@@ -312,7 +300,7 @@ export function useDashboardSettings() {
     (chartId: string) => {
       return settings.visibleCharts.includes(chartId);
     },
-    [settings.visibleCharts]
+    [settings.visibleCharts],
   );
 
   // Exportar configurações
@@ -364,7 +352,7 @@ export function useDashboardSettings() {
         reader.readAsText(file);
       });
     },
-    [saveSettings]
+    [saveSettings],
   );
 
   return {

@@ -186,7 +186,7 @@ export default function CompanyDataConfig() {
   const showAlert = (
     type: "success" | "error",
     title: string,
-    message: string
+    message: string,
   ) => {
     setAlertState({ show: true, type, title, message });
   };
@@ -256,13 +256,13 @@ export default function CompanyDataConfig() {
           // Atualizar endereço existente
           const updatedEndereco = await EnderecoService.updateEndereco(
             enderecoId,
-            enderecoData
+            enderecoData,
           );
           enderecoId = updatedEndereco.id;
         } else {
           // Criar novo endereço
           const newEndereco = await EnderecoService.createEndereco(
-            enderecoData as EnderecoRequestAddDto
+            enderecoData as EnderecoRequestAddDto,
           );
           enderecoId = newEndereco.id;
         }
@@ -295,7 +295,7 @@ export default function CompanyDataConfig() {
         // Atualizar configuração existente
         await ConfiguracaoEmpresaService.updateConfiguracao(
           formData.id,
-          configuracaoData
+          configuracaoData,
         );
       } else {
         // Criar nova configuração
@@ -304,7 +304,7 @@ export default function CompanyDataConfig() {
           ...configuracaoData,
         };
         await ConfiguracaoEmpresaService.createConfiguracao(
-          createConfiguracaoData
+          createConfiguracaoData,
         );
       }
 
@@ -314,14 +314,14 @@ export default function CompanyDataConfig() {
       showAlert(
         "success",
         "Sucesso",
-        "Todas as configurações foram salvas com sucesso!"
+        "Todas as configurações foram salvas com sucesso!",
       );
     } catch (error) {
       console.error("Erro ao salvar dados:", error);
       showAlert(
         "error",
         "Erro",
-        "Erro ao salvar as configurações. Tente novamente."
+        "Erro ao salvar as configurações. Tente novamente.",
       );
     } finally {
       setSaving(false);

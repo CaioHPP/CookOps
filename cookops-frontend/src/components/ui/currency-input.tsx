@@ -14,7 +14,7 @@ interface CurrencyInputProps
 export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   (
     { value, onValueChange, className, placeholder = "R$ 0,00", ...props },
-    ref
+    ref,
   ) => {
     return (
       <NumericFormat
@@ -36,7 +36,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         className={cn(className)}
       />
     );
-  }
+  },
 );
 
 CurrencyInput.displayName = "CurrencyInput";

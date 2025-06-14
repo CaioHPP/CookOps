@@ -49,19 +49,16 @@ interface AdvancedSettingsProps {
   isOpen: boolean;
   onClose: () => void;
   settings: AdvancedSettingsData;
-  onSettingsChange: (settings: AdvancedSettingsData) => void;
 }
 
 export function AdvancedSettings({
   isOpen,
   onClose,
   settings,
-  onSettingsChange,
 }: AdvancedSettingsProps) {
   const [localSettings, setLocalSettings] = useState(settings);
 
   const handleSave = () => {
-    onSettingsChange(localSettings);
     onClose();
   };
 
@@ -82,7 +79,7 @@ export function AdvancedSettings({
   };
   const updateSetting = (
     key: keyof AdvancedSettingsData,
-    value: boolean | number | string
+    value: boolean | number | string,
   ) => {
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
   };
