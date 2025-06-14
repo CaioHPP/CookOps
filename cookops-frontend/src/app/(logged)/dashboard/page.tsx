@@ -30,9 +30,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  DashboardSettingsProvider,
+  useDashboardSettingsContext,
+} from "@/contexts/DashboardSettingsContext";
 import { useChartDrilldown } from "@/hooks/useChartDrilldown";
 import { useChartExport } from "@/hooks/useChartExport";
-import { useDashboardSettings } from "@/hooks/useDashboardSettings";
 import { getChartColor } from "@/lib/chart-themes";
 import {
   generateTrendChartData,
@@ -79,6 +82,14 @@ interface ComparisonData {
 }
 
 export default function Dashboard() {
+  return (
+    <DashboardSettingsProvider>
+      <DashboardContent />
+    </DashboardSettingsProvider>
+  );
+}
+
+function DashboardContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
@@ -94,10 +105,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
-  const [showAdvancedExport, setShowAdvancedExport] = useState(false);
-  const [forceUpdate, setForceUpdate] = useState({}); // Para forçar rerenderização
-  // Configurações do dashboard
-  const { settings, isChartVisible } = useDashboardSettings();
+  const [showAdvancedExport, setShowAdvancedExport] = useState(false); // Configurações do dashboard via Context (sempre atualizadas)
+  const { settings, isChartVisible } = useDashboardSettingsContext();
+  // Debug: Log das configurações com ID único
+  const dashboardId = useMemo(
+    () => Math.random().toString(36).substr(2, 9),
+    []
+  );
+  console.log(`⚙️ [${dashboardId}] Settings atuais:`, {
+    chartTheme: settings.chartTheme,
+    visibleChartsCount: settings.visibleCharts.length,
+    visibleCharts: settings.visibleCharts,
+  });
+  // Effect para detectar mudanças nas configurações sem reload da página
+  useEffect(() => {
+    console.log(
+      `🔄 [${dashboardId}] Configurações detectadas, aplicando mudanças...`
+    );
+  }, [settings.chartTheme, settings.visibleCharts, dashboardId]);
 
   // Drill-down functionality
   const {
@@ -286,9 +311,21 @@ export default function Dashboard() {
           color: "hsl(var(--dashboard-accent))",
         },
       },
-    }),
-    [settings.chartTheme]
-  );
+    }), // eslint-disable-next-line react-hooks/exhaustive-deps
+    [settings.chartTheme, JSON.stringify(settings)]
+  ); // Effect para detectar mudanças nas configurações e forçar atualização
+  // Temporariamente desabilitado para testar rerenderização manual
+  /*
+  useEffect(() => {
+    console.log("🔄 Configurações mudaram, atualizando dashboard...", {
+      theme: settings.chartTheme,
+      visibleCharts: settings.visibleCharts.length,
+    });
+    // Incrementa a key para forçar rerenderização quando configurações mudam
+    setConfigKey((prev) => prev + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(settings)]);
+  */
 
   // Dados para os gráficos com otimização
   const chartData = useMemo(() => {
@@ -364,8 +401,13 @@ export default function Dashboard() {
           valorMedio: fonte.valorMedio,
           percentual: fonte.percentualTotal,
         })) || [],
-    };
-  }, [dashboardData, filters.periodo, settings.chartTheme]);
+    }; // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    dashboardData,
+    filters.periodo,
+    settings.chartTheme,
+    JSON.stringify(settings),
+  ]);
 
   if (loading) {
     return (
@@ -397,12 +439,13 @@ export default function Dashboard() {
               Tentar novamente
             </Button>
           </div>
-        </div>
+        </div>{" "}
       </div>
     );
   }
+
   return (
-    <div key={JSON.stringify(forceUpdate)} className="p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Cabeçalho do Dashboard */}
         <div className="flex items-center justify-between">
@@ -1155,17 +1198,33 @@ export default function Dashboard() {
                       innerRadius={30}
                       outerRadius={110}
                     >
+                      {" "}
                       <ChartTooltip
                         cursor={false}
-                        content={
-                          <ChartTooltipContent hideLabel nameKey="name" />
-                        }
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0]?.payload;
+                            return (
+                              <div className="bg-background border rounded-lg p-2 shadow-lg">
+                                <p className="font-medium text-sm">
+                                  {data.name}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {data.value} pedidos (
+                                  {data.percentage.toFixed(1)}%)
+                                </p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
                       />
                       <RadialBar dataKey="value" background>
+                        {" "}
                         <LabelList
                           position="insideStart"
                           dataKey="name"
-                          className="fill-white capitalize mix-blend-luminosity"
+                          className="fill-foreground capitalize text-xs font-medium"
                           fontSize={11}
                         />
                       </RadialBar>
@@ -1889,9 +1948,11 @@ export default function Dashboard() {
           isOpen={showConfig}
           onClose={() => setShowConfig(false)}
           onSettingsChange={() => {
-            // Fecha o modal e recarrega a página para aplicar as mudanças
-            setShowConfig(false);
-            window.location.reload();
+            console.log(`🔧 [${dashboardId}] onSettingsChange chamado!`);
+            // Com Context API, não precisamos forçar remount - as mudanças são reativas
+            setTimeout(() => {
+              setShowConfig(false);
+            }, 200);
           }}
         />
         {/* Modal de Configurações Avançadas */}

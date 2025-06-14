@@ -133,6 +133,11 @@ export function useDashboardSettings() {
   const [settings, setSettings] = useState<DashboardSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Debug: Monitora mudanças no estado settings
+  useEffect(() => {
+    console.log("🔄 Estado settings mudou:", settings);
+  }, [settings]);
+
   // Carregar configurações do localStorage
   useEffect(() => {
     try {
@@ -146,14 +151,20 @@ export function useDashboardSettings() {
     } finally {
       setIsLoading(false);
     }
-  }, []); // Salvar configurações no localStorage
+  }, []);
+  // Salvar configurações no localStorage
   const saveSettings = useCallback(
     (newSettings: Partial<DashboardSettings>) => {
+      console.log("💾 saveSettings chamado:", newSettings);
       const updatedSettings = { ...settings, ...newSettings };
+      console.log("🔄 Settings atualizados:", updatedSettings);
+      console.log("📝 Chamando setSettings...");
       setSettings(updatedSettings);
+      console.log("✅ setSettings chamado com:", updatedSettings);
 
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedSettings));
+        console.log("✅ Salvo no localStorage");
       } catch (error) {
         console.error("Erro ao salvar configurações do dashboard:", error);
       }
@@ -164,11 +175,13 @@ export function useDashboardSettings() {
   // Funções específicas para atualizar configurações
   const toggleChart = useCallback(
     (chartId: string) => {
+      console.log("🔀 toggleChart chamado:", chartId);
       const isVisible = settings.visibleCharts.includes(chartId);
       const newVisibleCharts = isVisible
         ? settings.visibleCharts.filter((id) => id !== chartId)
         : [...settings.visibleCharts, chartId];
 
+      console.log("📊 Novos charts visíveis:", newVisibleCharts);
       saveSettings({ visibleCharts: newVisibleCharts });
     },
     [settings.visibleCharts, saveSettings]
@@ -210,6 +223,7 @@ export function useDashboardSettings() {
   );
   const setChartTheme = useCallback(
     (chartTheme: ChartTheme) => {
+      console.log("🎨 setChartTheme chamado:", chartTheme);
       saveSettings({ chartTheme });
     },
     [saveSettings]

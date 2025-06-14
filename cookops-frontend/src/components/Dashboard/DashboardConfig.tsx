@@ -18,10 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DashboardChart,
-  useDashboardSettings,
-} from "@/hooks/useDashboardSettings";
+import { useDashboardSettingsContext } from "@/contexts/DashboardSettingsContext";
+import { DashboardChart } from "@/hooks/useDashboardSettings";
 import { CHART_THEMES, ChartTheme } from "@/lib/chart-themes";
 import {
   BarChart3,
@@ -63,7 +61,7 @@ export function DashboardConfig({
     setChartTheme,
     getChartsByCategory,
     isChartVisible,
-  } = useDashboardSettings();
+  } = useDashboardSettingsContext();
 
   const renderChartsByCategory = (category: DashboardChart["category"]) => {
     const charts = getChartsByCategory(category);
@@ -105,7 +103,9 @@ export function DashboardConfig({
                 <Switch
                   checked={isVisible}
                   onCheckedChange={() => {
+                    console.log("🔀 Toggle chart:", chart.id);
                     toggleChart(chart.id);
+                    console.log("📞 Chamando onSettingsChange...");
                     // Força uma atualização do dashboard
                     onSettingsChange?.();
                   }}
@@ -180,7 +180,9 @@ export function DashboardConfig({
                                 : "border-border hover:border-primary/50"
                             }`}
                             onClick={() => {
+                              console.log("🎨 Mudando tema para:", themeKey);
                               setChartTheme(themeKey);
+                              console.log("📞 Chamando onSettingsChange...");
                               // Força uma atualização do dashboard
                               onSettingsChange?.();
                             }}
