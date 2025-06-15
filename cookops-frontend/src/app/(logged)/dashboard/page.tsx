@@ -1225,7 +1225,9 @@ function DashboardContent() {
                             generateDrilldownData(
                               "vendas",
                               dashboardData,
-                              filters.periodo
+                              filters.periodo,
+                              dateToISOString(filters.dataInicio),
+                              dateToISOString(filters.dataFim)
                             )
                           )
                         }

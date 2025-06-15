@@ -43,66 +43,48 @@ export function useChartDrilldown() {
       chartType: string,
       dashboardData: DashboardData,
       periodo?: string,
+      dataInicio?: string,
+      dataFim?: string
     ): DrilldownData => {
-      const periodoDias = periodo ? parseInt(periodo) : 30;
+      // Determinar número de dias baseado no período
+      let periodoDias: number;
+      let isPersonalizado = false;
+
+      if (periodo === "personalizado" && dataInicio && dataFim) {
+        isPersonalizado = true;
+        const inicio = new Date(dataInicio);
+        const fim = new Date(dataFim);
+        periodoDias =
+          Math.ceil(
+            (fim.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24)
+          ) + 1;
+      } else {
+        periodoDias = periodo ? parseInt(periodo) : 30;
+      }
 
       switch (chartType) {
         case "vendas":
-          const granularidade =
-            periodoDias <= 7 ? "dia" : periodoDias < 180 ? "semana" : "mês";
+          // Determinar granularidade baseada no número de dias
+          let granularidade: string;
+          let tipoGranularidade: "dias" | "semanas" | "meses" | "anos";
 
-          // Usar os mesmos dados que o gráfico principal está usando
+          if (periodoDias <= 14) {
+            granularidade = "dia";
+            tipoGranularidade = "dias";
+          } else if (periodoDias <= 90) {
+            granularidade = "semana";
+            tipoGranularidade = "semanas";
+          } else if (periodoDias <= 365) {
+            granularidade = "mês";
+            tipoGranularidade = "meses";
+          } else {
+            granularidade = "ano";
+            tipoGranularidade = "anos";
+          }
+
+          // Usar os dados corretos baseado na granularidade
           const dadosOriginais = (() => {
-            const periodoNum = periodoDias;
-
-            // Para 1 ano (365 dias) - usar dados mensais
-            if (periodoNum === 365) {
-              return (
-                dashboardData.crescimento.crescimentoMensal?.map((item) => ({
-                  periodo: item.mes,
-                  pedidos: item.totalPedidos,
-                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
-                  crescimento: item.crescimentoPercentual,
-                })) || []
-              );
-            } // Para 6 meses (180 dias) - usar dados mensais disponíveis
-            if (periodoNum === 180) {
-              return (
-                dashboardData.crescimento.crescimentoMensal?.map((item) => ({
-                  periodo: item.mes,
-                  pedidos: item.totalPedidos,
-                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
-                  crescimento: item.crescimentoPercentual,
-                })) || []
-              );
-            }
-
-            // Para 90 dias - usar dados semanais disponíveis (máximo disponível)
-            if (periodoNum === 90) {
-              return dashboardData.crescimento.crescimentoSemanal.map(
-                (item) => ({
-                  periodo: item.semana,
-                  pedidos: item.totalPedidos,
-                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
-                  crescimento: item.crescimentoPercentual,
-                }),
-              );
-            }
-
-            // Para 30 dias - usar dados semanais disponíveis
-            if (periodoNum === 30) {
-              return dashboardData.crescimento.crescimentoSemanal.map(
-                (item) => ({
-                  periodo: item.semana,
-                  pedidos: item.totalPedidos,
-                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
-                  crescimento: item.crescimentoPercentual,
-                }),
-              );
-            }
-
-            // Para 7 dias - usar dados diários se disponível
-            if (periodoNum === 7) {
+            if (tipoGranularidade === "dias") {
               return (
                 dashboardData.crescimento.crescimentoDiario?.map((item) => ({
                   periodo: item.dia,
@@ -111,16 +93,52 @@ export function useChartDrilldown() {
                   crescimento: item.crescimentoPercentual,
                 })) || []
               );
+            } else if (tipoGranularidade === "semanas") {
+              return dashboardData.crescimento.crescimentoSemanal.map(
+                (item) => ({
+                  periodo: item.semana,
+                  pedidos: item.totalPedidos,
+                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
+                  crescimento: item.crescimentoPercentual,
+                })
+              );
+            } else if (
+              tipoGranularidade === "meses" ||
+              tipoGranularidade === "anos"
+            ) {
+              return (
+                dashboardData.crescimento.crescimentoMensal?.map((item) => ({
+                  periodo: item.mes,
+                  pedidos: item.totalPedidos,
+                  receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
+                  crescimento: item.crescimentoPercentual,
+                })) || []
+              );
             }
 
-            // Fallback - usar dados semanais
-            return dashboardData.crescimento.crescimentoSemanal.map((item) => ({
-              periodo: item.semana,
-              pedidos: item.totalPedidos,
-              receita: item.totalPedidos * dashboardData.vendas.ticketMedio,
-              crescimento: item.crescimentoPercentual,
-            }));
+            // Fallback
+            return [];
           })();
+
+          // Se não há dados, criar dados vazios para mostrar estrutura
+          if (dadosOriginais.length === 0) {
+            return {
+              chartType: "vendas",
+              title: "Detalhes de Vendas - Tendência",
+              period: isPersonalizado
+                ? `Período personalizado: ${dataInicio} a ${dataFim} (${periodoDias} dias) - Dados por ${granularidade}`
+                : `Últimos ${periodoDias} dias - Dados por ${granularidade}`,
+              data: [],
+              metadata: {
+                totalReceita: dashboardData.vendas.receitaTotal,
+                totalPedidos: dashboardData.vendas.totalPedidos,
+                crescimento: dashboardData.vendas.crescimentoReceita,
+                ticketMedioGeral: dashboardData.vendas.ticketMedio,
+                aviso:
+                  "Não há dados disponíveis para este período e granularidade",
+              },
+            };
+          }
 
           // Calcular linha de tendência para os dados
           const dadosComTendencia = calculateTrendLine(
@@ -128,7 +146,7 @@ export function useChartDrilldown() {
               periodo: item.periodo,
               vendas: item.pedidos,
               crescimento: item.crescimento,
-            })),
+            }))
           );
 
           const dadosVendas = dadosComTendencia.map((item, index) => ({
@@ -137,14 +155,16 @@ export function useChartDrilldown() {
             pedidos: item.vendas,
             tendencia: item.tendencia || 0,
             ticketMedio: Number(
-              (dadosOriginais[index].receita / item.vendas).toFixed(2),
+              (dadosOriginais[index].receita / item.vendas).toFixed(2)
             ),
             crescimentoPercentual: item.crescimento || 0,
           }));
           return {
             chartType: "vendas",
             title: "Detalhes de Vendas - Tendência",
-            period: `Últimos ${periodoDias} dias - Dados por ${granularidade} (${dadosVendas.length} ${granularidade}s)`,
+            period: isPersonalizado
+              ? `Período personalizado: ${dataInicio} a ${dataFim} (${periodoDias} dias) - Dados por ${granularidade} (${dadosVendas.length} ${tipoGranularidade})`
+              : `Últimos ${periodoDias} dias - Dados por ${granularidade} (${dadosVendas.length} ${tipoGranularidade})`,
             data: dadosVendas,
             metadata: {
               totalReceita: dashboardData.vendas.receitaTotal,
@@ -159,6 +179,9 @@ export function useChartDrilldown() {
                   ? (dadosVendas[dadosVendas.length - 1]?.tendencia || 0) -
                     (dadosVendas[0]?.tendencia || 0)
                   : 0,
+              granularidade: tipoGranularidade,
+              periodoDias,
+              isPersonalizado,
             },
           };
         case "performance":
@@ -175,38 +198,36 @@ export function useChartDrilldown() {
                   dashboardData.performance.pedidosEmAtraso > 5
                     ? "crítico"
                     : dashboardData.performance.pedidosEmAtraso > 2
-                      ? "atenção"
-                      : "ok",
+                    ? "atenção"
+                    : "ok",
                 unidade: "pedidos",
               },
               {
                 metrica: "Tempo Médio de Finalização",
                 valor: Number(
-                  dashboardData.performance.tempoMedioFinalizacao.toFixed(1),
+                  dashboardData.performance.tempoMedioFinalizacao.toFixed(1)
                 ),
                 limite: 30,
                 status:
                   dashboardData.performance.tempoMedioFinalizacao > 45
                     ? "crítico"
                     : dashboardData.performance.tempoMedioFinalizacao > 30
-                      ? "atenção"
-                      : "ok",
+                    ? "atenção"
+                    : "ok",
                 unidade: "min",
               },
               {
                 metrica: "Taxa de Confirmação Automática",
                 valor: Number(
-                  dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                    2,
-                  ),
+                  dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(2)
                 ),
                 limite: 80,
                 status:
                   dashboardData.performance.taxaConfirmacaoAutomatica < 70
                     ? "crítico"
                     : dashboardData.performance.taxaConfirmacaoAutomatica < 80
-                      ? "atenção"
-                      : "ok",
+                    ? "atenção"
+                    : "ok",
                 unidade: "%",
               },
               {
@@ -217,8 +238,8 @@ export function useChartDrilldown() {
                   dashboardData.vendas.taxaConversao < 60
                     ? "crítico"
                     : dashboardData.vendas.taxaConversao < 70
-                      ? "atenção"
-                      : "ok",
+                    ? "atenção"
+                    : "ok",
                 unidade: "%",
               },
             ],
@@ -250,15 +271,15 @@ export function useChartDrilldown() {
                       p.produtoId === produto.produtoId) ||
                     (!p.produtoId &&
                       !produto.produtoId &&
-                      p.nome === produto.nome),
+                      p.nome === produto.nome)
                 ) === index
               );
-            },
+            }
           );
 
           // Ordenar por quantidade vendida (maior para menor)
           const produtosOrdenados = produtosUnicos.sort(
-            (a, b) => b.quantidadeVendida - a.quantidadeVendida,
+            (a, b) => b.quantidadeVendida - a.quantidadeVendida
           );
 
           return {
@@ -274,25 +295,25 @@ export function useChartDrilldown() {
                   (produto.quantidadeVendida /
                     produtosOrdenados.reduce(
                       (sum, p) => sum + p.quantidadeVendida,
-                      0,
+                      0
                     )) *
                   100
-                ).toFixed(2),
+                ).toFixed(2)
               ),
               receita: produto.receita,
               ticketMedio: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2),
+                (produto.receita / produto.quantidadeVendida).toFixed(2)
               ),
             })),
             metadata: {
               totalProdutos: produtosOrdenados.length,
               totalVendas: produtosOrdenados.reduce(
                 (sum, p) => sum + p.quantidadeVendida,
-                0,
+                0
               ),
               receitaTotal: produtosOrdenados.reduce(
                 (sum, p) => sum + p.receita,
-                0,
+                0
               ),
               produtosMaisPopulares:
                 dashboardData.produtos.itensMaisPopulares.length,
@@ -319,15 +340,15 @@ export function useChartDrilldown() {
                       p.produtoId === produto.produtoId) ||
                     (!p.produtoId &&
                       !produto.produtoId &&
-                      p.nome === produto.nome),
+                      p.nome === produto.nome)
                 ) === index
               );
-            },
+            }
           );
 
           // Ordenar por receita (maior para menor)
           const produtosPorReceita = produtosUnicosReceita.sort(
-            (a, b) => b.receita - a.receita,
+            (a, b) => b.receita - a.receita
           );
 
           return {
@@ -340,37 +361,37 @@ export function useChartDrilldown() {
               receita: produto.receita,
               quantidadeVendida: produto.quantidadeVendida,
               ticketMedio: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2),
+                (produto.receita / produto.quantidadeVendida).toFixed(2)
               ),
               participacaoReceita: Number(
                 (
                   (produto.receita /
                     produtosPorReceita.reduce((sum, p) => sum + p.receita, 0)) *
                   100
-                ).toFixed(2),
+                ).toFixed(2)
               ),
               receitaPorUnidade: Number(
-                (produto.receita / produto.quantidadeVendida).toFixed(2),
+                (produto.receita / produto.quantidadeVendida).toFixed(2)
               ),
             })),
             metadata: {
               totalProdutos: produtosPorReceita.length,
               receitaTotal: produtosPorReceita.reduce(
                 (sum, p) => sum + p.receita,
-                0,
+                0
               ),
               totalVendas: produtosPorReceita.reduce(
                 (sum, p) => sum + p.quantidadeVendida,
-                0,
+                0
               ),
               ticketMedioGeral: Number(
                 (
                   produtosPorReceita.reduce((sum, p) => sum + p.receita, 0) /
                   produtosPorReceita.reduce(
                     (sum, p) => sum + p.quantidadeVendida,
-                    0,
+                    0
                   )
-                ).toFixed(2),
+                ).toFixed(2)
               ),
               maiorReceita: produtosPorReceita[0]?.receita || 0,
               menorReceita:
@@ -389,36 +410,36 @@ export function useChartDrilldown() {
                 receitaTotal: dia.receitaTotal,
                 percentualTotal: Number(dia.percentualTotal.toFixed(2)),
                 ticketMedio: Number(
-                  (dia.receitaTotal / dia.totalPedidos).toFixed(2),
+                  (dia.receitaTotal / dia.totalPedidos).toFixed(2)
                 ),
               })) || [],
             metadata: {
               diaMaisMovimentado:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (prev, current) =>
-                    prev.totalPedidos > current.totalPedidos ? prev : current,
+                    prev.totalPedidos > current.totalPedidos ? prev : current
                 )?.diaSemana || "N/A",
               totalPedidosSemana:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (sum, dia) => sum + dia.totalPedidos,
-                  0,
+                  0
                 ) || 0,
               receitaTotalSemana:
                 dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                   (sum, dia) => sum + dia.receitaTotal,
-                  0,
+                  0
                 ) || 0,
               ticketMedioSemana: Number(
                 (
                   (dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                     (sum, dia) => sum + dia.receitaTotal,
-                    0,
+                    0
                   ) || 0) /
                   (dashboardData.crescimento.vendasPorDiaSemana?.reduce(
                     (sum, dia) => sum + dia.totalPedidos,
-                    0,
+                    0
                   ) || 1)
-                ).toFixed(2),
+                ).toFixed(2)
               ),
             },
           };
@@ -434,37 +455,37 @@ export function useChartDrilldown() {
               receitaEstimada: Number(
                 (
                   horario.totalPedidos * dashboardData.vendas.ticketMedio
-                ).toFixed(2),
+                ).toFixed(2)
               ),
             })),
             metadata: {
               horarioPicoHora: `${dashboardData.crescimento.horariosPico
                 .reduce((prev, current) =>
-                  prev.totalPedidos > current.totalPedidos ? prev : current,
+                  prev.totalPedidos > current.totalPedidos ? prev : current
                 )
                 .hora.toString()
                 .padStart(2, "0")}:00h`,
               horarioPicoPedidos: dashboardData.crescimento.horariosPico.reduce(
                 (prev, current) =>
-                  prev.totalPedidos > current.totalPedidos ? prev : current,
+                  prev.totalPedidos > current.totalPedidos ? prev : current
               ).totalPedidos,
               totalReceita: Number(
                 dashboardData.crescimento.horariosPico
                   .reduce(
                     (sum, h) =>
                       sum + h.totalPedidos * dashboardData.vendas.ticketMedio,
-                    0,
+                    0
                   )
-                  .toFixed(2),
+                  .toFixed(2)
               ),
               totalPedidosHorarios:
                 dashboardData.crescimento.horariosPico.reduce(
                   (sum, h) => sum + h.totalPedidos,
-                  0,
+                  0
                 ),
               totalHorarios: 24,
               horariosComPedidos: dashboardData.crescimento.horariosPico.filter(
-                (h) => h.totalPedidos > 0,
+                (h) => h.totalPedidos > 0
               ).length,
             },
           };
@@ -478,7 +499,7 @@ export function useChartDrilldown() {
           };
       }
     },
-    [],
+    []
   );
 
   return {
