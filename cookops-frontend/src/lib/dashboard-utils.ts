@@ -17,9 +17,54 @@ export interface ChartDataPoint {
 export function generateTrendChartData(
   dashboardData: DashboardData,
   periodo: string,
+  dataInicio?: string,
+  dataFim?: string
 ): ChartDataPoint[] {
   if (!dashboardData) return [];
 
+  // Para período personalizado, determinar granularidade baseada no número de dias
+  if (periodo === "personalizado" && dataInicio && dataFim) {
+    const dias = calcularDiasEntreDatas(dataInicio, dataFim);
+    let baseData: ChartDataPoint[] = [];
+
+    // Aplicar regras de granularidade
+    if (dias <= 14) {
+      // até 14 dias: granularidade de dias
+      baseData =
+        dashboardData.crescimento.crescimentoDiario?.map((item) => ({
+          periodo: item.dia,
+          vendas: item.totalPedidos,
+          crescimento: item.crescimentoPercentual,
+        })) || [];
+    } else if (dias <= 90) {
+      // Entre 15 a 90 dias: granularidade de semanas
+      baseData = dashboardData.crescimento.crescimentoSemanal.map((item) => ({
+        periodo: item.semana,
+        vendas: item.totalPedidos,
+        crescimento: item.crescimentoPercentual,
+      }));
+    } else if (dias <= 365) {
+      // Entre 90 a 365 dias: granularidade de meses
+      baseData =
+        dashboardData.crescimento.crescimentoMensal?.map((item) => ({
+          periodo: item.mes,
+          vendas: item.totalPedidos,
+          crescimento: item.crescimentoPercentual,
+        })) || [];
+    } else {
+      // Mais que 365 dias: granularidade de anos
+      baseData =
+        dashboardData.crescimento.crescimentoMensal?.map((item) => ({
+          periodo: item.mes,
+          vendas: item.totalPedidos,
+          crescimento: item.crescimentoPercentual,
+        })) || [];
+    }
+
+    return calculateTrendLine(baseData);
+  }
+
+  // Para períodos predefinidos, usar a lógica existente
   const periodoNum = parseInt(periodo);
   let baseData: ChartDataPoint[] = [];
 
@@ -80,15 +125,79 @@ export function generateTrendChartData(
 }
 
 /**
+ * Calcula o número de dias entre duas datas
+ */
+export function calcularDiasEntreDatas(
+  dataInicio: string,
+  dataFim: string
+): number {
+  // ✅ CORREÇÃO: Evitar problemas de timezone ao criar Date objects
+  const [anoInicio, mesInicio, diaInicio] = dataInicio.split("-").map(Number);
+  const [anoFim, mesFim, diaFim] = dataFim.split("-").map(Number);
+
+  const inicio = new Date(anoInicio, mesInicio - 1, diaInicio); // mês é 0-indexed
+  const fim = new Date(anoFim, mesFim - 1, diaFim);
+
+  const diferencaMs = fim.getTime() - inicio.getTime();
+  return Math.ceil(diferencaMs / (1000 * 60 * 60 * 24)) + 1; // +1 para incluir o último dia
+}
+
+/**
  * Obtém o rótulo do período para exibição
  */
-export function getPeriodLabel(periodo: string): string {
+export function getPeriodLabel(
+  periodo: string,
+  dataInicio?: string,
+  dataFim?: string
+): string {
+  if (periodo === "personalizado" && dataInicio && dataFim) {
+    const dias = calcularDiasEntreDatas(dataInicio, dataFim);
+
+    // Para períodos personalizados, mostrar formato mais amigável
+    // ✅ CORREÇÃO: Evitar problemas de timezone ao criar Date objects
+    const [anoInicio, mesInicio, diaInicio] = dataInicio.split("-").map(Number);
+    const [anoFim, mesFim, diaFim] = dataFim.split("-").map(Number);
+
+    const inicioDate = new Date(anoInicio, mesInicio - 1, diaInicio); // mês é 0-indexed
+    const fimDate = new Date(anoFim, mesFim - 1, diaFim);
+
+    const opcoes: Intl.DateTimeFormatOptions = {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    };
+
+    const inicioFormatado = inicioDate.toLocaleDateString("pt-BR", opcoes);
+    const fimFormatado = fimDate.toLocaleDateString("pt-BR", opcoes);
+
+    if (dias === 1) {
+      return inicioFormatado;
+    } else if (dias <= 7) {
+      return `${dias} dias (${inicioFormatado} a ${fimFormatado})`;
+    } else if (dias <= 30) {
+      return `${inicioFormatado} a ${fimFormatado}`;
+    } else if (dias <= 90) {
+      return `${inicioFormatado} a ${fimFormatado}`;
+    } else if (dias <= 365) {
+      const meses = Math.round(dias / 30);
+      return `${meses} ${
+        meses === 1 ? "mês" : "meses"
+      } (${inicioFormatado} a ${fimFormatado})`;
+    } else {
+      const anos = Math.round(dias / 365);
+      return `${anos} ${
+        anos === 1 ? "ano" : "anos"
+      } (${inicioFormatado} a ${fimFormatado})`;
+    }
+  }
+
   const labels: Record<string, string> = {
     "7": "7 dias",
     "30": "30 dias",
     "90": "90 dias",
     "180": "6 meses",
     "365": "1 ano",
+    personalizado: "Período personalizado",
   };
 
   return labels[periodo] || `${periodo} dias`;
@@ -97,7 +206,25 @@ export function getPeriodLabel(periodo: string): string {
 /**
  * Obtém a unidade de tempo baseada no período
  */
-export function getTimeUnit(periodo: string): string {
+export function getTimeUnit(
+  periodo: string,
+  dataInicio?: string,
+  dataFim?: string
+): string {
+  if (periodo === "personalizado" && dataInicio && dataFim) {
+    const dias = calcularDiasEntreDatas(dataInicio, dataFim);
+
+    // Aplicar regras de granularidade para período personalizado:
+    // até 14 dias: granularidade de dias
+    // Entre 15 a 90 dias: granularidade de semanas
+    // Entre 90 a 365 dias: granularidade de meses
+    // Mais que 365 dias: granularidade de anos
+    if (dias <= 14) return "dias";
+    if (dias <= 90) return "semanas";
+    if (dias <= 365) return "meses";
+    return "anos";
+  }
+
   const periodoNum = parseInt(periodo);
 
   if (periodoNum === 365) return "meses";
@@ -112,10 +239,61 @@ export function getTimeUnit(periodo: string): string {
 /**
  * Gera descrição do tooltip baseada no período
  */
-export function getTooltipDescription(periodo: string): string {
-  const unidade = getTimeUnit(periodo);
-  const label = getPeriodLabel(periodo);
+export function getTooltipDescription(
+  periodo: string,
+  dataInicio?: string,
+  dataFim?: string
+): string {
+  const unidade = getTimeUnit(periodo, dataInicio, dataFim);
+  const label = getPeriodLabel(periodo, dataInicio, dataFim);
   return `Vendas por ${unidade} nos últimos ${label}`;
+}
+
+/**
+ * Obtém o título específico para o gráfico de tendências
+ */
+export function getTrendChartTitle(
+  periodo: string,
+  dataInicio?: string,
+  dataFim?: string
+): string {
+  if (periodo === "personalizado" && dataInicio && dataFim) {
+    const dias = calcularDiasEntreDatas(dataInicio, dataFim);
+
+    if (dias <= 14) {
+      return "Tendência de Pedidos - Diário";
+    } else if (dias <= 90) {
+      return "Tendência de Pedidos - Semanal";
+    } else if (dias <= 365) {
+      return "Tendência de Pedidos - Mensal";
+    } else {
+      return "Tendência de Pedidos - Anual";
+    }
+  }
+
+  const periodoNum = parseInt(periodo);
+
+  if (periodoNum === 7) return "Tendência de Pedidos - Diário";
+  if (periodoNum === 30) return "Tendência de Pedidos - Semanal";
+  if (periodoNum === 90) return "Tendência de Pedidos - Semanal";
+  if (periodoNum === 180) return "Tendência de Pedidos - Mensal";
+  if (periodoNum === 365) return "Tendência de Pedidos - Mensal";
+
+  return "Tendência de Pedidos";
+}
+
+/**
+ * Obtém o subtítulo específico para o gráfico de tendências
+ */
+export function getTrendChartSubtitle(
+  periodo: string,
+  dataInicio?: string,
+  dataFim?: string
+): string {
+  const unidade = getTimeUnit(periodo, dataInicio, dataFim);
+  const label = getPeriodLabel(periodo, dataInicio, dataFim);
+
+  return `Pedidos por ${unidade} com linha de tendência (${label})`;
 }
 
 /**

@@ -7,6 +7,7 @@ import { ChartDrilldown } from "@/components/Dashboard/ChartDrilldown";
 import { DashboardConfig } from "@/components/Dashboard/DashboardConfig";
 import { PeriodComparison } from "@/components/Dashboard/PeriodComparison";
 import { Button } from "@/components/ui/button";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -22,6 +23,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -41,6 +47,8 @@ import {
   generateTrendChartData,
   getPeriodLabel,
   getTimeUnit,
+  getTrendChartSubtitle,
+  getTrendChartTitle,
 } from "@/lib/dashboard-utils";
 import { DashboardData, DashboardFilters } from "@/types/dashboard.types";
 import {
@@ -91,7 +99,7 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null,
+    null
   );
   const [filters, setFilters] = useState<DashboardFilters>({
     periodo: "30",
@@ -100,7 +108,7 @@ function DashboardContent() {
   });
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonData, setComparisonData] = useState<ComparisonData | null>(
-    null,
+    null
   );
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
@@ -127,6 +135,22 @@ function DashboardContent() {
     exportAllData,
   } = useChartExport();
 
+  // Função auxiliar para converter Date para string no formato ISO
+  const dateToISOString = (date?: Date): string | undefined => {
+    if (!date) return undefined;
+
+    console.log("🔄 dateToISOString - Input:", date);
+    console.log("🔄 dateToISOString - UTC String:", date.toISOString());
+    console.log("🔄 dateToISOString - Local String:", date.toString());
+
+    // Usar toISOString e pegar apenas a parte da data para evitar problemas de timezone
+    const isoString = date.toISOString();
+    const result = isoString.split("T")[0]; // Pega apenas YYYY-MM-DD
+
+    console.log("🔄 dateToISOString - Result:", result);
+    return result;
+  };
+
   // Sincronizar configurações com estado local
   useEffect(() => {
     setShowComparison(settings.showComparison);
@@ -135,8 +159,34 @@ function DashboardContent() {
   const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
+
+      console.log("🔄 Carregando dashboard com filtros:", filters);
+
+      // Validar período personalizado
+      if (filters.periodo === "personalizado") {
+        if (!filters.dataInicio || !filters.dataFim) {
+          console.warn("Período personalizado requer data de início e fim");
+          setLoading(false);
+          return;
+        }
+
+        if (filters.dataFim < filters.dataInicio) {
+          console.warn("Data de fim deve ser posterior à data de início");
+          setLoading(false);
+          return;
+        }
+      }
+
       // Carregar dados diretamente do backend
-      const data = await DashboardService.getDashboardData(filters);
+      const filtersForAPI = {
+        ...filters,
+        dataInicio: dateToISOString(filters.dataInicio),
+        dataFim: dateToISOString(filters.dataFim),
+      };
+
+      console.log("📡 Enviando para API:", filtersForAPI);
+
+      const data = await DashboardService.getDashboardData(filtersForAPI);
       setDashboardData(data);
 
       // Carregar dados comparativos se solicitado
@@ -145,6 +195,8 @@ function DashboardContent() {
           filters.periodo,
           filters.status,
           filters.fonte,
+          dateToISOString(filters.dataInicio),
+          dateToISOString(filters.dataFim)
         );
         setComparisonData(comparativeData);
       }
@@ -299,7 +351,7 @@ function DashboardContent() {
         },
       },
     }), // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings.chartTheme, JSON.stringify(settings)],
+    [settings.chartTheme, JSON.stringify(settings)]
   );
 
   // Dados para os gráficos com otimização
@@ -308,7 +360,12 @@ function DashboardContent() {
 
     // Usar a função utilitária para gerar dados dinâmicos baseados no período
     const trendData = dashboardData.crescimento?.crescimentoSemanal
-      ? generateTrendChartData(dashboardData, filters.periodo)
+      ? generateTrendChartData(
+          dashboardData,
+          filters.periodo,
+          dateToISOString(filters.dataInicio),
+          dateToISOString(filters.dataFim)
+        )
       : [];
 
     return {
@@ -319,7 +376,7 @@ function DashboardContent() {
           value: status.totalPedidos,
           percentage: status.percentualTotal,
           fill: getChartColor(settings.chartTheme, index),
-        }),
+        })
       ),
       produtos: (() => {
         // Combinar produtos mais populares com produtos de baixo desempenho para ter mais variedade
@@ -427,17 +484,6 @@ function DashboardContent() {
           <div>
             <h1 className="text-3xl font-bold">Dashboard CookOps</h1>
             <p className="text-muted-foreground">Análise das operações</p>
-            {/* Indicador do período atual */}
-            <div className="mt-2 flex items-center gap-2">
-              <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                Período: {getPeriodLabel(filters.periodo)}
-              </div>
-              <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center">
-                <BarChartHorizontal className="h-4 w-4 mr-1" />
-                Granularidade: {getTimeUnit(filters.periodo)}
-              </div>
-            </div>
           </div>
           <div className="flex items-center gap-4">
             {/* Toggle para comparação */}
@@ -457,7 +503,13 @@ function DashboardContent() {
                 onValueChange={(value) =>
                   setFilters((prev) => ({
                     ...prev,
-                    periodo: value as "7" | "30" | "90" | "180" | "365",
+                    periodo: value as
+                      | "7"
+                      | "30"
+                      | "90"
+                      | "180"
+                      | "365"
+                      | "personalizado",
                   }))
                 }
               >
@@ -470,9 +522,108 @@ function DashboardContent() {
                   <SelectItem value="90">90 dias</SelectItem>
                   <SelectItem value="180">6 meses</SelectItem>
                   <SelectItem value="365">1 ano</SelectItem>
+                  <SelectItem value="personalizado">Personalizado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Seletores de data para período personalizado */}
+            {filters.periodo === "personalizado" && (
+              <div className="flex items-center gap-2">
+                <Label htmlFor="data-inicio">De:</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[140px] justify-start text-left font-normal"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {filters.dataInicio
+                        ? new Date(filters.dataInicio).toLocaleDateString()
+                        : "Selecionar"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={
+                        filters.dataInicio
+                          ? new Date(filters.dataInicio)
+                          : undefined
+                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          console.log(
+                            "📅 Data original selecionada (início):",
+                            date
+                          );
+                          console.log("📅 Data getDate():", date.getDate());
+                          console.log("📅 Data getMonth():", date.getMonth());
+                          console.log(
+                            "📅 Data getFullYear():",
+                            date.getFullYear()
+                          );
+
+                          setFilters((prev) => ({
+                            ...prev,
+                            dataInicio: date,
+                          }));
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Label htmlFor="data-fim">Até:</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[140px] justify-start text-left font-normal"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {filters.dataFim
+                        ? new Date(filters.dataFim).toLocaleDateString()
+                        : "Selecionar"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={
+                        filters.dataFim ? new Date(filters.dataFim) : undefined
+                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          console.log(
+                            "📅 Data original selecionada (fim):",
+                            date
+                          );
+                          console.log("📅 Data getDate():", date.getDate());
+                          console.log("📅 Data getMonth():", date.getMonth());
+                          console.log(
+                            "📅 Data getFullYear():",
+                            date.getFullYear()
+                          );
+
+                          setFilters((prev) => ({
+                            ...prev,
+                            dataFim: date,
+                          }));
+                        }
+                      }}
+                      initialFocus
+                      disabled={(date) =>
+                        filters.dataInicio
+                          ? date < new Date(filters.dataInicio)
+                          : false
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
             {/* Botões de ação */}
             <Button
               variant="outline"
@@ -502,7 +653,33 @@ function DashboardContent() {
               Atualizar
             </Button>
           </div>
-        </div>{" "}
+        </div>
+        {/* Indicadores do período atual */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm font-medium">
+            <Calendar className="h-4 w-4" />
+            <span>
+              Período:{" "}
+              {getPeriodLabel(
+                filters.periodo,
+                dateToISOString(filters.dataInicio),
+                dateToISOString(filters.dataFim)
+              )}
+            </span>
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm font-medium">
+            <BarChartHorizontal className="h-4 w-4" />
+            <span>
+              Granularidade:{" "}
+              {getTimeUnit(
+                filters.periodo,
+                dateToISOString(filters.dataInicio),
+                dateToISOString(filters.dataFim)
+              )}
+            </span>
+          </div>
+        </div>
         {/* 1. Cards de Métricas Principais */}
         <div>
           <h3 className="text-xl font-semibold mb-4">Métricas Principais</h3>
@@ -579,7 +756,7 @@ function DashboardContent() {
                       const totalItens =
                         dashboardData.produtos.itensMaisPopulares.reduce(
                           (total, produto) => total + produto.quantidadeVendida,
-                          0,
+                          0
                         );
                       return totalItens.toLocaleString();
                     })()}
@@ -681,7 +858,7 @@ function DashboardContent() {
                         "pt-BR",
                         {
                           minimumFractionDigits: 2,
-                        },
+                        }
                       )}
                     </span>
                   </div>
@@ -691,7 +868,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.receitaLiquida.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 },
+                        { minimumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -701,7 +878,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 },
+                        { minimumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -711,7 +888,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2 },
+                        { minimumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -793,7 +970,7 @@ function DashboardContent() {
                     <span>% do Total com Entrega:</span>
                     <span className="font-semibold">
                       {dashboardData.financeiro.porcentagemPedidosEntrega.toFixed(
-                        1,
+                        1
                       )}
                       %
                     </span>
@@ -804,7 +981,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalTaxasEntrega.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -860,7 +1037,7 @@ function DashboardContent() {
                     <span>% de Pedidos com Desconto:</span>
                     <span className="font-semibold">
                       {dashboardData.financeiro.porcentagemPedidosComDesconto.toFixed(
-                        1,
+                        1
                       )}
                       %
                     </span>
@@ -871,7 +1048,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorTotalDescontos.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -881,7 +1058,7 @@ function DashboardContent() {
                       R${" "}
                       {dashboardData.financeiro.valorMedioDesconto.toLocaleString(
                         "pt-BR",
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
                     </span>
                   </div>
@@ -963,7 +1140,7 @@ function DashboardContent() {
                 <div className="space-y-2">
                   <p className="text-2xl font-bold">
                     {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                      1,
+                      1
                     )}
                     %
                   </p>
@@ -1012,11 +1189,18 @@ function DashboardContent() {
                     {" "}
                     <div className="flex-1">
                       <CardTitle>
-                        Tendência de Pedidos - {getPeriodLabel(filters.periodo)}
+                        {getTrendChartTitle(
+                          filters.periodo,
+                          dateToISOString(filters.dataInicio),
+                          dateToISOString(filters.dataFim)
+                        )}
                       </CardTitle>
                       <CardDescription>
-                        Pedidos por {getTimeUnit(filters.periodo)} com linha de
-                        tendência calculada ({getPeriodLabel(filters.periodo)})
+                        {getTrendChartSubtitle(
+                          filters.periodo,
+                          dateToISOString(filters.dataInicio),
+                          dateToISOString(filters.dataFim)
+                        )}
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1041,8 +1225,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "vendas",
                               dashboardData,
-                              filters.periodo,
-                            ),
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1092,10 +1276,14 @@ function DashboardContent() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <CardTitle>Vendas por Dia da Semana</CardTitle>
+                      <CardTitle>Distribuição por Dia da Semana</CardTitle>
                       <CardDescription>
-                        Distribuição de pedidos nos dias da semana (
-                        {getPeriodLabel(filters.periodo)})
+                        Padrão de pedidos nos dias da semana -{" "}
+                        {getPeriodLabel(
+                          filters.periodo,
+                          dateToISOString(filters.dataInicio),
+                          dateToISOString(filters.dataFim)
+                        )}
                       </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1120,8 +1308,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "vendas_dia_semana",
                               dashboardData,
-                              filters.periodo,
-                            ),
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1214,7 +1402,7 @@ function DashboardContent() {
                         Status principal:{" "}
                         {dashboardData.operacional.pedidosPorStatus[0].titulo} ({" "}
                         {dashboardData.operacional.pedidosPorStatus[0].percentualTotal.toFixed(
-                          1,
+                          1
                         )}
                         %)
                       </>
@@ -1258,8 +1446,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "horarios",
                               dashboardData,
-                              filters.periodo,
-                            ),
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1325,8 +1513,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "produtos",
                               dashboardData,
-                              filters.periodo,
-                            ),
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1389,8 +1577,8 @@ function DashboardContent() {
                             generateDrilldownData(
                               "receita_produtos",
                               dashboardData,
-                              filters.periodo,
-                            ),
+                              filters.periodo
+                            )
                           )
                         }
                       >
@@ -1436,14 +1624,14 @@ function DashboardContent() {
                                     (produto.receita /
                                       Math.max(
                                         ...(chartData.receitaPorProduto?.map(
-                                          (p) => p.receita,
-                                        ) || [1]),
+                                          (p) => p.receita
+                                        ) || [1])
                                       )) *
-                                      100,
+                                      100
                                   )}%`,
                                   backgroundColor: getChartColor(
                                     settings.chartTheme,
-                                    0,
+                                    0
                                   ),
                                 }}
                               />
@@ -1558,7 +1746,7 @@ function DashboardContent() {
               totalProdutos > 0
                 ? dashboardData.produtos.itensMaisPopulares.reduce(
                     (acc, produto) => acc + produto.quantidadeVendida,
-                    0,
+                    0
                   ) / totalProdutos
                 : 0;
 
@@ -1615,8 +1803,8 @@ function DashboardContent() {
                               isProblematico
                                 ? "border-red-200 bg-red-50/50"
                                 : isAtencao
-                                  ? "border-yellow-200 bg-yellow-50/50"
-                                  : "border-green-200 bg-green-50/50"
+                                ? "border-yellow-200 bg-yellow-50/50"
+                                : "border-green-200 bg-green-50/50"
                             }`}
                           >
                             <div className="flex-1">
@@ -1647,8 +1835,8 @@ function DashboardContent() {
                                     isProblematico
                                       ? "text-red-600 font-medium"
                                       : isAtencao
-                                        ? "text-yellow-600 font-medium"
-                                        : "text-green-600"
+                                      ? "text-yellow-600 font-medium"
+                                      : "text-green-600"
                                   }
                                 >
                                   {diferencaPercentual >= 0 ? "+" : ""}
@@ -1662,8 +1850,8 @@ function DashboardContent() {
                                   isProblematico
                                     ? "text-red-700"
                                     : isAtencao
-                                      ? "text-yellow-700"
-                                      : "text-green-700"
+                                    ? "text-yellow-700"
+                                    : "text-green-700"
                                 }`}
                               >
                                 R${" "}
@@ -1817,8 +2005,8 @@ function DashboardContent() {
                             backgroundColor: getChartColor(
                               settings.chartTheme,
                               dashboardData.operacional.pedidosPorStatus.findIndex(
-                                (s) => s.statusId === status.statusId,
-                              ),
+                                (s) => s.statusId === status.statusId
+                              )
                             ),
                           }}
                         />
@@ -1864,7 +2052,7 @@ function DashboardContent() {
                           </div>
                         </div>
                       </div>
-                    ),
+                    )
                   )}
                   {dashboardData.operacional.formasPagamentoPreferidas
                     .length === 0 && (
@@ -1908,7 +2096,7 @@ function DashboardContent() {
                     <span className="text-sm">Confirmação Automática:</span>
                     <span className="font-semibold text-blue-500">
                       {dashboardData.performance.taxaConfirmacaoAutomatica.toFixed(
-                        1,
+                        1
                       )}
                       %
                     </span>

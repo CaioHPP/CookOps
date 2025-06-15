@@ -140,9 +140,11 @@ export interface FiltrosDashboard {
 }
 
 export interface DashboardFilters {
-  periodo: "7" | "30" | "90" | "180" | "365";
+  periodo: "7" | "30" | "90" | "180" | "365" | "personalizado";
   status: string;
   fonte: string;
+  dataInicio?: Date; // Para período personalizado (formato ISO)
+  dataFim?: Date; // Para período personalizado (formato ISO)
 }
 
 // Tipos para cards de métricas

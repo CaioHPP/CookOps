@@ -39,6 +39,18 @@ export class DashboardController {
     description: 'Filtrar por fonte específica dos pedidos',
     example: 'todas',
   })
+  @ApiQuery({
+    name: 'dataInicio',
+    required: false,
+    description: 'Data de início para período personalizado (YYYY-MM-DD)',
+    example: '2024-06-01',
+  })
+  @ApiQuery({
+    name: 'dataFim',
+    required: false,
+    description: 'Data de fim para período personalizado (YYYY-MM-DD)',
+    example: '2024-06-14',
+  })
   @ApiResponse({
     status: 200,
     description: 'Dados do dashboard obtidos com sucesso',
@@ -49,12 +61,16 @@ export class DashboardController {
     @Query('periodo') periodo?: string,
     @Query('status') status?: string,
     @Query('fonte') fonte?: string,
+    @Query('dataInicio') dataInicio?: string,
+    @Query('dataFim') dataFim?: string,
   ): Promise<DashboardResponseDto> {
     const empresaId = req.user.empresaId;
     const filters = {
       periodo: periodo || '30',
       status: status || 'todos',
       fonte: fonte || 'todas',
+      dataInicio,
+      dataFim,
     };
     return this.dashboardService.getDashboardDataWithFilters(
       empresaId,
@@ -247,17 +263,33 @@ export class DashboardController {
     description: 'Filtrar por fonte específica dos pedidos',
     example: 'todas',
   })
+  @ApiQuery({
+    name: 'dataInicio',
+    required: false,
+    description: 'Data de início para período personalizado (YYYY-MM-DD)',
+    example: '2024-06-01',
+  })
+  @ApiQuery({
+    name: 'dataFim',
+    required: false,
+    description: 'Data de fim para período personalizado (YYYY-MM-DD)',
+    example: '2024-06-14',
+  })
   async getDashboardComparativo(
     @Request() req: { user: { empresaId: string } },
     @Query('periodo') periodo?: string,
     @Query('status') status?: string,
     @Query('fonte') fonte?: string,
+    @Query('dataInicio') dataInicio?: string,
+    @Query('dataFim') dataFim?: string,
   ) {
     const empresaId = req.user.empresaId;
     const filters = {
       periodo: periodo || '30',
       status: status || 'todos',
       fonte: fonte || 'todas',
+      dataInicio,
+      dataFim,
     };
     return this.dashboardService.getDashboardComparativo(empresaId, filters);
   }

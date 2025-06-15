@@ -15,6 +15,8 @@ export interface DashboardFilters {
   status?: string;
   fonte?: string;
   comparativo?: boolean;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
 export class DashboardService {
@@ -22,7 +24,7 @@ export class DashboardService {
    * Obter todos os dados do dashboard com filtros avançados
    */
   static async getDashboardData(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<DashboardData> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -36,12 +38,20 @@ export class DashboardService {
       params.append("fonte", filters.fonte);
     }
 
+    if (filters.dataInicio) {
+      params.append("dataInicio", filters.dataInicio);
+    }
+
+    if (filters.dataFim) {
+      params.append("dataFim", filters.dataFim);
+    }
+
     if (filters.comparativo) {
       params.append("comparativo", "true");
     }
 
     const response = await api.get<DashboardData>(
-      `${API_ROUTES.DASHBOARD.GET_TODAS_METRICAS}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_TODAS_METRICAS}?${params.toString()}`
     );
 
     return response.data;
@@ -54,6 +64,8 @@ export class DashboardService {
     periodo: string = "30",
     status?: string,
     fonte?: string,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<{
     atual: DashboardData;
     anterior: DashboardData;
@@ -72,10 +84,18 @@ export class DashboardService {
       params.append("fonte", fonte);
     }
 
+    if (dataInicio) {
+      params.append("dataInicio", dataInicio);
+    }
+
+    if (dataFim) {
+      params.append("dataFim", dataFim);
+    }
+
     const response = await api.get(
       `${
         API_ROUTES.DASHBOARD.GET_TODAS_METRICAS
-      }/comparativo?${params.toString()}`,
+      }/comparativo?${params.toString()}`
     );
     return response.data;
   }
@@ -84,7 +104,7 @@ export class DashboardService {
    * Obter apenas métricas de vendas com filtros
    */
   static async getMetricasVendas(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasVendas> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -99,7 +119,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasVendas>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_VENDAS}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_VENDAS}?${params.toString()}`
     );
     return response.data;
   }
@@ -108,7 +128,7 @@ export class DashboardService {
    * Obter apenas métricas de performance com filtros
    */
   static async getMetricasPerformance(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasPerformance> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -123,7 +143,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasPerformance>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_PERFORMANCE}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_PERFORMANCE}?${params.toString()}`
     );
     return response.data;
   }
@@ -132,7 +152,7 @@ export class DashboardService {
    * Obter apenas métricas de produtos com filtros
    */
   static async getMetricasProdutos(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasProdutos> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -147,7 +167,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasProdutos>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_PRODUTOS}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_PRODUTOS}?${params.toString()}`
     );
     return response.data;
   }
@@ -156,7 +176,7 @@ export class DashboardService {
    * Obter apenas métricas de crescimento com filtros
    */
   static async getMetricasCrescimento(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasCrescimento> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -171,7 +191,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasCrescimento>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_CRESCIMENTO}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_CRESCIMENTO}?${params.toString()}`
     );
     return response.data;
   }
@@ -180,7 +200,7 @@ export class DashboardService {
    * Obter apenas métricas financeiras com filtros
    */
   static async getMetricasFinanceiras(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasFinanceiras> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -195,7 +215,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasFinanceiras>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_FINANCEIRAS}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_FINANCEIRAS}?${params.toString()}`
     );
     return response.data;
   }
@@ -204,7 +224,7 @@ export class DashboardService {
    * Obter apenas métricas operacionais com filtros
    */
   static async getMetricasOperacionais(
-    filters: DashboardFilters = { periodo: "30" },
+    filters: DashboardFilters = { periodo: "30" }
   ): Promise<MetricasOperacionais> {
     const params = new URLSearchParams({
       periodo: filters.periodo,
@@ -219,7 +239,7 @@ export class DashboardService {
     }
 
     const response = await api.get<MetricasOperacionais>(
-      `${API_ROUTES.DASHBOARD.GET_METRICAS_OPERACIONAIS}?${params.toString()}`,
+      `${API_ROUTES.DASHBOARD.GET_METRICAS_OPERACIONAIS}?${params.toString()}`
     );
     return response.data;
   }

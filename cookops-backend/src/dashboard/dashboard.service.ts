@@ -22,6 +22,8 @@ interface DashboardFilters {
   periodo: string;
   status: string;
   fonte: string;
+  dataInicio?: string; // Formato: YYYY-MM-DD
+  dataFim?: string; // Formato: YYYY-MM-DD
 }
 
 @Injectable()
@@ -39,10 +41,36 @@ export class DashboardService {
     empresaId: string,
     filters: DashboardFilters,
   ): Promise<DashboardResponseDto> {
-    const diasPeriodo = parseInt(filters.periodo);
+    let diasPeriodo: number;
+    let dataInicioGeral: Date;
+    let dataFimGeral: Date;
 
-    // ✅ CORREÇÃO: Usar período central para obter dataInicio consistente
-    const { dataInicioGeral } = this.calcularPeriodos(diasPeriodo);
+    if (
+      filters.periodo === 'personalizado' &&
+      filters.dataInicio &&
+      filters.dataFim
+    ) {
+      // Para período personalizado, calcular a diferença em dias
+      const dataInicio = new Date(filters.dataInicio);
+      const dataFim = new Date(filters.dataFim);
+
+      // Configurar as horas corretamente
+      dataInicio.setUTCHours(0, 0, 0, 0);
+      dataFim.setUTCHours(23, 59, 59, 999);
+
+      // Calcular número de dias
+      const diferencaMs = dataFim.getTime() - dataInicio.getTime();
+      diasPeriodo = Math.ceil(diferencaMs / (1000 * 60 * 60 * 24)) + 1;
+      dataInicioGeral = dataInicio;
+      dataFimGeral = dataFim;
+    } else {
+      // Para períodos predefinidos, usar a lógica existente
+      diasPeriodo = parseInt(filters.periodo);
+      const { dataInicioGeral: dataInicio, dataFimGeral: dataFim } =
+        this.calcularPeriodos(diasPeriodo);
+      dataInicioGeral = dataInicio;
+      dataFimGeral = dataFim;
+    }
 
     // Executar todas as consultas em paralelo para melhor performance
     const [
@@ -53,12 +81,43 @@ export class DashboardService {
       financeiro,
       operacional,
     ] = await Promise.all([
-      this.getMetricasVendas(empresaId, dataInicioGeral, diasPeriodo),
-      this.getMetricasPerformance(empresaId, dataInicioGeral),
-      this.getMetricasProdutos(empresaId, dataInicioGeral),
-      this.getMetricasCrescimento(empresaId, dataInicioGeral, filters.periodo),
-      this.getMetricasFinanceiras(empresaId, dataInicioGeral),
-      this.getMetricasOperacionais(empresaId, dataInicioGeral),
+      this.getMetricasVendas(
+        empresaId,
+        dataInicioGeral,
+        diasPeriodo,
+        dataFimGeral,
+      ),
+      this.getMetricasPerformance(
+        empresaId,
+        dataInicioGeral,
+        diasPeriodo,
+        dataFimGeral,
+      ),
+      this.getMetricasProdutos(
+        empresaId,
+        dataInicioGeral,
+        diasPeriodo,
+        dataFimGeral,
+      ),
+      this.getMetricasCrescimento(
+        empresaId,
+        dataInicioGeral,
+        filters.periodo,
+        diasPeriodo,
+        dataFimGeral,
+      ),
+      this.getMetricasFinanceiras(
+        empresaId,
+        dataInicioGeral,
+        diasPeriodo,
+        dataFimGeral,
+      ),
+      this.getMetricasOperacionais(
+        empresaId,
+        dataInicioGeral,
+        diasPeriodo,
+        dataFimGeral,
+      ),
     ]);
 
     return {
@@ -68,7 +127,11 @@ export class DashboardService {
       crescimento,
       financeiro,
       operacional,
-      periodo: this.getPeriodLabel(filters.periodo),
+      periodo: this.getPeriodLabel(
+        filters.periodo,
+        filters.dataInicio,
+        filters.dataFim,
+      ),
       ultimaAtualizacao: new Date(),
     };
   }
@@ -222,7 +285,49 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     diasPeriodo: number,
+    dataFim?: Date,
   ): Promise<MetricasVendasDto> {
+    // Para período personalizado, usar datas específicas
+    if (dataFim) {
+      // Buscar pedidos confirmados no período específico
+      const pedidosConfirmados = await this.prisma.pedido.findMany({
+        where: {
+          empresaId,
+          confirmado: true,
+          criadoEm: { gte: dataInicio, lte: dataFim },
+        },
+        select: { valorTotal: true },
+      });
+
+      const totalPedidos = pedidosConfirmados.length;
+      const receitaTotal = pedidosConfirmados.reduce(
+        (sum, p) => sum + p.valorTotal,
+        0,
+      );
+      const ticketMedio = totalPedidos > 0 ? receitaTotal / totalPedidos : 0;
+
+      // Buscar todos os pedidos (incluindo não confirmados) para taxa de conversão
+      const todosPedidos = await this.prisma.pedido.count({
+        where: {
+          empresaId,
+          criadoEm: { gte: dataInicio, lte: dataFim },
+        },
+      });
+
+      const taxaConversao =
+        todosPedidos > 0 ? (totalPedidos / todosPedidos) * 100 : 0;
+
+      return {
+        totalPedidos,
+        receitaTotal,
+        ticketMedio,
+        taxaConversao,
+        crescimentoReceita: 0, // TODO: Implementar comparação para período personalizado
+        variacaoTicketMedio: 0, // TODO: Implementar comparação para período personalizado
+      };
+    }
+
+    // Para períodos predefinidos, usar a lógica existente
     // ✅ CORREÇÃO FINAL: Usar método compartilhado para garantir consistência total
     const totalPedidos = await this.calcularTotalPedidosConfirmados(
       empresaId,
@@ -347,10 +452,11 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     diasPeriodo?: number,
+    dataFimPersonalizado?: Date,
   ): Promise<MetricasPerformanceDto> {
-    // Calcular data de fim se dias for fornecido
-    let dataFim: Date | undefined;
-    if (diasPeriodo) {
+    // Usar data de fim personalizada se fornecida, senão calcular
+    let dataFim: Date | undefined = dataFimPersonalizado;
+    if (!dataFim && diasPeriodo) {
       dataFim = new Date(dataInicio);
       dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
       dataFim.setUTCHours(23, 59, 59, 999);
@@ -450,10 +556,11 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     diasPeriodo?: number,
+    dataFimPersonalizado?: Date,
   ): Promise<MetricasProdutosDto> {
-    // Calcular data de fim se dias for fornecido
-    let dataFim: Date | undefined;
-    if (diasPeriodo) {
+    // Usar data de fim personalizada se fornecida, senão calcular
+    let dataFim: Date | undefined = dataFimPersonalizado;
+    if (!dataFim && diasPeriodo) {
       dataFim = new Date(dataInicio);
       dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
       dataFim.setUTCHours(23, 59, 59, 999);
@@ -539,213 +646,376 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     periodo: string = '30',
+    diasPeriodo?: number,
+    dataFimPersonalizado?: Date,
   ): Promise<MetricasCrescimentoDto> {
-    const diasPeriodo = parseInt(periodo);
+    const diasCalc = diasPeriodo || parseInt(periodo);
 
-    // ✅ CORREÇÃO: Crescimento baseado no período selecionado (não fixo em 4 semanas)
+    // ✅ CORREÇÃO: Crescimento baseado no período selecionado
     const crescimentoSemanal: CrescimentoSemanalDto[] = [];
 
-    // Para períodos <= 90 dias, mostrar crescimento semanal
-    if (diasPeriodo <= 90) {
-      const numeroSemanas = Math.min(Math.ceil(diasPeriodo / 7), 12); // Max 12 semanas
+    // Determinar granularidade baseada no número de dias
+    if (diasCalc <= 14) {
+      // 1-14 dias: granularidade diária - vamos usar crescimentoDiario para isso
+    } else if (diasCalc <= 90) {
+      // 15-90 dias: granularidade semanal
 
-      for (let i = 0; i < numeroSemanas; i++) {
-        const fimSemana = new Date();
-        fimSemana.setUTCDate(fimSemana.getUTCDate() - i * 7);
-        fimSemana.setUTCHours(23, 59, 59, 999);
+      if (dataFimPersonalizado) {
+        // Para período personalizado, usar as datas específicas
+        const dataFinalCalculo = dataFimPersonalizado;
+        const dataInicialCalculo = dataInicio;
 
-        const inicioSemana = new Date(fimSemana);
-        inicioSemana.setUTCDate(inicioSemana.getUTCDate() - 6);
-        inicioSemana.setUTCHours(0, 0, 0, 0);
+        const numeroSemanas = Math.ceil(diasCalc / 7);
 
-        const pedidosSemana = await this.prisma.pedido.count({
-          where: {
-            empresaId,
-            confirmado: true,
-            criadoEm: { gte: inicioSemana, lte: fimSemana },
-          },
-        });
+        for (let i = 0; i < numeroSemanas; i++) {
+          const fimSemana = new Date(dataFinalCalculo);
+          fimSemana.setUTCDate(fimSemana.getUTCDate() - i * 7);
+          fimSemana.setUTCHours(23, 59, 59, 999);
 
-        // Semana anterior para comparação
-        const semanaAnterior = new Date(inicioSemana);
-        semanaAnterior.setUTCDate(semanaAnterior.getUTCDate() - 7);
-        const fimSemanaAnterior = new Date(inicioSemana);
-        fimSemanaAnterior.setUTCDate(fimSemanaAnterior.getUTCDate() - 1);
+          const inicioSemana = new Date(fimSemana);
+          inicioSemana.setUTCDate(inicioSemana.getUTCDate() - 6);
+          inicioSemana.setUTCHours(0, 0, 0, 0);
 
-        const pedidosSemanaAnterior = await this.prisma.pedido.count({
-          where: {
-            empresaId,
-            confirmado: true,
-            criadoEm: { gte: semanaAnterior, lte: fimSemanaAnterior },
-          },
-        });
+          // Não processar se a semana estiver fora do período
+          if (inicioSemana < dataInicialCalculo) {
+            inicioSemana.setTime(dataInicialCalculo.getTime());
+          }
 
-        const crescimentoPercentual =
-          pedidosSemanaAnterior > 0
-            ? ((pedidosSemana - pedidosSemanaAnterior) /
-                pedidosSemanaAnterior) *
-              100
-            : 0;
+          const pedidosSemana = await this.prisma.pedido.count({
+            where: {
+              empresaId,
+              confirmado: true,
+              criadoEm: { gte: inicioSemana, lte: fimSemana },
+            },
+          });
 
-        crescimentoSemanal.push({
-          semana: `Semana ${numeroSemanas - i}`,
-          totalPedidos: pedidosSemana,
-          crescimentoPercentual,
-        });
+          crescimentoSemanal.push({
+            semana: `Semana ${numeroSemanas - i}`,
+            totalPedidos: pedidosSemana,
+            crescimentoPercentual: 0, // TODO: Implementar comparação
+          });
+        }
+
+        crescimentoSemanal.reverse(); // Ordenar do mais antigo para o mais recente
+      } else {
+        // Para períodos predefinidos, usar a lógica existente
+        const numeroSemanas = Math.min(Math.ceil(diasCalc / 7), 12); // Max 12 semanas
+
+        for (let i = 0; i < numeroSemanas; i++) {
+          const fimSemana = new Date();
+          fimSemana.setUTCDate(fimSemana.getUTCDate() - i * 7);
+          fimSemana.setUTCHours(23, 59, 59, 999);
+
+          const inicioSemana = new Date(fimSemana);
+          inicioSemana.setUTCDate(inicioSemana.getUTCDate() - 6);
+          inicioSemana.setUTCHours(0, 0, 0, 0);
+
+          const pedidosSemana = await this.prisma.pedido.count({
+            where: {
+              empresaId,
+              confirmado: true,
+              criadoEm: { gte: inicioSemana, lte: fimSemana },
+            },
+          });
+
+          // Semana anterior para comparação
+          const semanaAnterior = new Date(inicioSemana);
+          semanaAnterior.setUTCDate(semanaAnterior.getUTCDate() - 7);
+          const fimSemanaAnterior = new Date(inicioSemana);
+          fimSemanaAnterior.setUTCDate(fimSemanaAnterior.getUTCDate() - 1);
+
+          const pedidosSemanaAnterior = await this.prisma.pedido.count({
+            where: {
+              empresaId,
+              confirmado: true,
+              criadoEm: { gte: semanaAnterior, lte: fimSemanaAnterior },
+            },
+          });
+
+          const crescimentoPercentual =
+            pedidosSemanaAnterior > 0
+              ? ((pedidosSemana - pedidosSemanaAnterior) /
+                  pedidosSemanaAnterior) *
+                100
+              : 0;
+
+          crescimentoSemanal.push({
+            semana: `Semana ${numeroSemanas - i}`,
+            totalPedidos: pedidosSemana,
+            crescimentoPercentual,
+          });
+        }
+
+        crescimentoSemanal.reverse(); // Ordenar do mais antigo para o mais recente
       }
-
-      crescimentoSemanal.reverse(); // Ordenar do mais antigo para o mais recente
+    } else {
+      // Mais de 90 dias: granularidade mensal ou anual dependendo do tamanho
     }
 
-    // ✅ CORREÇÃO: Agregações mensais para períodos de 6 meses e 1 ano
+    // ✅ CORREÇÃO: Agregações mensais/anuais para períodos maiores que 90 dias
     let crescimentoMensal: CrescimentoMensalDto[] | undefined;
-    if (diasPeriodo >= 180) {
-      const mesesParaGerar = diasPeriodo === 365 ? 12 : 6;
+    if (diasCalc > 90) {
       crescimentoMensal = [];
 
-      for (let i = 0; i < mesesParaGerar; i++) {
-        const agora = new Date();
+      if (diasCalc > 365) {
+        // Mais de 1 ano: granularidade anual
+        const anosParaGerar = Math.min(Math.ceil(diasCalc / 365), 5);
 
-        // ✅ CORREÇÃO: Usar UTC e cálculo correto de mês
-        const fimMes = new Date(
-          Date.UTC(
-            agora.getUTCFullYear(),
-            agora.getUTCMonth() - i + 1,
-            0,
-            23,
-            59,
-            59,
-            999,
-          ),
-        );
-        const inicioMes = new Date(
-          Date.UTC(
-            agora.getUTCFullYear(),
-            agora.getUTCMonth() - i,
-            1,
-            0,
-            0,
-            0,
-            0,
-          ),
-        );
+        for (let i = 0; i < anosParaGerar; i++) {
+          const agora = dataFimPersonalizado || new Date();
+          const anoAtual = agora.getUTCFullYear() - i;
 
-        const pedidosMes = await this.prisma.pedido.findMany({
-          where: {
-            empresaId,
-            criadoEm: { gte: inicioMes, lte: fimMes },
-            confirmado: true,
-          },
-          select: { valorTotal: true },
-        });
+          const inicioAno = new Date(Date.UTC(anoAtual, 0, 1, 0, 0, 0, 0));
+          const fimAno = new Date(Date.UTC(anoAtual, 11, 31, 23, 59, 59, 999));
 
-        const totalPedidos = pedidosMes.length;
-        const receitaTotal = pedidosMes.reduce(
-          (sum, p) => sum + p.valorTotal,
-          0,
-        );
+          const pedidosAno = await this.prisma.pedido.findMany({
+            where: {
+              empresaId,
+              criadoEm: { gte: inicioAno, lte: fimAno },
+              confirmado: true,
+            },
+            select: { valorTotal: true },
+          });
 
-        // Mês anterior para comparação
-        const mesAnterior = new Date(
-          Date.UTC(
-            agora.getUTCFullYear(),
-            agora.getUTCMonth() - i - 1,
-            1,
+          const totalPedidos = pedidosAno.length;
+          const receitaTotal = pedidosAno.reduce(
+            (sum, p) => sum + p.valorTotal,
             0,
-            0,
-            0,
-            0,
-          ),
-        );
-        const fimMesAnterior = new Date(
-          Date.UTC(
-            agora.getUTCFullYear(),
-            agora.getUTCMonth() - i,
-            0,
-            23,
-            59,
-            59,
-            999,
-          ),
-        );
+          );
 
-        const pedidosMesAnterior = await this.prisma.pedido.count({
-          where: {
-            empresaId,
-            criadoEm: { gte: mesAnterior, lte: fimMesAnterior },
-            confirmado: true,
-          },
-        });
+          crescimentoMensal.push({
+            mes: anoAtual.toString(),
+            totalPedidos,
+            crescimentoPercentual: 0, // TODO: Implementar comparação
+            receitaTotal,
+          });
+        }
 
-        const crescimentoPercentual =
-          pedidosMesAnterior > 0
-            ? ((totalPedidos - pedidosMesAnterior) / pedidosMesAnterior) * 100
-            : 0;
+        crescimentoMensal.reverse(); // Ordenar do mais antigo para o mais recente
+      } else {
+        // 91-365 dias: granularidade mensal
+        const mesesParaGerar = Math.min(Math.ceil(diasCalc / 30), 12);
 
-        crescimentoMensal.push({
-          mes: inicioMes.toLocaleDateString('pt-BR', { month: 'short' }),
-          totalPedidos,
-          crescimentoPercentual,
-          receitaTotal,
-        });
+        for (let i = 0; i < mesesParaGerar; i++) {
+          const agora = dataFimPersonalizado || new Date();
+
+          // ✅ CORREÇÃO: Usar UTC e cálculo correto de mês
+          const fimMes = new Date(
+            Date.UTC(
+              agora.getUTCFullYear(),
+              agora.getUTCMonth() - i + 1,
+              0,
+              23,
+              59,
+              59,
+              999,
+            ),
+          );
+          const inicioMes = new Date(
+            Date.UTC(
+              agora.getUTCFullYear(),
+              agora.getUTCMonth() - i,
+              1,
+              0,
+              0,
+              0,
+              0,
+            ),
+          );
+
+          const pedidosMes = await this.prisma.pedido.findMany({
+            where: {
+              empresaId,
+              criadoEm: { gte: inicioMes, lte: fimMes },
+              confirmado: true,
+            },
+            select: { valorTotal: true },
+          });
+
+          const totalPedidos = pedidosMes.length;
+          const receitaTotal = pedidosMes.reduce(
+            (sum, p) => sum + p.valorTotal,
+            0,
+          );
+
+          // Mês anterior para comparação
+          const mesAnterior = new Date(
+            Date.UTC(
+              agora.getUTCFullYear(),
+              agora.getUTCMonth() - i - 1,
+              1,
+              0,
+              0,
+              0,
+              0,
+            ),
+          );
+          const fimMesAnterior = new Date(
+            Date.UTC(
+              agora.getUTCFullYear(),
+              agora.getUTCMonth() - i,
+              0,
+              23,
+              59,
+              59,
+              999,
+            ),
+          );
+
+          const pedidosMesAnterior = await this.prisma.pedido.count({
+            where: {
+              empresaId,
+              criadoEm: { gte: mesAnterior, lte: fimMesAnterior },
+              confirmado: true,
+            },
+          });
+
+          const crescimentoPercentual =
+            pedidosMesAnterior > 0
+              ? ((totalPedidos - pedidosMesAnterior) / pedidosMesAnterior) * 100
+              : 0;
+
+          crescimentoMensal.push({
+            mes: inicioMes.toLocaleDateString('pt-BR', { month: 'short' }),
+            totalPedidos,
+            crescimentoPercentual,
+            receitaTotal,
+          });
+        }
+
+        crescimentoMensal.reverse(); // Ordenar do mais antigo para o mais recente
       }
-
-      crescimentoMensal.reverse(); // Ordenar do mais antigo para o mais recente
     }
 
-    // ✅ CORREÇÃO: Agregações diárias para período de 7 dias
+    // ✅ CORREÇÃO: Agregações diárias para períodos de 1-14 dias
     let crescimentoDiario: CrescimentoDiarioDto[] | undefined;
-    if (diasPeriodo === 7) {
+    if (diasCalc <= 14) {
       crescimentoDiario = [];
 
-      for (let i = 0; i < 7; i++) {
-        const data = new Date();
-        data.setUTCDate(data.getUTCDate() - (6 - i)); // Últimos 7 dias
-        const inicioDia = new Date(data);
-        inicioDia.setUTCHours(0, 0, 0, 0);
-        const fimDia = new Date(data);
-        fimDia.setUTCHours(23, 59, 59, 999);
+      if (dataFimPersonalizado) {
+        // Para período personalizado, usar as datas específicas
+        const dataFinalCalculo = dataFimPersonalizado;
+        const dataInicialCalculo = dataInicio;
 
-        const pedidosDia = await this.prisma.pedido.findMany({
-          where: {
-            empresaId,
-            criadoEm: { gte: inicioDia, lte: fimDia },
-            confirmado: true,
-          },
-          select: { valorTotal: true },
-        });
-
-        const totalPedidos = pedidosDia.length;
-        const receitaTotal = pedidosDia.reduce(
-          (sum, p) => sum + p.valorTotal,
-          0,
+        // Calcular dias usando as datas exatas (evitando problemas de timezone)
+        const inicioUTC = new Date(
+          Date.UTC(
+            dataInicialCalculo.getUTCFullYear(),
+            dataInicialCalculo.getUTCMonth(),
+            dataInicialCalculo.getUTCDate(),
+          ),
+        );
+        const fimUTC = new Date(
+          Date.UTC(
+            dataFinalCalculo.getUTCFullYear(),
+            dataFinalCalculo.getUTCMonth(),
+            dataFinalCalculo.getUTCDate(),
+          ),
         );
 
-        // Dia anterior para comparação
-        const diaAnterior = new Date(inicioDia);
-        diaAnterior.setUTCDate(diaAnterior.getUTCDate() - 1);
-        const fimDiaAnterior = new Date(diaAnterior);
-        fimDiaAnterior.setUTCHours(23, 59, 59, 999);
-        diaAnterior.setUTCHours(0, 0, 0, 0);
+        const totalDias =
+          Math.floor(
+            (fimUTC.getTime() - inicioUTC.getTime()) / (1000 * 60 * 60 * 24),
+          ) + 1;
 
-        const pedidosDiaAnterior = await this.prisma.pedido.count({
-          where: {
-            empresaId,
-            criadoEm: { gte: diaAnterior, lte: fimDiaAnterior },
-            confirmado: true,
-          },
-        });
+        for (let i = 0; i < totalDias; i++) {
+          // Criar data UTC baseada na data inicial + i dias
+          const diaUTC = new Date(
+            Date.UTC(
+              inicioUTC.getUTCFullYear(),
+              inicioUTC.getUTCMonth(),
+              inicioUTC.getUTCDate() + i,
+            ),
+          );
 
-        const crescimentoPercentual =
-          pedidosDiaAnterior > 0
-            ? ((totalPedidos - pedidosDiaAnterior) / pedidosDiaAnterior) * 100
-            : 0;
-        crescimentoDiario.push({
-          dia: data.toLocaleDateString('pt-BR', { weekday: 'short' }),
-          totalPedidos,
-          crescimentoPercentual,
-          receitaTotal,
-        });
+          const inicioDia = new Date(diaUTC);
+          inicioDia.setUTCHours(0, 0, 0, 0);
+          const fimDia = new Date(diaUTC);
+          fimDia.setUTCHours(23, 59, 59, 999);
+
+          const pedidosDia = await this.prisma.pedido.findMany({
+            where: {
+              empresaId,
+              criadoEm: { gte: inicioDia, lte: fimDia },
+              confirmado: true,
+            },
+            select: { valorTotal: true },
+          });
+
+          const totalPedidos = pedidosDia.length;
+          const receitaTotal = pedidosDia.reduce(
+            (sum, p) => sum + p.valorTotal,
+            0,
+          );
+
+          // Usar formato ISO simples para evitar problemas de timezone
+          const diaFormatado = diaUTC.toISOString().split('T')[0]; // YYYY-MM-DD
+          const [ano, mes, dia] = diaFormatado.split('-');
+          const diaExibicao = `${dia}/${mes}`;
+
+          crescimentoDiario.push({
+            dia: diaExibicao,
+            totalPedidos,
+            crescimentoPercentual: 0, // TODO: Implementar comparação
+            receitaTotal,
+          });
+        }
+      } else {
+        // Para períodos predefinidos (7 dias)
+        for (let i = 0; i < diasCalc; i++) {
+          const data = new Date();
+          data.setUTCDate(data.getUTCDate() - (diasCalc - 1 - i)); // Últimos X dias
+          const inicioDia = new Date(data);
+          inicioDia.setUTCHours(0, 0, 0, 0);
+          const fimDia = new Date(data);
+          fimDia.setUTCHours(23, 59, 59, 999);
+
+          const pedidosDia = await this.prisma.pedido.findMany({
+            where: {
+              empresaId,
+              criadoEm: { gte: inicioDia, lte: fimDia },
+              confirmado: true,
+            },
+            select: { valorTotal: true },
+          });
+
+          const totalPedidos = pedidosDia.length;
+          const receitaTotal = pedidosDia.reduce(
+            (sum, p) => sum + p.valorTotal,
+            0,
+          );
+
+          // Dia anterior para comparação
+          const diaAnterior = new Date(inicioDia);
+          diaAnterior.setUTCDate(diaAnterior.getUTCDate() - 1);
+          const fimDiaAnterior = new Date(diaAnterior);
+          fimDiaAnterior.setUTCHours(23, 59, 59, 999);
+          diaAnterior.setUTCHours(0, 0, 0, 0);
+
+          const pedidosDiaAnterior = await this.prisma.pedido.count({
+            where: {
+              empresaId,
+              criadoEm: { gte: diaAnterior, lte: fimDiaAnterior },
+              confirmado: true,
+            },
+          });
+
+          const crescimentoPercentual =
+            pedidosDiaAnterior > 0
+              ? ((totalPedidos - pedidosDiaAnterior) / pedidosDiaAnterior) * 100
+              : 0;
+
+          crescimentoDiario.push({
+            dia: data.toLocaleDateString('pt-BR', {
+              weekday: 'short',
+              day: '2-digit',
+              month: '2-digit',
+            }),
+            totalPedidos,
+            crescimentoPercentual,
+            receitaTotal,
+          });
+        }
       }
     }
 
@@ -883,10 +1153,11 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     diasPeriodo?: number,
+    dataFimPersonalizado?: Date,
   ): Promise<MetricasFinanceirasDto> {
-    // Calcular data de fim se dias for fornecido
-    let dataFim: Date | undefined;
-    if (diasPeriodo) {
+    // Usar data de fim personalizada se fornecida, senão calcular
+    let dataFim: Date | undefined = dataFimPersonalizado;
+    if (!dataFim && diasPeriodo) {
       dataFim = new Date(dataInicio);
       dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
       dataFim.setUTCHours(23, 59, 59, 999);
@@ -1018,10 +1289,11 @@ export class DashboardService {
     empresaId: string,
     dataInicio: Date,
     diasPeriodo?: number,
+    dataFimPersonalizado?: Date,
   ): Promise<MetricasOperacionaisDto> {
-    // Calcular data de fim se dias for fornecido
-    let dataFim: Date | undefined;
-    if (diasPeriodo) {
+    // Usar data de fim personalizada se fornecida, senão calcular
+    let dataFim: Date | undefined = dataFimPersonalizado;
+    if (!dataFim && diasPeriodo) {
       dataFim = new Date(dataInicio);
       dataFim.setUTCDate(dataFim.getUTCDate() + diasPeriodo - 1);
       dataFim.setUTCHours(23, 59, 59, 999);
@@ -1151,13 +1423,26 @@ export class DashboardService {
   /**
    * Retorna o rótulo do período
    */
-  private getPeriodLabel(periodo: string): string {
+  private getPeriodLabel(
+    periodo: string,
+    dataInicio?: string,
+    dataFim?: string,
+  ): string {
+    if (periodo === 'personalizado' && dataInicio && dataFim) {
+      const inicio = new Date(dataInicio);
+      const fim = new Date(dataFim);
+      const diferencaMs = fim.getTime() - inicio.getTime();
+      const dias = Math.ceil(diferencaMs / (1000 * 60 * 60 * 24)) + 1;
+      return `${dias} dias (${dataInicio} a ${dataFim})`;
+    }
+
     const labels: Record<string, string> = {
       '7': '7 dias',
       '30': '30 dias',
       '90': '90 dias',
       '180': '6 meses',
       '365': '1 ano',
+      personalizado: 'Período personalizado',
     };
 
     return labels[periodo] || `Últimos ${periodo} dias`;
@@ -1171,8 +1456,22 @@ export class DashboardService {
   ): Promise<{ atual: DashboardResponseDto; anterior: DashboardResponseDto }> {
     const atual = await this.getDashboardDataWithFilters(empresaId, filters);
 
-    // ✅ CORREÇÃO: Calcular período anterior corretamente
-    const diasPeriodo = parseInt(filters.periodo);
+    let diasPeriodo: number;
+
+    if (
+      filters.periodo === 'personalizado' &&
+      filters.dataInicio &&
+      filters.dataFim
+    ) {
+      // Para período personalizado, calcular a diferença em dias
+      const dataInicio = new Date(filters.dataInicio);
+      const dataFim = new Date(filters.dataFim);
+      const diferencaMs = dataFim.getTime() - dataInicio.getTime();
+      diasPeriodo = Math.ceil(diferencaMs / (1000 * 60 * 60 * 24)) + 1;
+    } else {
+      // Para períodos predefinidos
+      diasPeriodo = parseInt(filters.periodo);
+    }
 
     // Calcular período anterior equivalente
     const anterior = await this.getDashboardPeriodoAnterior(
@@ -1194,7 +1493,7 @@ export class DashboardService {
   ): Promise<DashboardResponseDto> {
     // Calcular as datas do período anterior
     const { dataInicioAnterior, dataFimAnterior } =
-      this.calcularPeriodoAnterior(diasPeriodo);
+      this.calcularPeriodoAnterior(diasPeriodo, filters);
 
     // Buscar dados usando as métricas específicas para período anterior
     const vendas = await this.getMetricasVendasPeriodoAnterior(
@@ -1226,6 +1525,7 @@ export class DashboardService {
       empresaId,
       dataInicioAnterior,
       filters.periodo,
+      diasPeriodo,
     );
     return {
       vendas,
@@ -1244,11 +1544,37 @@ export class DashboardService {
    * Para 7 dias: se hoje é 14/06, período atual é 08/06 00:00 a 14/06 23:59
    * e período anterior é 01/06 00:00 a 07/06 23:59
    */
-  private calcularPeriodoAnterior(diasPeriodo: number): {
+  private calcularPeriodoAnterior(
+    diasPeriodo: number,
+    filters?: DashboardFilters,
+  ): {
     dataInicioAnterior: Date;
     dataFimAnterior: Date;
   } {
     const agora = new Date();
+
+    // Para período personalizado
+    if (
+      filters?.periodo === 'personalizado' &&
+      filters.dataInicio &&
+      filters.dataFim
+    ) {
+      const dataInicioAtual = new Date(filters.dataInicio);
+      const dataFimAtual = new Date(filters.dataFim);
+
+      // Calcular período anterior: mesmo número de dias, mas deslocado para trás
+      const dataFimAnterior = new Date(dataInicioAtual);
+      dataFimAnterior.setUTCDate(dataFimAnterior.getUTCDate() - 1); // Um dia antes do início atual
+      dataFimAnterior.setUTCHours(23, 59, 59, 999);
+
+      const dataInicioAnterior = new Date(dataFimAnterior);
+      dataInicioAnterior.setUTCDate(
+        dataInicioAnterior.getUTCDate() - (diasPeriodo - 1),
+      ); // Mesmo número de dias para trás
+      dataInicioAnterior.setUTCHours(0, 0, 0, 0);
+
+      return { dataInicioAnterior, dataFimAnterior };
+    }
 
     if (diasPeriodo === 7) {
       // Para 7 dias: se hoje é 14/06, anterior vai de 01/06 00:00 a 07/06 23:59
