@@ -132,7 +132,7 @@ function DashboardContent() {
     exportVendasData,
     exportProdutosData,
     exportHorariosData,
-    exportAllData,
+    exportAllDataCompleto,
   } = useChartExport();
 
   // Função auxiliar para converter Date para string no formato ISO
@@ -628,7 +628,7 @@ function DashboardContent() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => exportAllData(dashboardData)}
+              onClick={() => exportAllDataCompleto(dashboardData)}
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar Tudo
@@ -1209,7 +1209,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportVendasData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Tendência de Pedidos",
                             includeMetadata: true,
                           })
@@ -1295,7 +1295,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportVendasData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Vendas por Dia da Semana",
                           })
                         }
@@ -1433,7 +1433,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportHorariosData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Horários de Pico",
                           })
                         }
@@ -1500,7 +1500,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportProdutosData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Produtos Mais Vendidos",
                           })
                         }
@@ -1564,7 +1564,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportProdutosData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Receita por Produto",
                           })
                         }
@@ -1662,7 +1662,7 @@ function DashboardContent() {
                         size="sm"
                         onClick={() =>
                           exportVendasData(dashboardData, {
-                            format: "csv",
+                            format: "xlsx",
                             title: "Performance por Fonte",
                           })
                         }

@@ -53,6 +53,7 @@
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "validator": "^13.15.15",
+    "xlsx": "^0.18.5",
     "zod": "^3.25.46"
   },
   "devDependencies": {
