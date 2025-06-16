@@ -258,7 +258,7 @@ export default function ProductionKanban() {
       </div>
 
       {/* Área de conteúdo */}
-      <div className="flex-1 overflow-hidden justify-items-center p-4 self-center">
+      <div className="flex-1 overflow-hidden justify-items-center p-4">
         {combinedError ? (
           <div className="p-4">
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
