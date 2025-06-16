@@ -18,7 +18,7 @@ export interface PedidoStatusResponseWithPedidosDto {
 }
 
 export interface PedidoStatusResponseWithPedidosAndItensDto {
-  id: number;
+  statusId: number;
   boardId: string;
   titulo: string;
   ordem: number;

@@ -81,7 +81,7 @@ export function KanbanBoard({
 
     // Verificar se é realmente um status válido
     const targetStatus = statusColumns.find(
-      (status) => status.id.toString() === newStatusId
+      (status) => status.statusId.toString() === newStatusId
     );
 
     if (!targetStatus) {
@@ -97,7 +97,7 @@ export function KanbanBoard({
       const order = column.pedidos.find((pedido) => pedido.id === orderId);
       if (order) {
         currentOrder = order;
-        currentStatusId = column.id;
+        currentStatusId = column.statusId;
         break;
       }
     }
@@ -108,14 +108,14 @@ export function KanbanBoard({
     }
 
     // Se não mudou de status, não fazer nada
-    if (currentStatusId === targetStatus.id) {
+    if (currentStatusId === targetStatus.statusId) {
       // setActiveOrder(null); // Overlay desabilitado
       return;
     }
     try {
       // Atualizar estado local primeiro (movimentação otimista)
       if (onMoveOrder) {
-        onMoveOrder(orderId, currentStatusId, targetStatus.id);
+        onMoveOrder(orderId, currentStatusId, targetStatus.statusId);
       }
 
       // Preparar dados para a API usando ZOD
@@ -133,7 +133,7 @@ export function KanbanBoard({
 
       // Em caso de erro, reverter a movimentação local
       if (onMoveError) {
-        onMoveError(orderId, currentStatusId, targetStatus.id);
+        onMoveError(orderId, currentStatusId, targetStatus.statusId);
       }
 
       toast.error("Erro ao mover pedido. Tente novamente.");
@@ -177,10 +177,10 @@ export function KanbanBoard({
         <div className="flex gap-5 min-w-max h-full p-6">
           {statusColumns.map((column) => (
             <StatusColumn
-              key={column.id}
+              key={column.statusId}
               status={column}
               orders={column.pedidos}
-              isLastStatus={column.id === lastStatusId}
+              isLastStatus={column.statusId === lastStatusId}
               onCompleteOrder={onCompleteOrder}
             />
           ))}

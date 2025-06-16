@@ -46,22 +46,41 @@ export class BoardService {
     });
 
     if (statusCount > 0) {
-      // If there are related status, we can't delete the board
-      // Instead, we'll mark it as inactive by adding a prefix to the title
-      const board = await this.prisma.board.findUnique({ where: { id } });
-      if (!board) {
-        throw new NotFoundException('Board não encontrado');
-      }
-
-      // Mark as inactive by adding [INATIVO] prefix if not already present
-      const newTitle = board.titulo.startsWith('[INATIVO]')
-        ? board.titulo
-        : `[INATIVO] ${board.titulo}`;
-
-      return this.prisma.board.update({
-        where: { id },
-        data: { titulo: newTitle },
+      // Check if any of these status have related pedidos
+      const statusWithPedidos = await this.prisma.pedidoStatus.count({
+        where: {
+          boardId: id,
+          pedidos: {
+            some: {},
+          },
+        },
       });
+
+      if (statusWithPedidos > 0) {
+        // If there are status with pedidos, mark board as inactive
+        const board = await this.prisma.board.findUnique({ where: { id } });
+        if (!board) {
+          throw new NotFoundException('Board não encontrado');
+        }
+
+        const newTitle = board.titulo.startsWith('[INATIVO]')
+          ? board.titulo
+          : `[INATIVO] ${board.titulo}`;
+
+        return this.prisma.board.update({
+          where: { id },
+          data: { titulo: newTitle },
+        });
+      } else {
+        // If there are status but no pedidos, delete status first then board
+        await this.prisma.pedidoStatus.deleteMany({
+          where: { boardId: id },
+        });
+
+        return this.prisma.board.delete({
+          where: { id },
+        });
+      }
     }
 
     // If no related status, we can safely delete the board

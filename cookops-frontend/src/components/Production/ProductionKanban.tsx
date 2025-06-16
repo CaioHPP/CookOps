@@ -6,15 +6,15 @@ import { usePedidoStatus } from "@/hooks/usePedidoStatus";
 import { usePedidoWebSocket } from "@/hooks/usePedidoWebSocket";
 import { obterTempoPreparoMedio } from "@/lib/tempo-utils";
 import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
+import { PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { BoardConfigDialog } from "./BoardConfigDialog";
 import { BoardSelector } from "./BoardSelector";
 import { FilterArea } from "./FilterArea";
 import { KanbanBoard } from "./KanbanBoard";
 import { NovoBoardDialog } from "./NovoBoardDialog";
-import { BoardConfigDialog } from "./BoardConfigDialog";
-import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
 
 // Definir interface para WebSocket messages localmente se necessário
 interface WebSocketMessage {
@@ -134,7 +134,7 @@ export default function ProductionKanban() {
   const getEstatisticas = () => {
     const totalPedidos = statusColumns.reduce(
       (total, column) => total + column.pedidos.length,
-      0,
+      0
     );
 
     const pedidosAtrasados = statusColumns.reduce((total, column) => {
@@ -258,7 +258,7 @@ export default function ProductionKanban() {
       </div>
 
       {/* Área de conteúdo */}
-      <div className="flex-1 overflow-hidden justify-items-center p-4">
+      <div className="flex-1 overflow-hidden justify-items-center p-4 self-center">
         {combinedError ? (
           <div className="p-4">
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -289,14 +289,14 @@ export default function ProductionKanban() {
           <KanbanBoard
             statusColumns={statusColumns}
             loading={statusLoading}
-            lastStatusId={ultimoStatus?.id}
+            lastStatusId={ultimoStatus?.statusId}
             onMoveOrder={(orderId, fromStatusId, toStatusId) => {
               moverPedidoOtimista(orderId, fromStatusId, toStatusId);
             }}
             onMoveError={(
               orderId: string,
               fromStatusId: number,
-              toStatusId: number,
+              toStatusId: number
             ) => {
               reverterMovimentacaoPedido(orderId, fromStatusId, toStatusId);
             }}

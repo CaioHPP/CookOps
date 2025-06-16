@@ -21,7 +21,7 @@ export function StatusColumn({
   onCompleteOrder,
 }: StatusColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
-    id: status.id.toString(),
+    id: status.statusId.toString(),
   });
 
   const getStatusColor = (ordem: number) => {

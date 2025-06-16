@@ -1,15 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { BoardService } from "@/api/services/board.service";
+import { BoardConfigDialog } from "@/components/Production/BoardConfigDialog";
+import { NovoBoardDialog } from "@/components/Production/NovoBoardDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,30 +14,37 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  PlusCircle,
-  Settings,
-  Trash2,
-  Search,
-  MoreHorizontal,
-  Star,
-  Kanban,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { BoardService } from "@/api/services/board.service";
-import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
-import { NovoBoardDialog } from "@/components/Production/NovoBoardDialog";
-import { BoardConfigDialog } from "@/components/Production/BoardConfigDialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
+import {
+  CheckCircle,
+  Kanban,
+  MoreHorizontal,
+  PlusCircle,
+  Search,
+  Settings,
+  Star,
+  Trash2,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function QuadrosConfig() {
   const [boards, setBoards] = useState<BoardResponseDto[]>([]);
@@ -53,11 +53,11 @@ export default function QuadrosConfig() {
   const [isNewBoardDialogOpen, setIsNewBoardDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<BoardResponseDto | null>(
-    null,
+    null
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState<BoardResponseDto | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function QuadrosConfig() {
       await loadBoards();
       const isCurrentlyInactive = board.titulo.startsWith("[INATIVO]");
       toast.success(
-        `Board ${isCurrentlyInactive ? "ativado" : "inativado"} com sucesso!`,
+        `Board ${isCurrentlyInactive ? "ativado" : "inativado"} com sucesso!`
       );
     } catch (error) {
       console.error("Erro ao alterar status do board:", error);
@@ -140,7 +140,7 @@ export default function QuadrosConfig() {
   };
 
   const filteredBoards = boards.filter((board) =>
-    board.titulo.toLowerCase().includes(searchTerm.toLowerCase()),
+    board.titulo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -189,14 +189,14 @@ export default function QuadrosConfig() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status Ativos</CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Boards Ativos</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              colunas configuradas
-            </p>
+            <div className="text-2xl font-bold">
+              {boards.filter((board) => !isInactive(board)).length}
+            </div>
+            <p className="text-xs text-muted-foreground">boards ativos</p>
           </CardContent>
         </Card>
       </div>
@@ -255,7 +255,9 @@ export default function QuadrosConfig() {
                       <div className="flex items-center gap-2">
                         <Kanban className="h-4 w-4 text-muted-foreground" />
                         <span
-                          className={`font-medium ${isInactive(board) ? "text-muted-foreground" : ""}`}
+                          className={`font-medium ${
+                            isInactive(board) ? "text-muted-foreground" : ""
+                          }`}
                         >
                           {getBoardDisplayName(board)}
                         </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,9 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { BoardResponseDto } from "@/types/dto/board/response/board-response.dto";
-import { ChevronDown, Loader2, Settings, Plus, Kanban } from "lucide-react";
+import { ChevronDown, Kanban, Loader2, Plus, Settings } from "lucide-react";
 
 interface BoardSelectorProps {
   boards: BoardResponseDto[];
@@ -29,7 +29,12 @@ export function BoardSelector({
   onCreateBoard,
   onConfigureBoard,
 }: BoardSelectorProps) {
-  const selectedBoardData = boards.find((board) => board.id === selectedBoard);
+  const activeBoards = boards.filter(
+    (board) => board.titulo.startsWith("[INATIVO]") === false
+  );
+  const selectedBoardData = activeBoards.find(
+    (board) => board.id === selectedBoard
+  );
 
   return (
     <div className="flex items-center gap-2">
@@ -59,7 +64,7 @@ export function BoardSelector({
               <p className="text-sm">Nenhum board disponível</p>
             </div>
           ) : (
-            boards.map((board) => (
+            activeBoards.map((board) => (
               <DropdownMenuItem
                 key={board.id}
                 onClick={() => onBoardChange(board.id)}
