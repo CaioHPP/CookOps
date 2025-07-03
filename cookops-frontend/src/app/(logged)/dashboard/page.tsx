@@ -51,6 +51,7 @@ import {
   getTrendChartTitle,
 } from "@/lib/dashboard-utils";
 import { DashboardData, DashboardFilters } from "@/types/dashboard.types";
+import { ajustarHorarioFusoBrasil } from "@/utils/timezone";
 import {
   AlertTriangle,
   BarChartHorizontal,
@@ -404,7 +405,7 @@ function DashboardContent() {
           }));
       })(),
       horarios: dashboardData.crescimento.horariosPico.map((horario) => ({
-        hora: `${horario.hora}:00`,
+        hora: ajustarHorarioFusoBrasil(horario.hora),
         pedidos: horario.totalPedidos,
         percentual: horario.percentualTotal,
       })),
@@ -434,12 +435,7 @@ function DashboardContent() {
           percentual: fonte.percentualTotal,
         })) || [],
     }; // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dashboardData,
-    filters.periodo,
-    settings.chartTheme,
-    JSON.stringify(settings),
-  ]);
+  }, [dashboardData, filters.periodo, settings.chartTheme, settings]);
 
   if (loading) {
     return (

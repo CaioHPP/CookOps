@@ -3,6 +3,7 @@
 
 import { calculateTrendLine } from "@/lib/dashboard-utils";
 import { DashboardData } from "@/types/dashboard.types";
+import { ajustarHorarioFusoBrasilComSufixo } from "@/utils/timezone";
 import { useCallback, useState } from "react";
 
 export interface DrilldownData {
@@ -449,7 +450,7 @@ export function useChartDrilldown() {
             title: "Análise por Horários (24h Completo)",
             period: `Últimos ${periodoDias} dias`,
             data: dashboardData.crescimento.horariosPico.map((horario) => ({
-              hora: `${horario.hora.toString().padStart(2, "0")}:00h`,
+              hora: ajustarHorarioFusoBrasilComSufixo(horario.hora),
               totalPedidos: horario.totalPedidos,
               ocupacao: Number(horario.percentualTotal.toFixed(2)),
               receitaEstimada: Number(
@@ -459,12 +460,11 @@ export function useChartDrilldown() {
               ),
             })),
             metadata: {
-              horarioPicoHora: `${dashboardData.crescimento.horariosPico
-                .reduce((prev, current) =>
+              horarioPicoHora: ajustarHorarioFusoBrasilComSufixo(
+                dashboardData.crescimento.horariosPico.reduce((prev, current) =>
                   prev.totalPedidos > current.totalPedidos ? prev : current
-                )
-                .hora.toString()
-                .padStart(2, "0")}:00h`,
+                ).hora
+              ),
               horarioPicoPedidos: dashboardData.crescimento.horariosPico.reduce(
                 (prev, current) =>
                   prev.totalPedidos > current.totalPedidos ? prev : current

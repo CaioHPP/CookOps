@@ -53,6 +53,7 @@ export interface HorarioPico {
   hora: number;
   totalPedidos: number;
   percentualTotal: number;
+  horaAjustada?: string; // Hora ajustada para fuso horário brasileiro (opcional)
 }
 
 export interface FontePerformance {
