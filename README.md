@@ -65,6 +65,17 @@
 - **🔔 Sistema de Alertas**: Notificações inteligentes para métricas críticas
 - **📱 Responsividade Total**: Design mobile-first otimizado
 
+<img width="1920" height="1108" alt="screencapture-localhost-3001-producao-2025-12-11-12_50_23" src="https://github.com/user-attachments/assets/cee07797-363f-48fe-96be-e5bf123f0948" />
+<img width="1920" height="945" alt="screencapture-localhost-3001-pedidos-2025-12-11-12_46_06" src="https://github.com/user-attachments/assets/798283f4-1901-4135-88ad-8d4010f1dcab" />
+<img width="1920" height="945" alt="screencapture-localhost-3001-pedidos-2025-12-11-12_46_39" src="https://github.com/user-attachments/assets/f538b9ed-3537-41bd-8555-a0a7d5d5cd7b" />
+<img width="1920" height="945" alt="screencapture-localhost-3001-pedidos-2025-12-11-12_42_16" src="https://github.com/user-attachments/assets/76db35be-1c5b-4dee-8f5a-c94fefc43f2d" />
+<img width="1920" height="4030" alt="screencapture-localhost-3001-dashboard-2025-12-11-12_52_27" src="https://github.com/user-attachments/assets/bf6774ed-91b5-441d-a40d-38366af490a7" />
+<img width="1920" height="4030" alt="screencapture-localhost-3001-dashboard-2025-12-11-12_53_01" src="https://github.com/user-attachments/assets/ca5df859-b428-4256-967d-fe483a1e9c80" />
+<img width="1920" height="945" alt="screencapture-localhost-3001-cardapio-2025-12-11-12_52_06" src="https://github.com/user-attachments/assets/bc28295e-009a-4950-83ef-3ec4b805b7dc" />
+
+
+
+
 #### 🏗️ **Arquitetura Implementada**
 
 ```typescript
