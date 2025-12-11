@@ -58,36 +58,6 @@ Interface **moderna, responsiva e intuitiva** do CookOps, construída com as mai
 
 </div>
 
-## 🏗️ Arquitetura e Estrutura
-
-<div align="center">
-
-```mermaid
-graph TD
-    A[🌍 App Router] --> B[📁 (auth)/]
-    A --> C[🔒 (logged)/]
-    A --> D[🎨 globals.css]
-    A --> E[🏠 page.tsx]
-
-    C --> F[📊 dashboard/]
-    C --> G[🍽️ pedidos/]
-    C --> H[📋 cardapio/]
-    C --> I[⚙️ configuracoes/]
-
-    J[🧩 components/] --> K[🎨 ui/]
-    J --> L[📝 forms/]
-    J --> M[📱 layout/]
-
-    N[🔗 api/] --> O[⚙️ services/]
-    N --> P[📋 types/]
-
-    style A fill:#0070f3,stroke:#333,stroke-width:2px,color:#fff
-    style C fill:#16a34a,stroke:#333,stroke-width:2px,color:#fff
-    style J fill:#8b5cf6,stroke:#333,stroke-width:2px,color:#fff
-```
-
-</div>
-
 ### 📂 **Estrutura Detalhada**
 
 ```bash
